@@ -8,6 +8,7 @@ Uses transformers instead of unsloth for compatibility with VERL checkpoints.
 import os
 import re
 import json
+import glob
 import torch
 import argparse
 import warnings
@@ -141,21 +142,77 @@ def load_checkpoint_verl(checkpoint_path: str, device: str = "cuda") -> Tuple[ob
     try:
         logger.info(f"Loading VERL checkpoint from {checkpoint_path}")
         
-        # Check if HuggingFace format exists
-        hf_path = os.path.join(checkpoint_path, "actor", "huggingface")
-        if os.path.exists(hf_path):
-            logger.info(f"Loading from HuggingFace format at: {hf_path}")
-            model_path = hf_path
-        else:
-            # Try loading from actor directory directly
-            actor_path = os.path.join(checkpoint_path, "actor")
-            if os.path.exists(actor_path):
-                logger.info(f"Loading from actor directory: {actor_path}")
-                model_path = actor_path
-            else:
-                # Try as direct path
-                logger.info(f"Loading from direct path: {checkpoint_path}")
+        # Check if it's a HuggingFace model ID (format: namespace/repo_name)
+        if "/" in checkpoint_path and not os.path.exists(checkpoint_path):
+            # Split to check if it's a valid HF repo format
+            parts = checkpoint_path.split("/")
+            if len(parts) == 2:
+                # Valid HuggingFace format
+                logger.info(f"Loading from HuggingFace Hub: {checkpoint_path}")
                 model_path = checkpoint_path
+            else:
+                # Invalid format for HuggingFace
+                logger.error(f"Invalid HuggingFace repository format. Expected 'namespace/repo_name', got '{checkpoint_path}'")
+                logger.info("If your model is in a subdirectory on HuggingFace, it should be at the repository root.")
+                raise ValueError(f"Invalid HuggingFace repository path: {checkpoint_path}")
+        elif os.path.exists(checkpoint_path):
+            # Local path handling
+            # Check if HuggingFace format exists
+            hf_path = os.path.join(checkpoint_path, "actor", "huggingface")
+            actor_path = os.path.join(checkpoint_path, "actor")
+            
+            # Check if this is an FSDP checkpoint that needs conversion
+            # Check for actual model files in HF format
+            hf_has_models = False
+            if os.path.exists(hf_path):
+                hf_model_files = glob.glob(os.path.join(hf_path, "*.safetensors")) + \
+                                 glob.glob(os.path.join(hf_path, "*.bin")) + \
+                                 glob.glob(os.path.join(hf_path, "*.pt"))
+                hf_has_models = len(hf_model_files) > 0
+            
+            if os.path.exists(actor_path) and not hf_has_models:
+                # Check for FSDP checkpoint files
+                fsdp_config_path = os.path.join(actor_path, "fsdp_config.json")
+                fsdp_model_files = glob.glob(os.path.join(actor_path, "model_world_size_*_rank_*.pt"))
+                
+                if os.path.exists(fsdp_config_path) and fsdp_model_files:
+                    logger.info("Detected FSDP checkpoint format. Converting to HuggingFace format...")
+                    logger.info("This may take a few moments for the first run...")
+                    
+                    # Run the conversion
+                    import subprocess
+                    conversion_cmd = [
+                        "python", "-m", "verl.model_merger", "merge",
+                        "--backend", "fsdp",
+                        "--local_dir", actor_path,
+                        "--target_dir", hf_path
+                    ]
+                    
+                    try:
+                        result = subprocess.run(conversion_cmd, capture_output=True, text=True, check=True)
+                        logger.info("Successfully converted FSDP checkpoint to HuggingFace format")
+                    except subprocess.CalledProcessError as e:
+                        logger.error(f"Failed to convert FSDP checkpoint: {e}")
+                        logger.error(f"Command output: {e.stderr}")
+                        raise
+            
+            # Now check again for HuggingFace format
+            if os.path.exists(hf_path):
+                logger.info(f"Loading from local HuggingFace format at: {hf_path}")
+                model_path = hf_path
+            else:
+                # Try loading from actor directory directly
+                if os.path.exists(actor_path):
+                    logger.info(f"Loading from local actor directory: {actor_path}")
+                    model_path = actor_path
+                else:
+                    # Try as direct path
+                    logger.info(f"Loading from local direct path: {checkpoint_path}")
+                    model_path = checkpoint_path
+        else:
+            # Not a valid HF repo and doesn't exist locally
+            logger.info(f"Attempting to load as path: {checkpoint_path}")
+            model_path = checkpoint_path
         
         model = AutoModelForCausalLM.from_pretrained(
             model_path,
@@ -468,10 +525,7 @@ def main():
     # Evaluate checkpoints
     if args.checkpoint:
         # Evaluate single checkpoint
-        if not os.path.exists(args.checkpoint):
-            logger.error(f"Checkpoint not found: {args.checkpoint}")
-            return
-        
+        # Skip local path check - let HuggingFace handle remote models
         metrics = evaluate_checkpoint(
             args.checkpoint,
             test_dataset,

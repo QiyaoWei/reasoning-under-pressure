@@ -63,7 +63,7 @@ def compute_score(solution_str: str, ground_truth: str, extra_info=None) -> floa
         extra_info: Additional info from the dataset (optional)
     
     Returns:
-        float: Score between 0 and 4 based on correctness and format
+        float: Score between 0 and 4 based on correctness and format, with penalty for verbosity
     """
     
     # Parse ground truth from string format
@@ -97,6 +97,16 @@ def compute_score(solution_str: str, ground_truth: str, extra_info=None) -> floa
             partial_reward = correct_count * 1.0
             total_reward += partial_reward
     
+    # Verbosity penalty: penalize based on tokens before <measurements> tag
+    if '<measurements>' in solution_str:
+        text_before_measurements = solution_str.split('<measurements>')[0]
+        # Simple token count: split by whitespace
+        token_count = len(text_before_measurements.split())
+        # Penalty proportional to token count
+        K = 0.001  # Penalty coefficient
+        verbosity_penalty = K * token_count
+        total_reward = max(0.0, total_reward - verbosity_penalty)  # Ensure non-negative
+    
     return total_reward
 
 
@@ -104,17 +114,17 @@ def compute_score(solution_str: str, ground_truth: str, extra_info=None) -> floa
 if __name__ == "__main__":
     # Test cases
     test_cases = [
-        # Perfect match
+        # Perfect match with minimal verbosity
         {
             "response": "Let me analyze...\n<measurements>\n[true, false, true]\n</measurements>",
             "ground_truth": "[true, false, true]",
-            "expected": 4.0  # 1.0 format + 3.0 perfect match
+            "expected": 3.997  # 4.0 - 0.003 (3 tokens penalty)
         },
-        # Partial match (2/3 correct)
+        # Partial match (2/3 correct) with minimal verbosity
         {
             "response": "Analysis:\n<measurements>\n[true, false, false]\n</measurements>",
             "ground_truth": "[true, false, true]",
-            "expected": 3.0  # 1.0 format + 2.0 partial
+            "expected": 2.999  # 3.0 - 0.001 (1 token penalty)
         },
         # Wrong format
         {
@@ -122,21 +132,37 @@ if __name__ == "__main__":
             "ground_truth": "[true, false, true]",
             "expected": 0.0  # No format tags
         },
-        # Format correct but 1/3 correct
+        # Format correct but 1/3 correct, no verbosity
         {
             "response": "<measurements>\n[false, false, false]\n</measurements>",
             "ground_truth": "[true, false, true]",
-            "expected": 2.0  # 1.0 format + 1.0 partial (1/3 correct)
+            "expected": 2.0  # 1.0 format + 1.0 partial - 0.0 (no tokens before tag)
+        },
+        # Perfect match but verbose
+        {
+            "response": "Based on my detailed analysis of the three diamonds, considering their clarity, cut, and color properties, I can now provide the measurements:\n<measurements>\n[true, false, true]\n</measurements>",
+            "ground_truth": "[true, false, true]",
+            "expected": 3.98  # 4.0 - 0.02 (20 tokens * 0.001)
         },
     ]
     
-    print("Testing reward function:")
+    print("Testing reward function with verbosity penalty:")
     print("-" * 60)
     for i, test in enumerate(test_cases):
         score = compute_score(test["response"], test["ground_truth"])
         passed = abs(score - test["expected"]) < 0.01
         status = "✓" if passed else "✗"
-        print(f"Test {i+1}: {status} Score={score:.1f} (expected={test['expected']:.1f})")
+        
+        # Calculate token count for debugging
+        if '<measurements>' in test["response"]:
+            text_before = test["response"].split('<measurements>')[0]
+            token_count = len(text_before.split())
+            penalty = 0.001 * token_count
+        else:
+            token_count = 0
+            penalty = 0
+        
+        print(f"Test {i+1}: {status} Score={score:.3f} (expected={test['expected']:.3f}) | Tokens={token_count}, Penalty={penalty:.3f}")
         if not passed:
             print(f"  Response: {test['response'][:50]}...")
             print(f"  Ground truth: {test['ground_truth']}")
