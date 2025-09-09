@@ -101,13 +101,15 @@ def default_compute_score(
         from . import search_r1_like_qa_em
 
         res = search_r1_like_qa_em.compute_score(solution_str, ground_truth)
-    elif data_source == "diamonds":
+    elif data_source.startswith("diamonds") or data_source == "function_correctness":
         # Import our custom diamonds reward function
         import sys
         import os
-        sys.path.insert(0, os.path.expanduser("~/verl"))
-        from diamonds_reward import compute_score as diamonds_compute_score
-        res = diamonds_compute_score(solution_str, ground_truth, extra_info)
+        # sys.path.insert(0, os.path.expanduser("~/verl"))
+        # Relative path to repo root
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+        from diamonds_reward import compute_score as custom_compute_score
+        res = custom_compute_score(solution_str, ground_truth, dataset_name=data_source, extra_info=extra_info)
 
     else:
         raise NotImplementedError(f"Reward function is not implemented for {data_source=}")

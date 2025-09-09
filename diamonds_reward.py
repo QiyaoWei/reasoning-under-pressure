@@ -1,37 +1,16 @@
 #!/usr/bin/env python3
 """
-Custom reward function for diamonds task.
+Custom reward function for diamonds and function correctness tasks.
 This will be used by VERL's GRPO trainer.
 """
 
+import os
 import re
 import numpy as np
+from utils.extract_measurements import extract_measurements
 
-
-def extract_measurements(text: str) -> list:
-    """Extracts the measurements list from model output."""
-    try:
-        match = re.search(r'<measurements>\s*\[(.*?)\]\s*</measurements>', text, re.DOTALL)
-        if match:
-            list_content = match.group(1).strip()
-            measurements = []
-            for item in list_content.split(','):
-                item = item.strip().lower()
-                if item == 'true':
-                    measurements.append(True)
-                elif item == 'false':
-                    measurements.append(False)
-                else:
-                    return None
-            if len(measurements) == 3:
-                return measurements
-            else:
-                return None
-        else:
-            return None
-    except Exception as e:
-        return None
-
+# Environment variables
+K = float(os.getenv("K", 0.0))  # Token penalty non-negative coefficient (default: no penalty)
 
 def parse_ground_truth(ground_truth_str: str) -> list:
     """Parse ground truth string back to list of booleans."""
@@ -53,13 +32,15 @@ def parse_ground_truth(ground_truth_str: str) -> list:
         return None
 
 
-def compute_score(solution_str: str, ground_truth: str, extra_info=None) -> float:
+def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "diamonds-seed0", max_correctness_reward=3.0, extra_info=None) -> float:
     """
     Compute score for diamonds task.
     
     Args:
         solution_str: Model's response containing measurements prediction
         ground_truth: String representation of correct measurements "[true, false, true]"
+        dataset_name: Name of the dataset (diamonds-seed# or function_correctness)
+        max_correctness_reward: Maximum correctness reward for a perfect solution (default: 3.0)
         extra_info: Additional info from the dataset (optional)
     
     Returns:
@@ -74,7 +55,7 @@ def compute_score(solution_str: str, ground_truth: str, extra_info=None) -> floa
         return 0.0
     
     # Extract predicted measurements
-    predicted = extract_measurements(solution_str)
+    predicted = extract_measurements(solution_str, dataset_name=dataset_name)
     
     # Base rewards
     total_reward = 0.0
@@ -89,12 +70,22 @@ def compute_score(solution_str: str, ground_truth: str, extra_info=None) -> floa
     if predicted is not None:
         if predicted == ground_truth_list:
             # Perfect match - highest reward
-            total_reward += 3.0
+            total_reward += max_correctness_reward
         else:
-            # Partial credit - proportional to correctness
+            actual_nb_measurements = len(ground_truth_list)
+            # Handle length mismatch in function correctness dataset
+            if (dataset_name == "function_correctness") and (len(predicted) != actual_nb_measurements):
+                print(f"Wrong number of measurements: predicted {len(predicted)} vs expected {actual_nb_measurements}")
+                # Truncate both to minimum length for partial credit comparison
+                min_length = min(len(predicted), actual_nb_measurements)
+                predicted = predicted[:min_length]
+                ground_truth_list = ground_truth_list[:min_length]
+
+            # Partial credit - proportional to correctness (0-3)
             correct_count = sum(p == g for p, g in zip(predicted, ground_truth_list))
             # Scale: 0 correct = 0.0, 1 correct = 1.0, 2 correct = 2.0
-            partial_reward = correct_count * 1.0
+            partial_reward = (correct_count / actual_nb_measurements) * max_correctness_reward
+            # Add partial reward to total reward
             total_reward += partial_reward
     
     # Verbosity penalty: penalize based on tokens before <measurements> tag
@@ -103,9 +94,10 @@ def compute_score(solution_str: str, ground_truth: str, extra_info=None) -> floa
         # Simple token count: split by whitespace
         token_count = len(text_before_measurements.split())
         # Penalty proportional to token count
-        K = 0.001  # Penalty coefficient
+        # K = 0.0  # Penalty coefficient
         verbosity_penalty = K * token_count
-        total_reward = max(0.0, total_reward - verbosity_penalty)  # Ensure non-negative
+        total_reward -= verbosity_penalty
+        # total_reward = max(0.0, total_reward - verbosity_penalty)  # Ensure non-negative
     
     return total_reward
 
