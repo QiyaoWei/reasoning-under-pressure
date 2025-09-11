@@ -10,6 +10,10 @@ DEFAULT_TOTAL_EPOCHS=10
 DEFAULT_K=0.0
 DEFAULT_LR=5e-6
 DEFAULT_KL_COEF=0.1
+DEFAULT_TRAIN_WITH_MONITOR="false"
+DEFAULT_MONITOR_CORRECT_REWARD="-1.0"
+DEFAULT_MONITOR_WRONG_REWARD="1.0"
+DEFAULT_MONITOR_MODEL_NAME="gpt-4o"
 
 # Parse command line arguments
 DATASET_NAME=""
@@ -19,6 +23,10 @@ K=""
 LEARNING_RATE=""
 KL_COEF=""
 RESUME_FROM_PATH=""
+TRAIN_WITH_MONITOR=""
+MONITOR_CORRECT_REWARD=""
+MONITOR_WRONG_REWARD=""
+MONITOR_MODEL_NAME=""
 SHOW_HELP=false
 
 while [[ $# -gt 0 ]]; do
@@ -51,6 +59,22 @@ while [[ $# -gt 0 ]]; do
             RESUME_FROM_PATH="$2"
             shift 2
             ;;
+        --train-with-monitor)
+            TRAIN_WITH_MONITOR="$2"
+            shift 2
+            ;;
+        --monitor-correct-reward)
+            MONITOR_CORRECT_REWARD="$2"
+            shift 2
+            ;;
+        --monitor-wrong-reward)
+            MONITOR_WRONG_REWARD="$2"
+            shift 2
+            ;;
+        --monitor-model-name)
+            MONITOR_MODEL_NAME="$2"
+            shift 2
+            ;;
         --help|-h)
             SHOW_HELP=true
             shift
@@ -68,25 +92,31 @@ if [ "$SHOW_HELP" = true ]; then
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  --dataset NAME          Dataset name (default: $DEFAULT_DATASET)"
-    echo "                          Supported: diamonds-seed0 to diamonds-seed7, function_correctness"
-    echo "  --k COEFFICIENT         Verbosity penalty non-negative coefficient (default: $DEFAULT_K)"
-    echo "                          Higher values penalize verbose responses more"
-    echo "  --experiment-name NAME  Custom experiment name (default: qwen2.5_coder_7b_\${dataset})"
-    echo "  --epochs NUM            Number of epochs (default: $DEFAULT_TOTAL_EPOCHS)"
-    echo "  --lr RATE               Learning rate (default: $DEFAULT_LR)"
-    echo "  --kl-coef COEFFICIENT   KL divergence coefficient (default: $DEFAULT_KL_COEF)"
-    echo "  --resume-from-path PATH Resume training from checkpoint path (default: null)"
-    echo "  --help, -h              Show this help message"
+    echo "  --dataset NAME              Dataset name (default: $DEFAULT_DATASET)"
+    echo "                              Supported: diamonds-seed0 to diamonds-seed7, function_correctness"
+    echo "  --k COEFFICIENT             Verbosity reward coefficient (default: $DEFAULT_K)"
+    echo "                              Negative values penalize verbose responses"
+    echo "  --experiment-name NAME      Custom experiment name (default: qwen2.5_coder_7b_\${dataset})"
+    echo "  --epochs NUM                Number of epochs (default: $DEFAULT_TOTAL_EPOCHS)"
+    echo "  --lr RATE                   Learning rate (default: $DEFAULT_LR)"
+    echo "  --kl-coef COEFFICIENT       KL divergence coefficient (default: $DEFAULT_KL_COEF)"
+    echo "  --resume-from-path PATH     Resume training from checkpoint path (default: null)"
+    echo "  --train-with-monitor BOOL   Enable monitor training (default: $DEFAULT_TRAIN_WITH_MONITOR)"
+    echo "  --monitor-correct-reward    Reward when monitor is correct (default: $DEFAULT_MONITOR_CORRECT_REWARD)"
+    echo "  --monitor-wrong-reward      Reward when monitor is wrong (default: $DEFAULT_MONITOR_WRONG_REWARD)"
+    echo "  --monitor-model-name        OpenAI model for monitor (default: $DEFAULT_MONITOR_MODEL_NAME)"
+    echo "  --help, -h                  Show this help message"
     echo ""
     echo "Examples:"
     echo "  $0                                         # Use defaults"
     echo "  $0 --dataset function_correctness          # Use function_correctness dataset"
-    echo "  $0 --k 0.001                               # Set verbosity penalty"
+    echo "  $0 --k -0.001                              # Set verbosity reward"
     echo "  $0 --lr 1e-5 --kl-coef 0.2                 # Set learning rate and KL coefficient"
     echo "  $0 --experiment-name my_experiment          # Custom experiment name"
     echo "  $0 --dataset diamonds-seed1 --k 0.005 --lr 2e-6 --epochs 2  # Multiple options"
     echo "  $0 --resume-from-path checkpoints/model/global_step_60  # Resume from checkpoint"
+    echo "  $0 --train-with-monitor true --monitor-correct-reward -2.0  # Enable monitor training"
+    echo "  $0 --monitor-model-name o3  # Use different monitor model"
     exit 0
 fi
 
@@ -96,6 +126,10 @@ K=${K:-$DEFAULT_K}
 LEARNING_RATE=${LEARNING_RATE:-$DEFAULT_LR}
 KL_COEF=${KL_COEF:-$DEFAULT_KL_COEF}
 EPOCHS=${EPOCHS:-$DEFAULT_TOTAL_EPOCHS}
+TRAIN_WITH_MONITOR=${TRAIN_WITH_MONITOR:-$DEFAULT_TRAIN_WITH_MONITOR}
+MONITOR_CORRECT_REWARD=${MONITOR_CORRECT_REWARD:-$DEFAULT_MONITOR_CORRECT_REWARD}
+MONITOR_WRONG_REWARD=${MONITOR_WRONG_REWARD:-$DEFAULT_MONITOR_WRONG_REWARD}
+MONITOR_MODEL_NAME=${MONITOR_MODEL_NAME:-$DEFAULT_MONITOR_MODEL_NAME}
 
 # Set max_response_length based on dataset
 if [[ "$DATASET_NAME" == function_correctness ]]; then
@@ -136,7 +170,14 @@ echo "Resume from path: $RESUME_FROM_PATH"
 echo "Learning rate: $LEARNING_RATE"
 echo "Max response length: $MAX_RESPONSE_LENGTH"
 echo "KL coefficient: $KL_COEF"
-echo "Verbosity penalty coefficient K: $K"
+echo "Verbosity reward coefficient K: $K"
+echo "Train with monitor: $TRAIN_WITH_MONITOR"
+if [ "$TRAIN_WITH_MONITOR" = "true" ]; then
+    echo "Monitor model name: $MONITOR_MODEL_NAME"
+    echo "Monitor correct reward: $MONITOR_CORRECT_REWARD"
+    echo "Monitor wrong reward: $MONITOR_WRONG_REWARD"
+fi
+
 
 # Determine if KL loss should be used based on coefficient
 USE_KL_LOSS="True"
@@ -154,6 +195,10 @@ fi
 
 # Export environment variables for the reward function
 export K
+export TRAIN_WITH_MONITOR
+export MONITOR_CORRECT_REWARD
+export MONITOR_WRONG_REWARD
+export MONITOR_MODEL_NAME
 
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \

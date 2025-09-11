@@ -102,7 +102,7 @@ def default_compute_score(
 
         res = search_r1_like_qa_em.compute_score(solution_str, ground_truth)
     elif data_source.startswith("diamonds") or data_source == "function_correctness":
-        # Import our custom diamonds reward function
+        # Import our custom reward function
         import sys
         import os
         # sys.path.insert(0, os.path.expanduser("~/verl"))
