@@ -25,10 +25,8 @@ def categorize_measurement_pattern(measurements):
         return "all_true"
     elif true_ratio == 0.0:
         return "all_false"
-    elif true_ratio > 0.5:
-        return "mostly_true"
-    else: # true_ratio <= 0.5:
-        return "mostly_false_or_equal"
+    else: # 0 < true_ratio < 1
+        return "mixed"
 
 def rebalance_function_correctness_dataset(dataset, target_samples_per_category=1000, seed=42):
     """Rebalance function correctness dataset to have uniform distribution of measurement patterns."""
@@ -133,7 +131,7 @@ def main():
     parser.add_argument("--seed", type=int, default=42, 
                        help="Random seed for shuffling")
     parser.add_argument("--limit", type=lambda x: None if x.lower() == 'none' else int(x), default=None,
-                        help="Limit total dataset size before splitting (None for all). Function correctness dataset is automatically limited to 50k samples.")
+                        help="Limit total dataset size before splitting (default: None for all).")
     parser.add_argument("--output-dir", type=str, default=None,
                         help="Output directory for parquet files (default: ~/data/{dataset-name})")
     
@@ -174,10 +172,6 @@ def main():
     # Apply limit if specified
     if args.limit:
         dataset = dataset.select(range(min(args.limit, len(dataset))))
-        print(f"Limited dataset size: {len(dataset)}")
-    elif args.dataset_name == "function_correctness":
-        # Limit function correctness dataset to 50k samples by default
-        dataset = dataset.select(range(50000))
         print(f"Limited dataset size: {len(dataset)}")
     
     # Split into train/val/test
