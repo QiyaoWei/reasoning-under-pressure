@@ -232,7 +232,7 @@ def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, d
     ground_truth = sample['measurements']
     
     result = {
-        'prompt': prompt,
+        'text': sample['text'],
         'response': response,
         'predicted': predicted,
         'ground_truth': ground_truth,
@@ -478,12 +478,6 @@ def print_summary(all_metrics: List[Dict]):
         partial_acc = metrics.get('partial_accuracy_overall', 0)
         format_acc = metrics.get('format_accuracy_overall', 0)
         logger.info(f"{checkpoint:<20} {overall_acc:<15.3f} {partial_acc:<15.3f} {format_acc:<15.3f}")
-
-
-
-# ------------------------------------------------------------
-# Other branch inference.py script (diamonds and function correctness)
-#!/usr/bin/env python3
 
 
 def main():
