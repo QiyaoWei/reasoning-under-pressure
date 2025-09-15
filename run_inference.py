@@ -230,21 +230,22 @@ def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, d
     
     predicted = extract_measurements(response, dataset_name=dataset_name)
     ground_truth = sample['measurements']
+    ground_truth = list(ground_truth) # convert array to list
     
     result = {
         'text': sample['text'],
         'response': response,
         'predicted': predicted,
         'ground_truth': ground_truth,
-        'n_measurements': len(ground_truth) if ground_truth else 0,
+        'n_measurements': len(ground_truth) if ground_truth is not None else 0,
         'difficulty': sample.get('difficulty', -1),
         'latent_variable': sample.get('is_correct', None),
         'has_measurements': '<measurements>' in response and '</measurements>' in response,
         'correct_format': predicted is not None,
-        'wrong_nb_measurements': len(predicted) != len(ground_truth) if predicted is not None and ground_truth else False,
+        'wrong_nb_measurements': len(predicted) != len(ground_truth) if predicted is not None and ground_truth is not None else False,
     }
     
-    if predicted is not None and ground_truth:
+    if predicted is not None and ground_truth is not None:
         result['is_correct'] = predicted == ground_truth
         
         # Handle length mismatches by comparing minimum matching lengths
@@ -278,9 +279,7 @@ def evaluate_checkpoint(checkpoint_path: str,
     # Sample subset if requested
     if num_samples and num_samples < len(eval_dataset):
         indices = np.random.choice(len(eval_dataset), num_samples, replace=False)
-        eval_dataset = eval_dataset.select(indices)
-    else:
-        eval_dataset = eval_dataset
+        eval_dataset = [eval_dataset[i] for i in indices]
     
     # Setup output files
     checkpoint_name = os.path.basename(checkpoint_path)
@@ -482,19 +481,19 @@ def print_summary(all_metrics: List[Dict]):
 
 def main():
     parser = argparse.ArgumentParser(description="Inference script for VERL checkpoints on DIAMONDS and function correctness datasets")
-    parser.add_argument("--checkpoint", type=str,
+    parser.add_argument("--checkpoint", type=str, default="radadjoneva/verl-func-corr-regularRL",
                        help="Path to single checkpoint (e.g., checkpoints/verl_grpo_diamonds/qwen2.5_coder_7b_diamonds/global_step_40)")
     parser.add_argument("--checkpoints-dir", type=str,
                        help="Directory containing multiple checkpoints to evaluate")
     parser.add_argument("--pattern", type=str, default="global_step_*",
                        help="Pattern to match checkpoints (default: global_step_*)")
-    parser.add_argument("--dataset-name", type=str, default="diamonds-seed0", 
+    parser.add_argument("--dataset-name", type=str, default="function_correctness", 
                        choices=[f"diamonds-seed{i}" for i in range(8)] + ["function_correctness"],
                        help="Dataset to evaluate")
     parser.add_argument("--dataset-set", type=str, default="test",
                        choices=["train", "val", "test"],
                        help="Dataset split to evaluate")
-    parser.add_argument("--num-samples", type=int, default=100,
+    parser.add_argument("--num-samples", type=int, default=None,
                        help="Number of test samples to evaluate (default: 100)")
     parser.add_argument("--temperature", type=float, default=0.1,
                        help="Temperature for generation (default: 0.1)")
