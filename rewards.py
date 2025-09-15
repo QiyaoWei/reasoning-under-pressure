@@ -255,19 +255,6 @@ def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "dia
     # Calculate total reward
     total_reward = format_reward + correctness_reward + verbosity_reward + monitor_correctness_reward
     
-    # Log to wandb if available
-    try:
-        if wandb.run is not None:
-            wandb.log({
-                "rewards/format_reward": format_reward,
-                "rewards/correctness_reward": correctness_reward,
-                "rewards/verbosity_reward": verbosity_reward,
-                "rewards/monitor_correctness_reward": monitor_correctness_reward,
-                "rewards/total_reward": total_reward
-            })
-    except:
-        pass
-    
     return total_reward
 
 
