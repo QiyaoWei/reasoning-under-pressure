@@ -24,6 +24,23 @@ from datetime import datetime
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
+
+def convert_numpy_types(obj):
+    """Convert numpy types to native Python types for JSON serialization."""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.bool_):
+        return bool(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {key: convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    else:
+        return obj
 os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
 os.environ['HF_HUB_VERBOSITY'] = 'error'
 
@@ -352,10 +369,10 @@ def evaluate_checkpoint(checkpoint_path: str,
     if save_predictions:
         predictions_file = os.path.join(predictions_dir, f"{checkpoint_name}_predictions.json")
         with open(predictions_file, 'w') as f:
-            json.dump({
+            json.dump(convert_numpy_types({
                 'metrics': metrics,
                 'predictions': results
-            }, f, indent=2)
+            }), f, indent=2)
         logger.info(f"Saved predictions to {predictions_file}")
         
         # Save raw outputs for analysis
@@ -369,7 +386,7 @@ def evaluate_checkpoint(checkpoint_path: str,
             'latent_variable': result.get('latent_variable', None)
         } for i, result in enumerate(results)]
         with open(raw_outputs_file, 'w') as f:
-            json.dump(raw_outputs, f, indent=2)
+            json.dump(convert_numpy_types(raw_outputs), f, indent=2)
         logger.info(f"Saved raw outputs to {raw_outputs_file}")
     
     # Clear GPU memory
@@ -436,7 +453,7 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
         base_dir = output_dir or checkpoints_dir
         results_file = os.path.join(base_dir, "checkpoint_comparison.json")
         with open(results_file, 'w') as f:
-            json.dump(all_metrics, f, indent=2)
+            json.dump(convert_numpy_types(all_metrics), f, indent=2)
         logger.info(f"\nSaved comparison results to {results_file}")
         
         # Create CSV for easy analysis
@@ -481,13 +498,13 @@ def print_summary(all_metrics: List[Dict]):
 
 def main():
     parser = argparse.ArgumentParser(description="Inference script for VERL checkpoints on DIAMONDS and function correctness datasets")
-    parser.add_argument("--checkpoint", type=str, default="radadjoneva/verl-func-corr-regularRL",
+    parser.add_argument("--checkpoint", type=str,
                        help="Path to single checkpoint (e.g., checkpoints/verl_grpo_diamonds/qwen2.5_coder_7b_diamonds/global_step_40)")
     parser.add_argument("--checkpoints-dir", type=str,
                        help="Directory containing multiple checkpoints to evaluate")
     parser.add_argument("--pattern", type=str, default="global_step_*",
                        help="Pattern to match checkpoints (default: global_step_*)")
-    parser.add_argument("--dataset-name", type=str, default="function_correctness", 
+    parser.add_argument("--dataset-name", type=str, default="diamonds-seed0", 
                        choices=[f"diamonds-seed{i}" for i in range(8)] + ["function_correctness"],
                        help="Dataset to evaluate")
     parser.add_argument("--dataset-set", type=str, default="test",

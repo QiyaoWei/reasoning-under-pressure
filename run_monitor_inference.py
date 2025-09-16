@@ -40,13 +40,7 @@ def create_monitor_prompt(reasoning_trace: str, dataset_name: str) -> str:
     else:
         raise ValueError(f"Unsupported dataset: {dataset_name}")
     
-    # Full user prompt with the model reasoning
-    full_user_prompt = user_prompt + "\n" + reasoning_trace
-
-    return {
-        "system": system_prompt,
-        "user": full_user_prompt
-    }
+    return system_prompt + "\n" + user_prompt + "\n" + reasoning_trace
 
 def extract_monitor_prediction(response_text: str) -> Optional[bool]:
     """Extract the boolean prediction from monitor's response."""
@@ -79,8 +73,7 @@ async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str]
             response = await client.chat.completions.create(
                 model=model_name,
                 messages=[
-                    {"role": "system", "content": prompt["system"]},
-                    {"role": "user", "content": prompt["user"]}
+                    {"role": "user", "content": prompt}
                 ],
             )
             
