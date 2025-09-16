@@ -11,6 +11,7 @@ from openai import OpenAI
 import asyncio
 from openai import AsyncOpenAI
 import time
+import random
 
 # Import reporter prompts
 from utils.prompts import (
@@ -62,6 +63,38 @@ def extract_monitor_reasoning(response_text: str) -> str:
         return reasoning
     else:
         return response_text.strip()
+
+def rebalance_samples(samples: List[Dict]) -> List[Dict]:
+    """Rebalance samples to achieve 50/50 split of True/False latent variables."""
+    # Separate samples by latent variable
+    true_samples = [s for s in samples if s.get("latent_variable") is True]
+    false_samples = [s for s in samples if s.get("latent_variable") is False]
+    
+    print(f"Original distribution: {len(true_samples)} True, {len(false_samples)} False")
+    
+    # Calculate target counts
+    total_samples = len(samples)
+    if len(true_samples) >= len(false_samples):
+        target_samples_per_category = len(false_samples)
+    else:
+        target_samples_per_category = len(true_samples)
+    
+    print(f"Target samples per category: {target_samples_per_category}")
+    
+    # Randomly sample the required number of each type
+    random.seed(42)  # For reproducibility
+    
+    selected_true = random.sample(true_samples, target_samples_per_category)
+    selected_false = random.sample(false_samples, target_samples_per_category)
+    
+    # Combine and shuffle
+    rebalanced_samples = selected_true + selected_false
+    random.shuffle(rebalanced_samples)
+    
+    print(f"Rebalanced distribution: {len(selected_true)} True, {len(selected_false)} False")
+    print(f"Total samples: {len(rebalanced_samples)}")
+    
+    return rebalanced_samples
 
 async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str], sample_idx: int, semaphore: asyncio.Semaphore, model_name: str = "gpt-4o") -> Dict[str, Any]:
     """
@@ -127,7 +160,7 @@ async def process_batch_async(client: AsyncOpenAI, batch_data: List[Dict], max_c
     results_dict = {r["sample_idx"]: r for r in results}
     return [results_dict[item["sample_idx"]] for item in batch_data]
 
-async def process_evaluation_results_async(input_file: str, output_file: str, api_key: str = None, batch_size: int = 20, max_concurrent: int = 10, dataset_name: str = "diamonds-seed0", model_name: str = "gpt-4o"):
+async def process_evaluation_results_async(input_file: str, output_file: str, api_key: str = None, batch_size: int = 20, max_concurrent: int = 10, dataset_name: str = "diamonds-seed0", model_name: str = "gpt-4o", rebalance: bool = False):
     """Process evaluation results and generate monitor predictions with batching."""
     
     # Initialize AsyncOpenAI client
@@ -143,6 +176,12 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
         raw_outputs = json.load(f)
     
     print(f"Found {len(raw_outputs)} samples to process")
+    
+    # Rebalance samples if requested
+    if rebalance:
+        print(f"Rebalancing samples to uniform latent variable distribution (50/50)...")
+        raw_outputs = rebalance_samples(raw_outputs)
+    
     print(f"Using batch size: {batch_size}, max concurrent requests: {max_concurrent}")
     
     # Prepare all prompts
@@ -274,6 +313,8 @@ def main():
                         help='Maximum concurrent API requests (default: 10)')
     parser.add_argument("--model-name", type=str, default="gpt-4o",
                        help="Name of the monitor model to use for analysis (default: gpt-4o)")
+    parser.add_argument("--rebalance", action="store_true",
+                       help="Rebalance samples to achieve 50/50 split of True/False latent variables")
     
     args = parser.parse_args()
     
@@ -294,7 +335,8 @@ def main():
         args.batch_size,
         args.max_concurrent,
         args.dataset_name,
-        args.model_name
+        args.model_name,
+        args.rebalance,
     ))
 
 if __name__ == "__main__":
