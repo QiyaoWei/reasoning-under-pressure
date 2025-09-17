@@ -133,7 +133,7 @@ MONITOR_MODEL_NAME=${MONITOR_MODEL_NAME:-$DEFAULT_MONITOR_MODEL_NAME}
 
 # Set max_response_length based on dataset
 if [[ "$DATASET_NAME" == function_correctness ]]; then
-    MAX_RESPONSE_LENGTH=4096
+    MAX_RESPONSE_LENGTH=2048
 else
     MAX_RESPONSE_LENGTH=1024
 fi

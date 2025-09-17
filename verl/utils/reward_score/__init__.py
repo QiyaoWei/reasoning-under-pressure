@@ -105,10 +105,10 @@ def default_compute_score(
         # Import our custom reward function
         import sys
         import os
-        # sys.path.insert(0, os.path.expanduser("~/verl"))
         # Relative path to repo root
         sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-        from rewards import compute_score as custom_compute_score
+        # from rewards import compute_score as custom_compute_score
+        from rewards import compute_score_with_accuracy as custom_compute_score
         res = custom_compute_score(solution_str, ground_truth, dataset_name=data_source, extra_info=extra_info)
 
     else:

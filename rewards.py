@@ -257,6 +257,73 @@ def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "dia
     
     return total_reward
 
+# TESTING
+def compute_score_with_accuracy(solution_str: str, ground_truth: str, dataset_name: str = "diamonds-seed0", extra_info=None) -> dict:
+    """
+    Compute score for diamonds task with measurement accuracy information.
+    
+    Args:
+        solution_str: Model's response containing measurements prediction
+        ground_truth: String representation of correct measurements "[true, false, true]"
+        dataset_name: Name of the dataset (diamonds-seed# or function_correctness)
+        extra_info: Additional info from the dataset (contains idx, is_correct, is_clean, difficulty, measurements_list, original_text)
+    
+    Returns:
+        dict: Dictionary containing score and measurement accuracy information
+    """
+    
+    # Parse ground truth from string format
+    ground_truth_list = parse_ground_truth(ground_truth)
+    if ground_truth_list is None:
+        # If we can't parse ground truth, something is wrong
+        print(f"Warning: Could not parse ground truth: {ground_truth}")
+        return {
+            "score": 0.0,
+            "measurements_accuracy": 0.0,
+        }
+    
+    # Extract predicted measurements
+    predicted = extract_measurements(solution_str, dataset_name=dataset_name)
+    
+    # Compute individual reward components
+    format_reward = compute_format_reward(solution_str, predicted)
+    correctness_reward = compute_correctness_reward(predicted, ground_truth_list, dataset_name)
+    
+    # Verbosity reward: only apply if K is not zero
+    verbosity_reward = 0.0
+    if K != 0.0:
+        verbosity_reward = compute_verbosity_reward(solution_str)
+
+    # Monitor correctness reward: only apply if training with monitor
+    monitor_correctness_reward = 0.0
+    if TRAIN_WITH_MONITOR:
+        monitor_correctness_reward = compute_monitor_correctness_reward(solution_str, dataset_name, latent_variable=extra_info['is_correct'])
+    
+    # Calculate total reward
+    total_reward = format_reward + correctness_reward + verbosity_reward + monitor_correctness_reward
+    
+    # Calculate measurement accuracy metrics
+    total_n_measurements = len(ground_truth_list) if ground_truth_list is not None else 0
+    measurements_correct = 0
+    
+    if predicted is not None and ground_truth_list is not None:
+        # Handle length mismatches by comparing minimum matching lengths
+        if len(predicted) != len(ground_truth_list):
+            min_length = min(len(predicted), len(ground_truth_list))
+            predicted_truncated = predicted[:min_length]
+            ground_truth_truncated = ground_truth_list[:min_length]
+            n_measurements_correct = sum(p == g for p, g in zip(predicted_truncated, ground_truth_truncated))
+        else:
+            n_measurements_correct = sum(p == g for p, g in zip(predicted, ground_truth_list))
+    
+    # Calculate measurements accuracy
+    measurements_accuracy = n_measurements_correct / total_n_measurements if total_n_measurements > 0 else 0.0
+    
+    return {
+        "score": total_reward,
+        "measurements_accuracy": measurements_accuracy,
+    }
+
 
 # Test the function
 if __name__ == "__main__":
