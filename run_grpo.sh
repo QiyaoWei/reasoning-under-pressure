@@ -14,6 +14,8 @@ DEFAULT_TRAIN_WITH_MONITOR="false"
 DEFAULT_MONITOR_CORRECT_REWARD="-1.0"
 DEFAULT_MONITOR_WRONG_REWARD="1.0"
 DEFAULT_MONITOR_MODEL_NAME="gpt-4o-mini"
+DEFAULT_LOG_HYPERPARAMS="true"
+DEFAULT_LOG_TO_WANDB="true"
 
 # Parse command line arguments
 DATASET_NAME=""
@@ -27,6 +29,8 @@ TRAIN_WITH_MONITOR=""
 MONITOR_CORRECT_REWARD=""
 MONITOR_WRONG_REWARD=""
 MONITOR_MODEL_NAME=""
+LOG_HYPERPARAMS=""
+LOG_TO_WANDB=""
 SHOW_HELP=false
 
 while [[ $# -gt 0 ]]; do
@@ -75,6 +79,14 @@ while [[ $# -gt 0 ]]; do
             MONITOR_MODEL_NAME="$2"
             shift 2
             ;;
+        --log-hyperparams)
+            LOG_HYPERPARAMS="$2"
+            shift 2
+            ;;
+        --log-to-wandb)
+            LOG_TO_WANDB="$2"
+            shift 2
+            ;;
         --help|-h)
             SHOW_HELP=true
             shift
@@ -105,6 +117,8 @@ if [ "$SHOW_HELP" = true ]; then
     echo "  --monitor-correct-reward    Reward when monitor is correct (default: $DEFAULT_MONITOR_CORRECT_REWARD)"
     echo "  --monitor-wrong-reward      Reward when monitor is wrong (default: $DEFAULT_MONITOR_WRONG_REWARD)"
     echo "  --monitor-model-name        OpenAI model for monitor (default: $DEFAULT_MONITOR_MODEL_NAME)"
+    echo "  --log-hyperparams BOOL      Log hyperparameters to files (default: $DEFAULT_LOG_HYPERPARAMS)"
+    echo "  --log-to-wandb BOOL         Log hyperparameters to wandb (default: $DEFAULT_LOG_TO_WANDB)"
     echo "  --help, -h                  Show this help message"
     echo ""
     echo "Examples:"
@@ -117,6 +131,8 @@ if [ "$SHOW_HELP" = true ]; then
     echo "  $0 --resume-from-path checkpoints/model/global_step_60  # Resume from checkpoint"
     echo "  $0 --train-with-monitor true --monitor-correct-reward -2.0  # Enable monitor training"
     echo "  $0 --monitor-model-name o3  # Use different monitor model"
+    echo "  $0 --log-hyperparams false  # Disable hyperparameter logging"
+    echo "  $0 --log-to-wandb false     # Disable wandb logging"
     exit 0
 fi
 
@@ -130,6 +146,8 @@ TRAIN_WITH_MONITOR=${TRAIN_WITH_MONITOR:-$DEFAULT_TRAIN_WITH_MONITOR}
 MONITOR_CORRECT_REWARD=${MONITOR_CORRECT_REWARD:-$DEFAULT_MONITOR_CORRECT_REWARD}
 MONITOR_WRONG_REWARD=${MONITOR_WRONG_REWARD:-$DEFAULT_MONITOR_WRONG_REWARD}
 MONITOR_MODEL_NAME=${MONITOR_MODEL_NAME:-$DEFAULT_MONITOR_MODEL_NAME}
+LOG_HYPERPARAMS=${LOG_HYPERPARAMS:-$DEFAULT_LOG_HYPERPARAMS}
+LOG_TO_WANDB=${LOG_TO_WANDB:-$DEFAULT_LOG_TO_WANDB}
 
 # Set max_response_length based on dataset
 if [[ "$DATASET_NAME" == function_correctness ]]; then
@@ -177,6 +195,8 @@ if [ "$TRAIN_WITH_MONITOR" = "true" ]; then
     echo "Monitor correct reward: $MONITOR_CORRECT_REWARD"
     echo "Monitor wrong reward: $MONITOR_WRONG_REWARD"
 fi
+echo "Log hyperparameters: $LOG_HYPERPARAMS"
+echo "Log to wandb: $LOG_TO_WANDB"
 
 
 # Determine if KL loss should be used based on coefficient
@@ -199,6 +219,37 @@ export TRAIN_WITH_MONITOR
 export MONITOR_CORRECT_REWARD
 export MONITOR_WRONG_REWARD
 export MONITOR_MODEL_NAME
+
+# Log hyperparameters before training if enabled
+if [ "$LOG_HYPERPARAMS" = "true" ]; then
+    echo "Logging hyperparameters..."
+    
+    WANDB_FLAG=""
+    if [ "$LOG_TO_WANDB" = "true" ]; then
+        WANDB_FLAG="--log-to-wandb"
+    fi
+    
+    python3 log_hyperparameters.py \
+        --experiment-name "${EXPERIMENT_NAME}" \
+        --dataset-name "${DATASET_NAME}" \
+        --train-file "${TRAIN_FILE}" \
+        --val-file "${VAL_FILE}" \
+        --max-response-length "${MAX_RESPONSE_LENGTH}" \
+        --learning-rate "${LEARNING_RATE}" \
+        --epochs "${EPOCHS}" \
+        --kl-coef "${KL_COEF}" \
+        --use-kl-loss "${USE_KL_LOSS}" \
+        --resume-mode "${RESUME_MODE}" \
+        --resume-from-path "${RESUME_FROM_PATH}" \
+        ${WANDB_FLAG} \
+        --wandb-project "verl_grpo_${DATASET_NAME}"
+    
+    if [ $? -ne 0 ]; then
+        echo "Warning: Hyperparameter logging failed, but continuing with training..."
+    fi
+fi
+
+echo "Starting GRPO training..."
 
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \

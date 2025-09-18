@@ -192,6 +192,7 @@ def compute_correctness_reward(predicted: list, ground_truth_list: list, dataset
     correctness_reward = 0.0
     proportion_correct = 0.0
     all_correct = 0.0
+    wrong_number_of_measurements = 0.0
     
     # Only compute if we successfully extracted measurements
     if predicted is not None:
@@ -204,6 +205,7 @@ def compute_correctness_reward(predicted: list, ground_truth_list: list, dataset
             actual_nb_measurements = len(ground_truth_list)
             # Handle length mismatch in function correctness dataset
             if (dataset_name == "function_correctness") and (len(predicted) != actual_nb_measurements):
+                wrong_number_of_measurements = 1.0
                 print(f"Wrong number of measurements: predicted {len(predicted)} vs expected {actual_nb_measurements}")
                 # Truncate both to minimum length for partial credit comparison
                 min_length = min(len(predicted), actual_nb_measurements)
@@ -216,7 +218,7 @@ def compute_correctness_reward(predicted: list, ground_truth_list: list, dataset
             proportion_correct = correct_count / actual_nb_measurements
             correctness_reward = proportion_correct * max_correctness_reward
     
-    return correctness_reward, proportion_correct, all_correct
+    return correctness_reward, proportion_correct, all_correct, wrong_number_of_measurements
 
 
 def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "diamonds-seed0", extra_info=None) -> float:
@@ -240,6 +242,10 @@ def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "dia
         print(f"Warning: Could not parse ground truth: {ground_truth}")
         return {
             "score": 0.0,
+            "format_reward": 0.0,
+            "correctness_reward": 0.0,
+            "verbosity_reward": 0.0,
+            "monitor_correctness_reward": 0.0,
             "proportion_correct": 0.0,
             "all_correct": 0.0,
         }
@@ -249,7 +255,7 @@ def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "dia
     
     # Compute individual reward components
     format_reward = compute_format_reward(solution_str, predicted)
-    correctness_reward, proportion_correct, all_correct = compute_correctness_reward(predicted, ground_truth_list, dataset_name)
+    correctness_reward, proportion_correct, all_correct, wrong_number_of_measurements = compute_correctness_reward(predicted, ground_truth_list, dataset_name)
     
     # Verbosity reward: only apply if K is not zero
     verbosity_reward = 0.0
@@ -280,12 +286,18 @@ def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "dia
         print(f"TOTAL REWARD: {total_reward:.3f}")
         print(f"Proportion Correct: {proportion_correct:.3f}")
         print(f"All Correct: {all_correct:.3f}")
+        print(f"Wrong Number of Measurements: {wrong_number_of_measurements:.3f}")
         print("="*80 + "\n")
     
     return {
         "score": total_reward,
+        "correctness_reward": correctness_reward,
+        "format_reward": format_reward,
+        "verbosity_reward": verbosity_reward,
+        "monitor_correctness_reward": monitor_correctness_reward,
         "proportion_correct": proportion_correct,
         "all_correct": all_correct,
+        "wrong_number_of_measurements": wrong_number_of_measurements,
     }
 
 

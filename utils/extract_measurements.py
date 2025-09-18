@@ -3,7 +3,8 @@ Utility functions for extracting and processing measurements from model outputs.
 """
 
 import os
-import re  
+import re 
+import random
 
 def extract_measurements(text: str, dataset_name: str = "diamonds-seed0") -> list:
     """Extracts the measurements list from model output.
@@ -41,7 +42,9 @@ def extract_measurements(text: str, dataset_name: str = "diamonds-seed0") -> lis
                 print(f"Wrong number of measurements: {len(measurements)}")
                 return None
         else:
-            # print(f"Failed to extract measurements from output: {text}")
+            # Print 10% of the time
+            if random.random() < 0.1:
+                print(f"Failed to extract measurements from output: {text}")
             return None
     except Exception as e:
         print(f"Error extracting measurements: {e}")
