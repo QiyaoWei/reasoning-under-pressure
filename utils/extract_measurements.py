@@ -41,7 +41,7 @@ def extract_measurements(text: str, dataset_name: str = "diamonds-seed0") -> lis
                 print(f"Wrong number of measurements: {len(measurements)}")
                 return None
         else:
-            print(f"Failed to extract measurements from output: {text}")
+            # print(f"Failed to extract measurements from output: {text}")
             return None
     except Exception as e:
         print(f"Error extracting measurements: {e}")

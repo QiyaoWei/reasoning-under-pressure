@@ -264,6 +264,24 @@ def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "dia
     # Calculate total reward
     total_reward = format_reward + correctness_reward + verbosity_reward + monitor_correctness_reward
     
+    # Log examples (1% of the time)
+    if random.random() < 0.01:
+        print("\n" + "="*80)
+        print("EXAMPLE")
+        print("="*80)
+        print(f"Solution: {solution_str}")
+        print(f"Predicted: {predicted}")
+        print(f"Ground Truth: {ground_truth_list}")
+        print("-"*40)
+        print(f"Format Reward: {format_reward:.3f}")
+        print(f"Correctness Reward: {correctness_reward:.3f}")
+        print(f"Verbosity Reward: {verbosity_reward:.3f}")
+        print(f"Monitor Correctness Reward: {monitor_correctness_reward:.3f}")
+        print(f"TOTAL REWARD: {total_reward:.3f}")
+        print(f"Proportion Correct: {proportion_correct:.3f}")
+        print(f"All Correct: {all_correct:.3f}")
+        print("="*80 + "\n")
+    
     return {
         "score": total_reward,
         "proportion_correct": proportion_correct,
