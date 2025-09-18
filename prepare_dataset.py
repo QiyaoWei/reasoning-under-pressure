@@ -183,6 +183,8 @@ def main():
     train_dataset = dataset.select(range(train_size))
     val_dataset = dataset.select(range(train_size, train_size + val_size))
     test_dataset = dataset.select(range(train_size + val_size, total_size))
+    # Limit val dataset to 500 samples
+    val_dataset = val_dataset.select(range(min(500, len(val_dataset))))
     
     print(f"Split sizes - Train: {len(train_dataset)}, Val: {len(val_dataset)}, Test: {len(test_dataset)}")
 
