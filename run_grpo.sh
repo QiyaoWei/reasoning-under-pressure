@@ -283,6 +283,7 @@ python3 -m verl.trainer.main_ppo \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
     trainer.logger='["console", "wandb"]' \
+    trainer.validation_data_dir=./validation_outputs \
     trainer.project_name="verl_grpo_${DATASET_NAME}" \
     trainer.experiment_name="${EXPERIMENT_NAME}" \
     trainer.n_gpus_per_node=4 \

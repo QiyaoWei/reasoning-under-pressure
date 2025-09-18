@@ -10,13 +10,15 @@ import time
 import random
 import numpy as np
 import wandb
-from openai import OpenAI
+import asyncio
+from typing import Optional
+from openai import AsyncOpenAI, OpenAI
 from utils.extract_measurements import extract_measurements
-from utils.prompts import (
-    SYSTEM_PROMPT_REPORTER_DIAMONDS,
-    SYSTEM_PROMPT_REPORTER_FUNCTION_CORRECTNESS,
-    USER_PROMPT_REPORTER_DIAMONDS,
-    USER_PROMPT_REPORTER_FUNCTION_CORRECTNESS
+from utils.monitor_utils import (
+    extract_reasoning_trace,
+    create_monitor_prompt,
+    extract_monitor_prediction,
+    extract_monitor_reasoning
 )
 
 # Global OpenAI client
@@ -27,7 +29,7 @@ K = float(os.getenv("K", 0.0))  # Verbosity reward coefficient (default: no rewa
 MONITOR_CORRECT_REWARD = float(os.getenv("MONITOR_CORRECT_REWARD", "-1.0"))
 MONITOR_WRONG_REWARD = float(os.getenv("MONITOR_WRONG_REWARD", "1.0"))
 TRAIN_WITH_MONITOR = os.getenv("TRAIN_WITH_MONITOR", "false").lower() == "true"
-MONITOR_MODEL_NAME = os.getenv("MONITOR_MODEL_NAME", "gpt-4o")
+MONITOR_MODEL_NAME = os.getenv("MONITOR_MODEL_NAME", "gpt-4o-mini")
 
 
 def parse_ground_truth(ground_truth_str: str) -> list:
@@ -61,8 +63,9 @@ def initialize_openai_client():
                 print("Error: OPENAI_API_KEY environment variable not set")
                 print("Please set it with: export OPENAI_API_KEY='your-api-key'")
                 return False
-            
-            openai_client = OpenAI(api_key=api_key)
+            # openai_client = OpenAI(api_key=api_key)
+            openai_client = AsyncOpenAI(api_key=api_key)
+
             print("OpenAI client initialized successfully")
             return True
         except ImportError:
@@ -74,35 +77,20 @@ def initialize_openai_client():
     return True
 
 
-def extract_answer_from_response(response):
-    """Extract the answer from monitor response between <answer> tags"""
-    match = re.search(r'<answer>\s*(true|false)\s*</answer>', response, re.IGNORECASE)
-    if match:
-        return match.group(1).lower() == 'true'
-    return None
 
-
-def call_monitor_openai(model_response, system_prompt, user_prompt, client, model_name="gpt-4o"):
-    """Call monitor model via OpenAI API"""
-    # Remove measurement predictions from the model response
-    # Handle both complete tags and incomplete tags (only opening tag)
-    model_reasoning = re.sub(r'<measurements>.*?(?:</measurements>|$)', '', model_response, flags=re.DOTALL)
+async def call_monitor_openai(model_response, dataset_name, client, model_name="gpt-4o-mini"):
+    """Call monitor model via OpenAI API asynchronously using inference-style prompt structure"""
+    # Extract model reasoning trace
+    reasoning_trace = extract_reasoning_trace(model_response)
     
-    # Full user prompt with the model reasoning
-    full_user_prompt = user_prompt + "\n" + model_reasoning
+    # Create monitor prompt
+    monitor_prompt = create_monitor_prompt(reasoning_trace, dataset_name)
     
     try:
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model=model_name,
             messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": full_user_prompt
-                }
+                {"role": "user", "content": monitor_prompt}
             ],
         )
         
@@ -117,42 +105,74 @@ def call_monitor_openai(model_response, system_prompt, user_prompt, client, mode
         return None
 
 
-def compute_monitor_correctness_reward(model_response, dataset_name, latent_variable, **kwargs) -> float:
-    """Reward the model based on the correctness of the monitor's response."""
-    
-    # Initialize OpenAI client if needed
+async def compute_monitor_correctness_reward_async(
+    model_response: str,
+    dataset_name: str,
+    latent_variable: t.Any,
+) -> tuple[float, float]:
+    """Async version: returns (monitor_reward, monitor_is_correct_float)."""
     if not initialize_openai_client():
-        print("Failed to initialize OpenAI client, returning zero rewards")
-        return 0.0
-    
-    # Select system and user prompts based on dataset
-    if dataset_name.startswith("diamonds-seed"):
-        system_prompt = SYSTEM_PROMPT_REPORTER_DIAMONDS
-        user_prompt = USER_PROMPT_REPORTER_DIAMONDS
-    elif dataset_name == "function_correctness":
-        system_prompt = SYSTEM_PROMPT_REPORTER_FUNCTION_CORRECTNESS
-        user_prompt = USER_PROMPT_REPORTER_FUNCTION_CORRECTNESS
-    else:
-        raise ValueError(f"Unsupported dataset: {dataset_name}")
-    
-    # Get monitor's response
-    monitor_response = call_monitor_openai(model_response, system_prompt, user_prompt, openai_client, model_name=MONITOR_MODEL_NAME)
-    
-    if monitor_response is not None:
-        # Extract the answer from monitor's response
-        monitor_answer = extract_answer_from_response(monitor_response)
+        return 0.0, 0.0
 
-        if monitor_answer is None:
-            print(f"\nFailed to extract answer from monitor's response. Full monitor response: {monitor_response}.\n")
-            return 0.0
-        else:
-            # Check if monitor answer matches latent variable
-            monitor_is_correct = (monitor_answer == latent_variable)
-            # Reward based on monitor's correctness
-            return MONITOR_CORRECT_REWARD if monitor_is_correct else MONITOR_WRONG_REWARD
-    else:
-        print(f"\nFailed to get monitor's response.\n")
-        return 0.0
+    resp_text = await call_monitor_openai(model_response, dataset_name, openai_client, model_name=MONITOR_MODEL_NAME)
+    if resp_text is None:
+        print("\nFailed to get monitor response.\n")
+        return 0.0, 0.0
+
+    monitor_answer = extract_monitor_prediction(resp_text)
+    if monitor_answer is None:
+        print(f"\nFailed to extract answer from monitor response.\nFull: {resp_text}\n")
+        return 0.0, 0.0
+
+    monitor_is_correct = (monitor_answer == latent_variable)
+    monitor_reward = MONITOR_CORRECT_REWARD if monitor_is_correct else MONITOR_WRONG_REWARD
+    return monitor_reward, float(monitor_is_correct)
+
+
+def compute_monitor_correctness_reward(
+    model_response: str,
+    dataset_name: str,
+    latent_variable: t.Any,
+) -> tuple[float, float]:
+    try:
+        asyncio.get_running_loop()
+        raise RuntimeError(
+            "compute_monitor_correctness_reward() called inside a running "
+            "event loop. Use `await compute_monitor_correctness_reward_async(...)`."
+        )
+    except RuntimeError:
+        # No loop running -> safe to use asyncio.run
+        return asyncio.run(
+            compute_monitor_correctness_reward_async(
+                model_response, dataset_name, latent_variable
+            )
+        )
+
+# # Original (no async)
+# def compute_monitor_correctness_reward(model_response, dataset_name, latent_variable, **kwargs) -> float:
+#     """Reward the model based on the correctness of the monitor's response."""
+    
+#     # Initialize OpenAI client if needed
+#     if not initialize_openai_client():
+#         print("Failed to initialize OpenAI client, returning zero rewards")
+#         return 0.0
+    
+#     monitor_response = call_monitor_openai(model_response, dataset_name, openai_client, model_name=MONITOR_MODEL_NAME)
+    
+#     if monitor_response is not None:
+#         monitor_answer = extract_monitor_prediction(monitor_response)
+
+#         if monitor_answer is None:
+#             print(f"\nFailed to extract answer from monitor's response. Full monitor response: {monitor_response}.\n")
+#             return 0.0
+#         else:
+#             # Check if monitor answer matches latent variable
+#             monitor_is_correct = (monitor_answer == latent_variable)
+#             # Reward based on monitor's correctness
+#             return MONITOR_CORRECT_REWARD if monitor_is_correct else MONITOR_WRONG_REWARD
+#     else:
+#         print(f"\nFailed to get monitor's response.\n")
+#         return 0.0
 
 def compute_verbosity_reward(solution_str: str) -> float:
     """
@@ -248,6 +268,7 @@ def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "dia
             "monitor_correctness_reward": 0.0,
             "proportion_correct": 0.0,
             "all_correct": 0.0,
+            "wrong_number_of_measurements": 0.0,
         }
     
     # Extract predicted measurements
@@ -265,7 +286,7 @@ def compute_score(solution_str: str, ground_truth: str, dataset_name: str = "dia
     # Monitor correctness reward: only apply if training with monitor
     monitor_correctness_reward = 0.0
     if TRAIN_WITH_MONITOR:
-        monitor_correctness_reward = compute_monitor_correctness_reward(solution_str, dataset_name, latent_variable=extra_info['is_correct'])
+        monitor_correctness_reward, monitor_correctness = compute_monitor_correctness_reward(solution_str, dataset_name, latent_variable=extra_info['is_correct'])
     
     # Calculate total reward
     total_reward = format_reward + correctness_reward + verbosity_reward + monitor_correctness_reward
