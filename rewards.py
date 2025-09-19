@@ -11,7 +11,7 @@ import random
 import numpy as np
 import wandb
 import asyncio
-from typing import Optional
+from typing import Optional, Any
 from openai import AsyncOpenAI, OpenAI
 from utils.extract_measurements import extract_measurements
 from utils.monitor_utils import (
@@ -108,7 +108,7 @@ async def call_monitor_openai(model_response, dataset_name, client, model_name="
 async def compute_monitor_correctness_reward_async(
     model_response: str,
     dataset_name: str,
-    latent_variable: t.Any,
+    latent_variable: Any,
 ) -> tuple[float, float]:
     """Async version: returns (monitor_reward, monitor_is_correct_float)."""
     if not initialize_openai_client():
@@ -132,7 +132,7 @@ async def compute_monitor_correctness_reward_async(
 def compute_monitor_correctness_reward(
     model_response: str,
     dataset_name: str,
-    latent_variable: t.Any,
+    latent_variable: Any,
 ) -> tuple[float, float]:
     try:
         asyncio.get_running_loop()
