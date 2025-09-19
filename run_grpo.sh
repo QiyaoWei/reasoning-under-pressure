@@ -200,9 +200,11 @@ echo "Log to wandb: $LOG_TO_WANDB"
 
 
 # Determine if KL loss should be used based on coefficient
-USE_KL_LOSS="True"
-if (( $(echo "$KL_COEF == 0.0" | bc -l) )); then
-    USE_KL_LOSS="False"
+USE_KL_LOSS="False"
+if (( $(echo "$KL_COEF != 0.0" | bc -l) )); then
+    USE_KL_LOSS="True"
+    echo "KL coefficient is $KL_COEF, enabling KL loss"
+else
     echo "KL coefficient is 0.0, disabling KL loss"
 fi
 
@@ -274,7 +276,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.optim.lr=${LEARNING_RATE} \
     actor_rollout_ref.model.use_remove_padding=True \
     actor_rollout_ref.actor.ppo_mini_batch_size=256 \
-    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=8 \
+    actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=32 \
     actor_rollout_ref.actor.use_kl_loss=${USE_KL_LOSS} \
     actor_rollout_ref.actor.kl_loss_coef=${KL_COEF} \
     actor_rollout_ref.actor.kl_loss_type=low_var_kl \
@@ -282,18 +284,18 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.actor.fsdp_config.param_offload=False \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=False \
-    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=8 \
+    actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=32 \
     actor_rollout_ref.rollout.tensor_model_parallel_size=2 \
     actor_rollout_ref.rollout.name=vllm \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.6 \
     actor_rollout_ref.rollout.n=4 \
     actor_rollout_ref.rollout.temperature=1.0 \
-    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=8 \
+    actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=32 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
     trainer.logger='["console", "wandb"]' \
-    trainer.validation_data_dir=./validation_outputs \
+    trainer.validation_data_dir=./checkpoints/${EXPERIMENT_NAME}/validation_outputs \
     trainer.project_name="verl_grpo_${DATASET_NAME}" \
     trainer.experiment_name="${EXPERIMENT_NAME}" \
     trainer.n_gpus_per_node=4 \
