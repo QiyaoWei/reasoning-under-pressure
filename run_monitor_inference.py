@@ -269,8 +269,8 @@ def main():
                         help='Number of samples to process in each batch (default: 20)')
     parser.add_argument('--max-concurrent', '-c', type=int, default=10,
                         help='Maximum concurrent API requests (default: 10)')
-    parser.add_argument("--model-name", type=str, default="gpt-4o",
-                       help="Name of the monitor model to use for analysis (default: gpt-4o)")
+    parser.add_argument("--model-name", type=str, default="gpt-4o-mini",
+                       help="Name of the monitor model to use for analysis (default: gpt-4o-mini)")
     parser.add_argument("--rebalance", action="store_true",
                        help="Rebalance samples to achieve 50/50 split of True/False latent variables")
     

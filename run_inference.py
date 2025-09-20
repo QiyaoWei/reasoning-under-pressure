@@ -116,8 +116,7 @@ def load_test_dataset(dataset_name: str = "diamonds-seed0",
         raise
 
 
-
-def load_checkpoint_verl(checkpoint_path: str, device: str = "cuda") -> Tuple[object, object]:
+def load_checkpoint_verl(checkpoint_path: str, device: str = "cuda", use_flash_attention: bool = True) -> Tuple[object, object]:
     """Load model and tokenizer from VERL checkpoint."""
     try:
         logger.info(f"Loading VERL checkpoint from {checkpoint_path}")
@@ -194,11 +193,23 @@ def load_checkpoint_verl(checkpoint_path: str, device: str = "cuda") -> Tuple[ob
             logger.info(f"Attempting to load as path: {checkpoint_path}")
             model_path = checkpoint_path
         
+        # Try to use flash attention if available
+        model_kwargs = {
+            "torch_dtype": torch.bfloat16,
+            "device_map": device,
+            "trust_remote_code": True,
+        }
+
+        if use_flash_attention:
+            try:
+                model_kwargs["attn_implementation"] = "flash_attention_2"
+                logger.info("Using Flash Attention 2 for faster inference")
+            except Exception as e:
+                logger.info("Flash Attention 2 not available, using default attention")
+        
         model = AutoModelForCausalLM.from_pretrained(
             model_path,
-            torch_dtype=torch.bfloat16,
-            device_map=device,
-            trust_remote_code=True
+            **model_kwargs
         )
         tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
         
@@ -218,15 +229,15 @@ def load_checkpoint_verl(checkpoint_path: str, device: str = "cuda") -> Tuple[ob
 def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, dataset_name: str = "diamonds-seed0") -> Dict:
     """Evaluate a single sample and return predictions."""
     prompt = tokenizer.apply_chat_template(
-        sample['prompt'], 
-        tokenize=False, 
+        sample['prompt'],
+        tokenize=False,
         add_generation_prompt=True
     )
     
     inputs = tokenizer(
-        prompt, 
-        return_tensors="pt", 
-        max_length=MAX_LEN_PROMPT, 
+        prompt,
+        return_tensors="pt",
+        max_length=MAX_LEN_PROMPT,
         truncation=True
     ).to(model.device)
     
@@ -241,7 +252,7 @@ def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, d
         )
     
     response = tokenizer.decode(
-        outputs[0][inputs['input_ids'].shape[1]:], 
+        outputs[0][inputs['input_ids'].shape[1]:],
         skip_special_tokens=True
     )
     
@@ -280,6 +291,84 @@ def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, d
     return result
 
 
+def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_size: int = 8) -> List[Dict]:
+    """Evaluate a batch of samples and return predictions."""
+    results = []
+
+    # Prepare all prompts
+    prompts = []
+    for sample in samples:
+        prompt = tokenizer.apply_chat_template(
+            sample['prompt'],
+            tokenize=False,
+            add_generation_prompt=True
+        )
+        prompts.append(prompt)
+
+    # Tokenize batch
+    inputs = tokenizer(
+        prompts,
+        return_tensors="pt",
+        max_length=MAX_LEN_PROMPT,
+        truncation=True,
+        padding=True
+    ).to(model.device)
+
+    # Generate for batch
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=MAX_LEN_GENERATION,
+            temperature=temperature,
+            do_sample=True if temperature > 0 else False,
+            pad_token_id=tokenizer.pad_token_id,
+            eos_token_id=tokenizer.eos_token_id,
+        )
+
+    # Process each output
+    for i, (sample, output) in enumerate(zip(samples, outputs)):
+        response = tokenizer.decode(
+            output[inputs['input_ids'].shape[1]:],
+            skip_special_tokens=True
+        )
+
+        predicted = extract_measurements(response)
+        ground_truth = sample['measurements']
+        # ground_truth = list(ground_truth) # convert array to list
+
+        result = {
+            'text': sample['text'],
+            'response': response,
+            'predicted': predicted,
+            'ground_truth': ground_truth,
+            'n_measurements': len(ground_truth) if ground_truth is not None else 0,
+            'difficulty': sample.get('difficulty', -1),
+            'latent_variable': sample.get('is_correct', None),
+            'has_measurements': '<measurements>' in response and '</measurements>' in response,
+            'correct_format': predicted is not None,
+            'wrong_nb_measurements': len(predicted) != len(ground_truth) if predicted is not None and ground_truth is not None else False,
+        }
+
+        if predicted is not None and ground_truth is not None:
+            result['is_correct'] = predicted == ground_truth
+            
+            # Handle length mismatches by comparing minimum matching lengths (function correctness)
+            if len(predicted) != len(ground_truth):
+                min_length = min(len(predicted), len(ground_truth))
+                predicted_truncated = predicted[:min_length]
+                ground_truth_truncated = ground_truth[:min_length]
+                result['partial_correct'] = sum(p == g for p, g in zip(predicted_truncated, ground_truth_truncated))
+            else:
+                result['partial_correct'] = sum(p == g for p, g in zip(predicted, ground_truth))
+        else:
+            result['is_correct'] = False
+            result['partial_correct'] = 0
+
+        results.append(result)
+
+    return results
+
+
 def evaluate_checkpoint(checkpoint_path: str, 
                        eval_dataset: List[Dict],
                        num_samples: int = None,
@@ -287,11 +376,13 @@ def evaluate_checkpoint(checkpoint_path: str,
                        save_predictions: bool = True,
                        dataset_name: str = "diamonds-seed0",
                        dataset_set: str = "test",
-                       output_dir: str = None) -> Dict:
+                       output_dir: str = None,
+                       batch_size: int = 8,
+                       use_flash_attention: bool = True) -> Dict:
     """Evaluate a single checkpoint on test dataset."""
     
     # Load model
-    model, tokenizer = load_checkpoint_verl(checkpoint_path)
+    model, tokenizer = load_checkpoint_verl(checkpoint_path, use_flash_attention=use_flash_attention)
     
     # Sample subset if requested
     if num_samples and num_samples < len(eval_dataset):
@@ -303,6 +394,8 @@ def evaluate_checkpoint(checkpoint_path: str,
     
     if save_predictions:
         if output_dir:
+            # Ensure the base output directory exists first
+            os.makedirs(output_dir, exist_ok=True)
             predictions_dir = os.path.join(output_dir, "predictions")
         else:
             predictions_dir = os.path.join(os.path.dirname(checkpoint_path), "predictions")
@@ -315,34 +408,39 @@ def evaluate_checkpoint(checkpoint_path: str,
     })
     
     # Evaluate samples
-    logger.info(f"Evaluating {len(eval_dataset)} samples...")
-    
-    for idx in tqdm(range(len(eval_dataset)), desc="Evaluating"):
-        sample = eval_dataset[idx]
-        result = evaluate_single_sample(model, tokenizer, sample, temperature, dataset_name)
-        results.append(result)
-        
-        # Update metrics
-        difficulty = result['difficulty']
-        metrics_by_difficulty[difficulty]['total'] += 1
-        metrics_by_difficulty[difficulty]['n_measurements'] += result['n_measurements']
-        metrics_by_difficulty['overall']['total'] += 1
-        metrics_by_difficulty['overall']['n_measurements'] += result['n_measurements']
-        
-        if result['is_correct']:
-            metrics_by_difficulty[difficulty]['correct'] += 1
-            metrics_by_difficulty['overall']['correct'] += 1
-        
-        metrics_by_difficulty[difficulty]['partial'] += result['partial_correct']
-        metrics_by_difficulty['overall']['partial'] += result['partial_correct']
-        
-        if result['correct_format']:
-            metrics_by_difficulty[difficulty]['format_correct'] += 1
-            metrics_by_difficulty['overall']['format_correct'] += 1
-        
-        if result['wrong_nb_measurements']:
-            metrics_by_difficulty[difficulty]['wrong_nb_measurements'] += 1
-            metrics_by_difficulty['overall']['wrong_nb_measurements'] += 1
+    logger.info(f"Evaluating {len(eval_dataset)} samples with batch size {batch_size}...")
+
+    # Process in batches
+    for batch_start in tqdm(range(0, len(eval_dataset), batch_size), desc="Evaluating batches"):
+        batch_end = min(batch_start + batch_size, len(eval_dataset))
+        batch_samples = [eval_dataset[i] for i in range(batch_start, batch_end)]
+
+        # Evaluate batch
+        batch_results = evaluate_batch(model, tokenizer, batch_samples, temperature, batch_size)
+        results.extend(batch_results)
+
+        # Update metrics for batch
+        for result in batch_results:
+            difficulty = result['difficulty']
+            metrics_by_difficulty[difficulty]['total'] += 1
+            metrics_by_difficulty[difficulty]['n_measurements'] += result['n_measurements']
+            metrics_by_difficulty['overall']['total'] += 1
+            metrics_by_difficulty['overall']['n_measurements'] += result['n_measurements']
+
+            if result['is_correct']:
+                metrics_by_difficulty[difficulty]['correct'] += 1
+                metrics_by_difficulty['overall']['correct'] += 1
+
+            metrics_by_difficulty[difficulty]['partial'] += result['partial_correct']
+            metrics_by_difficulty['overall']['partial'] += result['partial_correct']
+
+            if result['correct_format']:
+                metrics_by_difficulty[difficulty]['format_correct'] += 1
+                metrics_by_difficulty['overall']['format_correct'] += 1
+
+            if result['wrong_nb_measurements']:
+                metrics_by_difficulty[difficulty]['wrong_nb_measurements'] += 1
+                metrics_by_difficulty['overall']['wrong_nb_measurements'] += 1
     
     # Compute final metrics
     metrics = {
@@ -404,7 +502,10 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
                                 save_results: bool = True,
                                 dataset_name: str = "diamonds-seed0",
                                 dataset_set: str = "test",
-                                output_dir: str = None) -> List[Dict]:
+                                output_dir: str = None,
+                                batch_size: int = 8,
+                                use_flash_attention: bool = True,
+                                keep_model_loaded: bool = False) -> List[Dict]:
     """Evaluate multiple checkpoints and compare results."""
     
     # Find all checkpoints
@@ -421,12 +522,22 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
     
     # Evaluate each checkpoint
     all_metrics = []
-    for checkpoint_path in checkpoint_paths:
+    loaded_model = None
+    loaded_tokenizer = None
+
+    for i, checkpoint_path in enumerate(checkpoint_paths):
         logger.info(f"\n{'='*60}")
-        logger.info(f"Evaluating {checkpoint_path.name}")
+        logger.info(f"Evaluating {checkpoint_path.name} ({i+1}/{len(checkpoint_paths)})")
         logger.info(f"{'='*60}")
         
         try:
+            if keep_model_loaded and i == 0:
+                # Load first model and keep it for comparison
+                loaded_model, loaded_tokenizer = load_checkpoint_verl(
+                    str(checkpoint_path),
+                    use_flash_attention=use_flash_attention
+                )
+
             metrics = evaluate_checkpoint(
                 str(checkpoint_path),
                 eval_dataset,
@@ -435,7 +546,9 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
                 save_predictions=save_results,
                 output_dir=output_dir,
                 dataset_name=dataset_name,
-                dataset_set=dataset_set
+                dataset_set=dataset_set,
+                batch_size=batch_size,
+                use_flash_attention=use_flash_attention
             )
             all_metrics.append(metrics)
             
@@ -446,7 +559,14 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
             
         except Exception as e:
             logger.error(f"Failed to evaluate {checkpoint_path.name}: {e}")
+            import traceback
+            traceback.print_exc()
             continue
+    
+    # Clean up if we kept model loaded
+    if loaded_model is not None:
+        del loaded_model
+        torch.cuda.empty_cache()
     
     # Save comparison results
     if save_results and all_metrics:
@@ -511,7 +631,7 @@ def main():
                        choices=["train", "val", "test"],
                        help="Dataset split to evaluate")
     parser.add_argument("--num-samples", type=int, default=None,
-                       help="Number of test samples to evaluate (default: 100)")
+                       help="Number of test samples to evaluate (default: None for all)")
     parser.add_argument("--temperature", type=float, default=0.1,
                        help="Temperature for generation (default: 0.1)")
     parser.add_argument("--save-predictions", action="store_true", default=True,
@@ -526,6 +646,12 @@ def main():
                        help="Device to run inference on")
     parser.add_argument("--data-dir", type=str, default=None,
                        help="Directory containing parquet files (default: data/{dataset-name})")
+    parser.add_argument("--batch-size", type=int, default=8,
+                       help="Batch size for inference (default: 8)")
+    parser.add_argument("--no-flash-attention", action="store_true",
+                       help="Disable flash attention even if available")
+    parser.add_argument("--keep-model-loaded", action="store_true",
+                       help="Keep model loaded between checkpoints (experimental)")
 
     args = parser.parse_args()
     
@@ -556,7 +682,9 @@ def main():
             save_predictions=args.save_predictions,
             output_dir=args.output_dir,
             dataset_name=args.dataset_name,
-            dataset_set=args.dataset_set
+            dataset_set=args.dataset_set,
+            batch_size=args.batch_size,
+            use_flash_attention=not args.no_flash_attention
         )
         
         logger.info("\nFinal Results:")
@@ -577,7 +705,10 @@ def main():
             save_results=args.save_predictions,
             output_dir=args.output_dir,
             dataset_name=args.dataset_name,
-            dataset_set=args.dataset_set
+            dataset_set=args.dataset_set,
+            batch_size=args.batch_size,
+            use_flash_attention=not args.no_flash_attention,
+            keep_model_loaded=args.keep_model_loaded
         )
     
     else:
