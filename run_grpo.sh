@@ -2,7 +2,7 @@
 # GRPO training script for diamonds and function correctness datasets using VERL
 # Based on the GSM8K example but adapted for diamonds and function correctness tasks
 
-# set -x  # Commented out to reduce verbose output
+set -x
 
 # Default values
 DEFAULT_DATASET="diamonds-seed0"
@@ -222,15 +222,15 @@ export MONITOR_CORRECT_REWARD
 export MONITOR_WRONG_REWARD
 export MONITOR_MODEL_NAME
 
-# Reduce logging verbosity
-export PYTHONWARNINGS="ignore"
-export TF_CPP_MIN_LOG_LEVEL=3
-export TRANSFORMERS_VERBOSITY=error
-export DATASETS_VERBOSITY=error
-export HF_DATASETS_VERBOSITY=error
-export TOKENIZERS_PARALLELISM=false
-export WANDB_SILENT=true
-export VERBOSE_REWARDS=false  # Suppress verbose reward outputs
+# # Reduce logging verbosity
+# export PYTHONWARNINGS="ignore"
+# export TF_CPP_MIN_LOG_LEVEL=3
+# export TRANSFORMERS_VERBOSITY=error
+# export DATASETS_VERBOSITY=error
+# export HF_DATASETS_VERBOSITY=error
+# export TOKENIZERS_PARALLELISM=false
+# export WANDB_SILENT=true
+# export VERBOSE_REWARDS=false  # Suppress verbose reward outputs
 
 # Log hyperparameters before training if enabled
 if [ "$LOG_HYPERPARAMS" = "true" ]; then
@@ -295,7 +295,7 @@ python3 -m verl.trainer.main_ppo \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
     trainer.logger='["console", "wandb"]' \
-    trainer.validation_data_dir=./checkpoints/${EXPERIMENT_NAME}/validation_outputs \
+    trainer.validation_data_dir=./checkpoints/verl_grpo_${DATASET_NAME}/${EXPERIMENT_NAME}/validation_outputs \
     trainer.project_name="verl_grpo_${DATASET_NAME}" \
     trainer.experiment_name="${EXPERIMENT_NAME}" \
     trainer.n_gpus_per_node=4 \
