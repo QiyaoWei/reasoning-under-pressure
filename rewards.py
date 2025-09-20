@@ -131,10 +131,10 @@ async def compute_monitor_rewards_batch(
     """Compute monitor rewards for a batch of responses asynchronously."""
 
     if not TRAIN_WITH_MONITOR:
-        return [0.0] * len(model_responses), [0.0] * len(model_responses)
+        return [0.0] * len(model_responses), [0.0] * len(model_responses), [0.0] * len(model_responses)
 
     if not initialize_openai_clients():
-        return [0.0] * len(model_responses), [0.0] * len(model_responses)
+        return [0.0] * len(model_responses), [0.0] * len(model_responses), [0.0] * len(model_responses)
 
     # Create semaphore to limit concurrent API calls
     semaphore = asyncio.Semaphore(max_concurrent)
@@ -152,9 +152,9 @@ async def compute_monitor_rewards_batch(
                     monitor_is_correct = (monitor_answer == latent_var)
                     # Reward based on monitor's correctness
                     monitor_correctness_reward = MONITOR_CORRECT_REWARD if monitor_is_correct else MONITOR_WRONG_REWARD
-                    return monitor_correctness_reward, float(monitor_is_correct)
+                    return monitor_correctness_reward, float(monitor_is_correct), float(monitor_answer)
 
-            return 0.0, 0.0
+            return 0.0, 0.0, 0.0
 
     # Process all responses concurrently
     tasks = [
@@ -164,8 +164,8 @@ async def compute_monitor_rewards_batch(
 
     results = await asyncio.gather(*tasks)
     # Unpack the list of tuples into two separate lists
-    rewards, monitor_correctness = zip(*results)
-    return list(rewards), list(monitor_correctness)
+    rewards, monitor_correctness, monitor_answers = zip(*results)
+    return list(rewards), list(monitor_correctness), list(monitor_answers)
 
 
 def compute_format_reward(solution_str: str, predicted: list) -> float:
@@ -263,6 +263,7 @@ def log_example_result(
     print(f"All Correct: {result['all_correct']:.3f}")
     print(f"Wrong Number of Measurements: {result['wrong_number_of_measurements']:.3f}")
     print(f"Monitor Correctness: {result['monitor_correctness']:.3f}")
+    print(f"Monitor Answer: {result['monitor_answer']:.3f}")
     print("="*80 + "\n")
 
 
@@ -314,6 +315,7 @@ def compute_score_batch(
             "verbosity_reward": verbosity_reward,
             "monitor_correctness_reward": 0.0,  # Will be updated if needed
             "monitor_correctness": 0.0,  # Will be updated if needed
+            "monitor_answer": 0.0,  # Will be updated if needed
             "proportion_correct": proportion_correct,
             "all_correct": all_correct,
             "wrong_number_of_measurements": wrong_number_of_measurements,
@@ -338,7 +340,7 @@ def compute_score_batch(
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
 
-        monitor_rewards, monitor_correctness = loop.run_until_complete(
+        monitor_rewards, monitor_correctness, monitor_answers = loop.run_until_complete(
             compute_monitor_rewards_batch(
                 monitor_responses_needed,
                 dataset_name,
@@ -348,9 +350,10 @@ def compute_score_batch(
         )
 
         # Update results with monitor rewards
-        for idx, monitor_reward, monitor_correct in zip(monitor_indices, monitor_rewards, monitor_correctness):
+        for idx, monitor_reward, monitor_correct, monitor_answer in zip(monitor_indices, monitor_rewards, monitor_correctness, monitor_answers):
             results[idx]["monitor_correctness_reward"] = monitor_reward
             results[idx]["monitor_correctness"] = monitor_correct
+            results[idx]["monitor_answer"] = monitor_answer
 
     # Final pass: calculate total scores
     for result in results:
