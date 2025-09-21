@@ -25,6 +25,7 @@ TRAIN_WITH_MONITOR = os.environ.get("TRAIN_WITH_MONITOR", "false").lower() == "t
 MONITOR_CORRECT_REWARD = float(os.environ.get("MONITOR_CORRECT_REWARD", -1.0))
 MONITOR_WRONG_REWARD = float(os.environ.get("MONITOR_WRONG_REWARD", 1.0))
 MONITOR_MODEL_NAME = os.environ.get("MONITOR_MODEL_NAME", "gpt-4o-mini")
+REBALANCE_MONITOR_REWARD = os.environ.get("REBALANCE_MONITOR_REWARD", "false").lower() == "true"
 
 # Cache for monitor responses to avoid duplicate API calls
 monitor_cache = {}
@@ -152,6 +153,15 @@ async def compute_monitor_rewards_batch(
                     monitor_is_correct = (monitor_answer == latent_var)
                     # Reward based on monitor's correctness
                     monitor_correctness_reward = MONITOR_CORRECT_REWARD if monitor_is_correct else MONITOR_WRONG_REWARD
+
+                    # Rebalance monitor reward to give equal weight to true and false latent variable samples
+                    if REBALANCE_MONITOR_REWARD:
+                        if dataset_name == "function_correctness":
+                            reward_factor = 1/0.302 if latent_var else 1/0.698
+                        elif dataset_name.startswith("diamonds"):
+                            reward_factor = 1/0.420 if latent_var else 1/0.580
+                        monitor_correctness_reward = monitor_correctness_reward * reward_factor
+
                     return monitor_correctness_reward, float(monitor_is_correct), float(monitor_answer)
 
             return 0.0, 0.0, 0.0

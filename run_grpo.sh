@@ -16,6 +16,7 @@ DEFAULT_MONITOR_WRONG_REWARD="1.0"
 DEFAULT_MONITOR_MODEL_NAME="gpt-4o-mini"
 DEFAULT_LOG_HYPERPARAMS="true"
 DEFAULT_LOG_TO_WANDB="true"
+DEFAULT_REBALANCE_MONITOR_REWARD="false"
 
 # Parse command line arguments
 DATASET_NAME=""
@@ -31,6 +32,7 @@ MONITOR_WRONG_REWARD=""
 MONITOR_MODEL_NAME=""
 LOG_HYPERPARAMS=""
 LOG_TO_WANDB=""
+REBALANCE_MONITOR_REWARD=""
 SHOW_HELP=false
 
 while [[ $# -gt 0 ]]; do
@@ -87,6 +89,10 @@ while [[ $# -gt 0 ]]; do
             LOG_TO_WANDB="$2"
             shift 2
             ;;
+        --rebalance-monitor-reward)
+            REBALANCE_MONITOR_REWARD="$2"
+            shift 2
+            ;;
         --help|-h)
             SHOW_HELP=true
             shift
@@ -119,6 +125,7 @@ if [ "$SHOW_HELP" = true ]; then
     echo "  --monitor-model-name        OpenAI model for monitor (default: $DEFAULT_MONITOR_MODEL_NAME)"
     echo "  --log-hyperparams BOOL      Log hyperparameters to files (default: $DEFAULT_LOG_HYPERPARAMS)"
     echo "  --log-to-wandb BOOL         Log hyperparameters to wandb (default: $DEFAULT_LOG_TO_WANDB)"
+    echo "  --rebalance-monitor-reward BOOL Rebalance monitor reward (default: $DEFAULT_REBALANCE_MONITOR_REWARD)"
     echo "  --help, -h                  Show this help message"
     echo ""
     echo "Examples:"
@@ -148,7 +155,7 @@ MONITOR_WRONG_REWARD=${MONITOR_WRONG_REWARD:-$DEFAULT_MONITOR_WRONG_REWARD}
 MONITOR_MODEL_NAME=${MONITOR_MODEL_NAME:-$DEFAULT_MONITOR_MODEL_NAME}
 LOG_HYPERPARAMS=${LOG_HYPERPARAMS:-$DEFAULT_LOG_HYPERPARAMS}
 LOG_TO_WANDB=${LOG_TO_WANDB:-$DEFAULT_LOG_TO_WANDB}
-
+REBALANCE_MONITOR_REWARD=${REBALANCE_MONITOR_REWARD:-$DEFAULT_REBALANCE_MONITOR_REWARD}
 # Set max_response_length based on dataset
 if [[ "$DATASET_NAME" == function_correctness ]]; then
     MAX_RESPONSE_LENGTH=2048
@@ -197,7 +204,7 @@ if [ "$TRAIN_WITH_MONITOR" = "true" ]; then
 fi
 echo "Log hyperparameters: $LOG_HYPERPARAMS"
 echo "Log to wandb: $LOG_TO_WANDB"
-
+echo "Rebalance monitor reward: $REBALANCE_MONITOR_REWARD"
 
 # Determine if KL loss should be used based on coefficient
 USE_KL_LOSS="False"
@@ -221,6 +228,7 @@ export TRAIN_WITH_MONITOR
 export MONITOR_CORRECT_REWARD
 export MONITOR_WRONG_REWARD
 export MONITOR_MODEL_NAME
+export REBALANCE_MONITOR_REWARD
 
 # # Reduce logging verbosity
 # export PYTHONWARNINGS="ignore"

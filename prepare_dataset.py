@@ -118,6 +118,52 @@ def convert_to_verl_format(dataset, dataset_split="train", system_prompt=SYSTEM_
     
     return df
 
+def display_lv_statistics(train_df, val_df, test_df):
+    """Display the fraction of LV True and LV False (is_correct column) in each dataset split."""
+    
+    def get_lv_stats(df, split_name):
+        """Get LV statistics for a single split."""
+        is_correct_values = df['extra_info'].apply(lambda x: x['is_correct'])
+        total = len(is_correct_values)
+        true_count = sum(is_correct_values)
+        false_count = total - true_count
+        true_fraction = true_count / total if total > 0 else 0
+        false_fraction = false_count / total if total > 0 else 0
+        
+        return {
+            'total': total,
+            'true_count': true_count,
+            'false_count': false_count,
+            'true_fraction': true_fraction,
+            'false_fraction': false_fraction
+        }
+    
+    print("\n" + "="*60)
+    print("LATENT VARIABLE (LV) STATISTICS - is_correct column")
+    print("="*60)
+    
+    splits = [("Train", train_df), ("Validation", val_df), ("Test", test_df)]
+    
+    for split_name, df in splits:
+        stats = get_lv_stats(df, split_name)
+        print(f"\n{split_name} Set:")
+        print(f"  Total samples: {stats['total']}")
+        print(f"  LV True:  {stats['true_count']:4d} ({stats['true_fraction']:.3f})")
+        print(f"  LV False: {stats['false_count']:4d} ({stats['false_fraction']:.3f})")
+    
+    # Overall statistics
+    total_samples = sum(get_lv_stats(df, name)['total'] for name, df in splits)
+    total_true = sum(get_lv_stats(df, name)['true_count'] for name, df in splits)
+    total_false = total_samples - total_true
+    overall_true_fraction = total_true / total_samples if total_samples > 0 else 0
+    overall_false_fraction = total_false / total_samples if total_samples > 0 else 0
+    
+    print(f"\nOverall:")
+    print(f"  Total samples: {total_samples}")
+    print(f"  LV True:  {total_true:4d} ({overall_true_fraction:.3f})")
+    print(f"  LV False: {total_false:4d} ({overall_false_fraction:.3f})")
+    print("="*60)
+
 
 def main():
     """Main conversion function."""
@@ -201,6 +247,9 @@ def main():
     train_df = convert_to_verl_format(train_dataset, "train", system_prompt, args.dataset_name)
     val_df = convert_to_verl_format(val_dataset, "validation", system_prompt, args.dataset_name)
     test_df = convert_to_verl_format(test_dataset, "test", system_prompt, args.dataset_name)
+    
+    # Display LV statistics
+    display_lv_statistics(train_df, val_df, test_df)
     
     # Save to parquet files
     print("\nSaving to parquet files...")

@@ -23,6 +23,7 @@ def create_hyperparameter_dict(args):
         'MONITOR_CORRECT_REWARD': os.environ.get('MONITOR_CORRECT_REWARD', ''),
         'MONITOR_WRONG_REWARD': os.environ.get('MONITOR_WRONG_REWARD', ''),
         'MONITOR_MODEL_NAME': os.environ.get('MONITOR_MODEL_NAME', ''),
+        'REBALANCE_MONITOR_REWARD': os.environ.get('REBALANCE_MONITOR_REWARD', ''),
     }
     
     # Convert string values to appropriate types
@@ -126,6 +127,7 @@ def create_hyperparameter_dict(args):
             'monitor_correct_reward': env_vars['MONITOR_CORRECT_REWARD'],
             'monitor_wrong_reward': env_vars['MONITOR_WRONG_REWARD'],
             'monitor_model_name': env_vars['MONITOR_MODEL_NAME'],
+            'rebalance_monitor_reward': env_vars['REBALANCE_MONITOR_REWARD'],
         },
         
         'command_line_args': {
@@ -140,6 +142,7 @@ def create_hyperparameter_dict(args):
             'monitor_correct_reward': env_vars['MONITOR_CORRECT_REWARD'],
             'monitor_wrong_reward': env_vars['MONITOR_WRONG_REWARD'],
             'monitor_model_name': env_vars['MONITOR_MODEL_NAME'],
+            'rebalance_monitor_reward': env_vars['REBALANCE_MONITOR_REWARD'],
         }
     }
     
@@ -177,6 +180,7 @@ def save_hyperparameters_locally(hyperparams, output_dir):
             f.write(f"Monitor Model: {hyperparams['reward_config']['monitor_model_name']}\n")
             f.write(f"Monitor Correct Reward: {hyperparams['reward_config']['monitor_correct_reward']}\n")
             f.write(f"Monitor Wrong Reward: {hyperparams['reward_config']['monitor_wrong_reward']}\n")
+            f.write(f"Rebalance Monitor Reward: {hyperparams['reward_config']['rebalance_monitor_reward']}\n")
         f.write(f"Resume From: {hyperparams['trainer_config']['resume_from_path'] or 'None'}\n")
         f.write(f"Timestamp: {hyperparams['experiment_info']['timestamp']}\n")
     
