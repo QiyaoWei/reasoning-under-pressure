@@ -21,6 +21,7 @@ from tqdm import tqdm
 import numpy as np
 from collections import defaultdict
 from datetime import datetime
+from scipy import stats
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
@@ -41,6 +42,36 @@ def convert_numpy_types(obj):
         return [convert_numpy_types(item) for item in obj]
     else:
         return obj
+
+
+def calculate_confidence_interval(successes: int, total: int, confidence_level: float = 0.95) -> Tuple[float, float, float]:
+    """Calculate confidence interval for a proportion using Wilson Score interval."""
+    if total == 0:
+        return 0.0, 0.0, 0.0
+    
+    # Calculate z-score for given confidence level
+    alpha = 1 - confidence_level
+    z_score = stats.norm.ppf(1 - alpha / 2)
+    
+    # Wilson Score interval formula
+    n = total
+    p_hat = successes / n
+    
+    # Wilson Score interval components
+    denominator = 1 + (z_score**2 / n)
+    
+    # Center of the interval
+    center = (p_hat + (z_score**2 / (2 * n))) / denominator
+    
+    # Margin of error
+    margin = (z_score / denominator) * np.sqrt((p_hat * (1 - p_hat) / n) + (z_score**2 / (4 * n**2)))
+    
+    # Calculate bounds
+    lower_bound = max(0.0, center - margin)
+    upper_bound = min(1.0, center + margin)
+    
+    return lower_bound, upper_bound, margin
+
 os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
 os.environ['HF_HUB_VERBOSITY'] = 'error'
 
@@ -260,6 +291,19 @@ def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, d
     ground_truth = sample['measurements']
     ground_truth = list(ground_truth) # convert array to list
     
+    # Calculate token counts
+    total_word_count = len(response.split())
+    total_token_count = len(tokenizer.encode(response, add_special_tokens=False))
+    
+    # Extract text before measurements
+    if '<measurements>' in response:
+        text_before_measurements = response.split('<measurements>')[0]
+    else:
+        text_before_measurements = response
+    
+    before_measurements_word_count = len(text_before_measurements.split())
+    before_measurements_token_count = len(tokenizer.encode(text_before_measurements, add_special_tokens=False))
+    
     result = {
         'text': sample['text'],
         'response': response,
@@ -271,6 +315,10 @@ def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, d
         'has_measurements': '<measurements>' in response and '</measurements>' in response,
         'correct_format': predicted is not None,
         'wrong_nb_measurements': len(predicted) != len(ground_truth) if predicted is not None and ground_truth is not None else False,
+        'total_word_count': total_word_count,
+        'total_token_count': total_token_count,
+        'before_measurements_word_count': before_measurements_word_count,
+        'before_measurements_token_count': before_measurements_token_count,
     }
     
     if predicted is not None and ground_truth is not None:
@@ -282,16 +330,19 @@ def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, d
             predicted_truncated = predicted[:min_length]
             ground_truth_truncated = ground_truth[:min_length]
             result['partial_correct'] = sum(p == g for p, g in zip(predicted_truncated, ground_truth_truncated))
+            result['proportion_correct'] = result['partial_correct'] / len(ground_truth)
         else:
             result['partial_correct'] = sum(p == g for p, g in zip(predicted, ground_truth))
+            result['proportion_correct'] = result['partial_correct'] / len(ground_truth)
     else:
         result['is_correct'] = False
         result['partial_correct'] = 0
-    
+        result['proportion_correct'] = 0
+
     return result
 
 
-def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_size: int = 8) -> List[Dict]:
+def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_size: int = 8, dataset_name: str = "diamonds-seed0") -> List[Dict]:
     """Evaluate a batch of samples and return predictions."""
     results = []
 
@@ -332,9 +383,22 @@ def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_si
             skip_special_tokens=True
         )
 
-        predicted = extract_measurements(response)
+        predicted = extract_measurements(response, dataset_name=dataset_name)
         ground_truth = sample['measurements']
-        # ground_truth = list(ground_truth) # convert array to list
+        ground_truth = list(ground_truth) # convert array to list
+
+        # Calculate token counts
+        total_word_count = len(response.split())
+        total_token_count = len(tokenizer.encode(response, add_special_tokens=False))
+        
+        # Extract text before measurements
+        if '<measurements>' in response:
+            text_before_measurements = response.split('<measurements>')[0]
+        else:
+            text_before_measurements = response
+        
+        before_measurements_word_count = len(text_before_measurements.split())
+        before_measurements_token_count = len(tokenizer.encode(text_before_measurements, add_special_tokens=False))
 
         result = {
             'text': sample['text'],
@@ -347,6 +411,10 @@ def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_si
             'has_measurements': '<measurements>' in response and '</measurements>' in response,
             'correct_format': predicted is not None,
             'wrong_nb_measurements': len(predicted) != len(ground_truth) if predicted is not None and ground_truth is not None else False,
+            'total_word_count': total_word_count,
+            'total_token_count': total_token_count,
+            'before_measurements_word_count': before_measurements_word_count,
+            'before_measurements_token_count': before_measurements_token_count,
         }
 
         if predicted is not None and ground_truth is not None:
@@ -358,12 +426,14 @@ def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_si
                 predicted_truncated = predicted[:min_length]
                 ground_truth_truncated = ground_truth[:min_length]
                 result['partial_correct'] = sum(p == g for p, g in zip(predicted_truncated, ground_truth_truncated))
+                result['proportion_correct'] = result['partial_correct'] / len(ground_truth)
             else:
                 result['partial_correct'] = sum(p == g for p, g in zip(predicted, ground_truth))
+                result['proportion_correct'] = result['partial_correct'] / len(ground_truth)
         else:
             result['is_correct'] = False
             result['partial_correct'] = 0
-
+            result['proportion_correct'] = 0
         results.append(result)
 
     return results
@@ -404,7 +474,8 @@ def evaluate_checkpoint(checkpoint_path: str,
     # Evaluation metrics
     results = []
     metrics_by_difficulty = defaultdict(lambda: {
-        'total': 0, 'n_measurements': 0, 'correct': 0, 'partial': 0, 'format_correct': 0, 'wrong_nb_measurements': 0
+        'total': 0, 'n_measurements': 0, 'correct': 0, 'partial': 0, 'proportion_correct': 0, 'format_correct': 0, 'wrong_nb_measurements': 0,
+        'total_word_count': 0, 'total_token_count': 0, 'before_measurements_word_count': 0, 'before_measurements_token_count': 0,
     })
     
     # Evaluate samples
@@ -416,7 +487,7 @@ def evaluate_checkpoint(checkpoint_path: str,
         batch_samples = [eval_dataset[i] for i in range(batch_start, batch_end)]
 
         # Evaluate batch
-        batch_results = evaluate_batch(model, tokenizer, batch_samples, temperature, batch_size)
+        batch_results = evaluate_batch(model, tokenizer, batch_samples, temperature, batch_size, dataset_name)
         results.extend(batch_results)
 
         # Update metrics for batch
@@ -433,6 +504,8 @@ def evaluate_checkpoint(checkpoint_path: str,
 
             metrics_by_difficulty[difficulty]['partial'] += result['partial_correct']
             metrics_by_difficulty['overall']['partial'] += result['partial_correct']
+            metrics_by_difficulty[difficulty]['proportion_correct'] += result['proportion_correct']
+            metrics_by_difficulty['overall']['proportion_correct'] += result['proportion_correct']
 
             if result['correct_format']:
                 metrics_by_difficulty[difficulty]['format_correct'] += 1
@@ -441,6 +514,17 @@ def evaluate_checkpoint(checkpoint_path: str,
             if result['wrong_nb_measurements']:
                 metrics_by_difficulty[difficulty]['wrong_nb_measurements'] += 1
                 metrics_by_difficulty['overall']['wrong_nb_measurements'] += 1
+            
+            # Accumulate token counts
+            metrics_by_difficulty[difficulty]['total_word_count'] += result['total_word_count']
+            metrics_by_difficulty[difficulty]['total_token_count'] += result['total_token_count']
+            metrics_by_difficulty[difficulty]['before_measurements_word_count'] += result['before_measurements_word_count']
+            metrics_by_difficulty[difficulty]['before_measurements_token_count'] += result['before_measurements_token_count']
+            
+            metrics_by_difficulty['overall']['total_word_count'] += result['total_word_count']
+            metrics_by_difficulty['overall']['total_token_count'] += result['total_token_count']
+            metrics_by_difficulty['overall']['before_measurements_word_count'] += result['before_measurements_word_count']
+            metrics_by_difficulty['overall']['before_measurements_token_count'] += result['before_measurements_token_count']
     
     # Compute final metrics
     metrics = {
@@ -455,13 +539,65 @@ def evaluate_checkpoint(checkpoint_path: str,
     for difficulty, stats in metrics_by_difficulty.items():
         total = stats['total']
         if total > 0:
-            metrics[f'accuracy_{difficulty}'] = stats['correct'] / total
-            metrics[f'partial_accuracy_{difficulty}'] = stats['partial'] / stats['n_measurements']
-            metrics[f'format_accuracy_{difficulty}'] = stats['format_correct'] / total
+            # Calculate basic metrics
+            measurement_wise_acc = stats['proportion_correct'] / total
+            all_correct_acc = stats['correct'] / total
+            format_acc = stats['format_correct'] / total
+            partial_acc = stats['partial'] / stats['n_measurements']
+            
+            # Calculate confidence intervals
+            # For measurement-wise accuracy, we need to calculate it differently since it's an average of proportions
+            # We'll use the total number of measurements as the denominator
+            measurement_wise_lower, measurement_wise_upper, measurement_wise_margin = calculate_confidence_interval(
+                int(stats['proportion_correct'] * stats['n_measurements']), stats['n_measurements']
+            )
+            
+            all_correct_lower, all_correct_upper, all_correct_margin = calculate_confidence_interval(
+                stats['correct'], total
+            )
+            
+            format_lower, format_upper, format_margin = calculate_confidence_interval(
+                stats['format_correct'], total
+            )
+            
+            partial_lower, partial_upper, partial_margin = calculate_confidence_interval(
+                stats['partial'], stats['n_measurements']
+            )
+            
+            # Store basic metrics
+            metrics[f'measurement-wise_accuracy_{difficulty}'] = measurement_wise_acc
+            metrics[f'all_correct_accuracy_{difficulty}'] = all_correct_acc
+            metrics[f'format_accuracy_{difficulty}'] = format_acc
+            metrics[f'partial_accuracy_{difficulty}'] = partial_acc
+            
+            # Store confidence intervals
+            metrics[f'measurement-wise_accuracy_{difficulty}_ci_lower'] = measurement_wise_lower
+            metrics[f'measurement-wise_accuracy_{difficulty}_ci_upper'] = measurement_wise_upper
+            metrics[f'measurement-wise_accuracy_{difficulty}_ci_margin'] = measurement_wise_margin
+            
+            metrics[f'all_correct_accuracy_{difficulty}_ci_lower'] = all_correct_lower
+            metrics[f'all_correct_accuracy_{difficulty}_ci_upper'] = all_correct_upper
+            metrics[f'all_correct_accuracy_{difficulty}_ci_margin'] = all_correct_margin
+            
+            metrics[f'format_accuracy_{difficulty}_ci_lower'] = format_lower
+            metrics[f'format_accuracy_{difficulty}_ci_upper'] = format_upper
+            metrics[f'format_accuracy_{difficulty}_ci_margin'] = format_margin
+            
+            metrics[f'partial_accuracy_{difficulty}_ci_lower'] = partial_lower
+            metrics[f'partial_accuracy_{difficulty}_ci_upper'] = partial_upper
+            metrics[f'partial_accuracy_{difficulty}_ci_margin'] = partial_margin
+            
+            # Store sample counts
             metrics[f'n_samples_{difficulty}'] = total
             metrics[f'n_measurements_{difficulty}'] = stats['n_measurements']
             metrics[f'n_format_correct_{difficulty}'] = stats['format_correct']
             metrics[f'n_wrong_nb_measurements_{difficulty}'] = stats['wrong_nb_measurements']
+            
+            # Store token count metrics
+            metrics[f'avg_total_word_count_{difficulty}'] = stats['total_word_count'] / total
+            metrics[f'avg_total_token_count_{difficulty}'] = stats['total_token_count'] / total
+            metrics[f'avg_before_measurements_word_count_{difficulty}'] = stats['before_measurements_word_count'] / total
+            metrics[f'avg_before_measurements_token_count_{difficulty}'] = stats['before_measurements_token_count'] / total
     
     # Save predictions if requested
     if save_predictions:
@@ -552,10 +688,26 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
             )
             all_metrics.append(metrics)
             
-            # Log key metrics
-            logger.info(f"Overall Accuracy: {metrics.get('accuracy_overall', 0):.3f}")
-            logger.info(f"Partial Accuracy: {metrics.get('partial_accuracy_overall', 0):.3f}")
-            logger.info(f"Format Accuracy: {metrics.get('format_accuracy_overall', 0):.3f}")
+            # Log key metrics with confidence intervals
+            measurement_wise_acc = metrics.get('measurement-wise_accuracy_overall', 0)
+            measurement_wise_margin = metrics.get('measurement-wise_accuracy_overall_ci_margin', 0)
+            logger.info(f"Measurement-wise Accuracy: {measurement_wise_acc:.3f} ± {measurement_wise_margin:.3f} (95% CI: [{measurement_wise_acc - measurement_wise_margin:.3f}, {measurement_wise_acc + measurement_wise_margin:.3f}])")
+            
+            all_correct_acc = metrics.get('all_correct_accuracy_overall', 0)
+            all_correct_margin = metrics.get('all_correct_accuracy_overall_ci_margin', 0)
+            logger.info(f"All Correct Accuracy: {all_correct_acc:.3f} ± {all_correct_margin:.3f} (95% CI: [{all_correct_acc - all_correct_margin:.3f}, {all_correct_acc + all_correct_margin:.3f}])")
+            
+            format_acc = metrics.get('format_accuracy_overall', 0)
+            format_margin = metrics.get('format_accuracy_overall_ci_margin', 0)
+            logger.info(f"Format Accuracy: {format_acc:.3f} ± {format_margin:.3f} (95% CI: [{format_acc - format_margin:.3f}, {format_acc + format_margin:.3f}])")
+            
+            # Log token count information
+            avg_total_words = metrics.get('avg_total_word_count_overall', 0)
+            avg_total_tokens = metrics.get('avg_total_token_count_overall', 0)
+            avg_before_measurements_words = metrics.get('avg_before_measurements_word_count_overall', 0)
+            avg_before_measurements_tokens = metrics.get('avg_before_measurements_token_count_overall', 0)
+            logger.info(f"Avg Total Response: {avg_total_words:.1f} words, {avg_total_tokens:.1f} tokens")
+            logger.info(f"Avg Before Measurements: {avg_before_measurements_words:.1f} words, {avg_before_measurements_tokens:.1f} tokens")
             
         except Exception as e:
             logger.error(f"Failed to evaluate {checkpoint_path.name}: {e}")
@@ -598,22 +750,48 @@ def print_summary(all_metrics: List[Dict]):
     logger.info(f"{'='*80}")
     
     # Find best checkpoint by overall accuracy
-    best_checkpoint = max(all_metrics, key=lambda x: x.get('accuracy_overall', 0))
+    best_checkpoint = max(all_metrics, key=lambda x: x.get('measurement-wise_accuracy_overall', 0))
     logger.info(f"\nBest Checkpoint: {best_checkpoint['checkpoint']}")
-    logger.info(f"Overall Accuracy: {best_checkpoint.get('accuracy_overall', 0):.3f}")
-    logger.info(f"Partial Accuracy: {best_checkpoint.get('partial_accuracy_overall', 0):.3f}")
+    
+    measurement_wise_acc = best_checkpoint.get('measurement-wise_accuracy_overall', 0)
+    measurement_wise_margin = best_checkpoint.get('measurement-wise_accuracy_overall_ci_margin', 0)
+    logger.info(f"Measurement-wise Accuracy: {measurement_wise_acc:.3f} ± {measurement_wise_margin:.3f} (95% CI: [{measurement_wise_acc - measurement_wise_margin:.3f}, {measurement_wise_acc + measurement_wise_margin:.3f}])")
+    
+    all_correct_acc = best_checkpoint.get('all_correct_accuracy_overall', 0)
+    all_correct_margin = best_checkpoint.get('all_correct_accuracy_overall_ci_margin', 0)
+    logger.info(f"All Correct Accuracy: {all_correct_acc:.3f} ± {all_correct_margin:.3f} (95% CI: [{all_correct_acc - all_correct_margin:.3f}, {all_correct_acc + all_correct_margin:.3f}])")
+    
+    format_acc = best_checkpoint.get('format_accuracy_overall', 0)
+    format_margin = best_checkpoint.get('format_accuracy_overall_ci_margin', 0)
+    logger.info(f"Format Accuracy: {format_acc:.3f} ± {format_margin:.3f} (95% CI: [{format_acc - format_margin:.3f}, {format_acc + format_margin:.3f}])")
+    
+    # Log token count information for best checkpoint
+    avg_total_words = best_checkpoint.get('avg_total_word_count_overall', 0)
+    avg_total_tokens = best_checkpoint.get('avg_total_token_count_overall', 0)
+    avg_before_measurements_words = best_checkpoint.get('avg_before_measurements_word_count_overall', 0)
+    avg_before_measurements_tokens = best_checkpoint.get('avg_before_measurements_token_count_overall', 0)
+    logger.info(f"Avg Total Response: {avg_total_words:.1f} words, {avg_total_tokens:.1f} tokens")
+    logger.info(f"Avg Before Measurements: {avg_before_measurements_words:.1f} words, {avg_before_measurements_tokens:.1f} tokens")
     
     # Print progress over checkpoints
     logger.info("\nProgress Over Training:")
-    logger.info(f"{'Checkpoint':<20} {'Overall Acc':<15} {'Partial Acc':<15} {'Format Acc':<15}")
-    logger.info("-" * 65)
+    logger.info(f"{'Checkpoint':<20} {'Measurement-wise Acc (±95% CI)':<35} {'All Correct Acc (±95% CI)':<35} {'Format Acc (±95% CI)':<35}")
+    logger.info("-" * 125)
     
     for metrics in all_metrics[-10:]:  # Show last 10 checkpoints
         checkpoint = metrics['checkpoint']
-        overall_acc = metrics.get('accuracy_overall', 0)
-        partial_acc = metrics.get('partial_accuracy_overall', 0)
+        measurement_wise_acc = metrics.get('measurement-wise_accuracy_overall', 0)
+        measurement_wise_margin = metrics.get('measurement-wise_accuracy_overall_ci_margin', 0)
+        all_correct_acc = metrics.get('all_correct_accuracy_overall', 0)
+        all_correct_margin = metrics.get('all_correct_accuracy_overall_ci_margin', 0)
         format_acc = metrics.get('format_accuracy_overall', 0)
-        logger.info(f"{checkpoint:<20} {overall_acc:<15.3f} {partial_acc:<15.3f} {format_acc:<15.3f}")
+        format_margin = metrics.get('format_accuracy_overall_ci_margin', 0)
+        
+        measurement_wise_str = f"{measurement_wise_acc:.3f}±{measurement_wise_margin:.3f}"
+        all_correct_str = f"{all_correct_acc:.3f}±{all_correct_margin:.3f}"
+        format_str = f"{format_acc:.3f}±{format_margin:.3f}"
+        
+        logger.info(f"{checkpoint:<20} {measurement_wise_str:<35} {all_correct_str:<35} {format_str:<35}")
 
 
 def main():
@@ -627,7 +805,7 @@ def main():
     parser.add_argument("--dataset-name", type=str, default="diamonds-seed0", 
                        choices=[f"diamonds-seed{i}" for i in range(8)] + ["function_correctness"],
                        help="Dataset to evaluate")
-    parser.add_argument("--dataset-set", type=str, default="test",
+    parser.add_argument("--dataset-set", type=str, default="val",
                        choices=["train", "val", "test"],
                        help="Dataset split to evaluate")
     parser.add_argument("--num-samples", type=int, default=None,
