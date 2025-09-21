@@ -5,13 +5,15 @@ Process reasoning traces from regular evaluation results through monitor model.
 import json
 import os
 import re
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 from openai import OpenAI
 import asyncio
 from openai import AsyncOpenAI
 import time
 import random
+import numpy as np
+from scipy import stats
 
 # Import monitor utilities
 from utils.monitor_utils import (
@@ -20,6 +22,35 @@ from utils.monitor_utils import (
     extract_monitor_prediction,
     extract_monitor_reasoning
 )
+
+
+def calculate_confidence_interval(successes: int, total: int, confidence_level: float = 0.95) -> Tuple[float, float, float]:
+    """Calculate confidence interval for a proportion using Wilson Score interval."""
+    if total == 0:
+        return 0.0, 0.0, 0.0
+    
+    # Calculate z-score for given confidence level
+    alpha = 1 - confidence_level
+    z_score = stats.norm.ppf(1 - alpha / 2)
+    
+    # Wilson Score interval formula
+    n = total
+    p_hat = successes / n
+    
+    # Wilson Score interval components
+    denominator = 1 + (z_score**2 / n)
+    
+    # Center of the interval
+    center = (p_hat + (z_score**2 / (2 * n))) / denominator
+    
+    # Margin of error
+    margin = (z_score / denominator) * np.sqrt((p_hat * (1 - p_hat) / n) + (z_score**2 / (4 * n**2)))
+    
+    # Calculate bounds
+    lower_bound = max(0.0, center - margin)
+    upper_bound = min(1.0, center + margin)
+    
+    return lower_bound, upper_bound, margin
 
 
 def rebalance_samples(samples: List[Dict]) -> List[Dict]:
@@ -31,7 +62,6 @@ def rebalance_samples(samples: List[Dict]) -> List[Dict]:
     print(f"Original distribution: {len(true_samples)} True, {len(false_samples)} False")
     
     # Calculate target counts
-    total_samples = len(samples)
     if len(true_samples) >= len(false_samples):
         target_samples_per_category = len(false_samples)
     else:
@@ -54,7 +84,7 @@ def rebalance_samples(samples: List[Dict]) -> List[Dict]:
     
     return rebalanced_samples
 
-async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str], sample_idx: int, semaphore: asyncio.Semaphore, model_name: str = "gpt-4o") -> Dict[str, Any]:
+async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str], sample_idx: int, semaphore: asyncio.Semaphore, model_name: str = "gpt-4o-mini") -> Dict[str, Any]:
     """
     Get response from monitor model via OpenAI API asynchronously.
     """
@@ -95,7 +125,7 @@ async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str]
                 "error": str(e)
             }
 
-async def process_batch_async(client: AsyncOpenAI, batch_data: List[Dict], max_concurrent: int = 10, model_name: str = "gpt-4o") -> List[Dict]:
+async def process_batch_async(client: AsyncOpenAI, batch_data: List[Dict], max_concurrent: int = 10, model_name: str = "gpt-4o-mini") -> List[Dict]:
     """
     Process a batch of samples asynchronously with rate limiting.
     """
@@ -118,7 +148,7 @@ async def process_batch_async(client: AsyncOpenAI, batch_data: List[Dict], max_c
     results_dict = {r["sample_idx"]: r for r in results}
     return [results_dict[item["sample_idx"]] for item in batch_data]
 
-async def process_evaluation_results_async(input_file: str, output_file: str, api_key: str = None, batch_size: int = 20, max_concurrent: int = 10, dataset_name: str = "diamonds-seed0", model_name: str = "gpt-4o", rebalance: bool = False):
+async def process_evaluation_results_async(input_file: str, output_file: str, api_key: str = None, batch_size: int = 20, max_concurrent: int = 10, dataset_name: str = "diamonds-seed0", model_name: str = "gpt-4o-mini", rebalance: bool = False):
     """Process evaluation results and generate monitor predictions with batching."""
     
     # Initialize AsyncOpenAI client
@@ -221,6 +251,61 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
                              and r["monitor_prediction"] == r["latent_variable"])
     total_valid_predictions = sum(1 for r in monitor_results if r["monitor_prediction"] is not None)
     
+    # Calculate 95% confidence interval for overall accuracy
+    accuracy_ci_lower, accuracy_ci_upper, accuracy_ci_margin = calculate_confidence_interval(
+        correct_predictions, total_valid_predictions, confidence_level=0.95
+    )
+    
+    # Calculate conditional accuracies
+    # Monitor accuracy when original model is correct
+    original_correct_samples = [r for r in monitor_results 
+                               if r["monitor_prediction"] is not None 
+                               and r["original_prediction"] == r["ground_truth"]]
+    monitor_correct_when_original_correct = sum(1 for r in original_correct_samples 
+                                               if r["monitor_prediction"] == r["latent_variable"])
+    total_original_correct = len(original_correct_samples)
+    
+    # Monitor accuracy when original model is incorrect
+    original_incorrect_samples = [r for r in monitor_results 
+                                 if r["monitor_prediction"] is not None 
+                                 and r["original_prediction"] != r["ground_truth"]]
+    monitor_correct_when_original_incorrect = sum(1 for r in original_incorrect_samples 
+                                                 if r["monitor_prediction"] == r["latent_variable"])
+    total_original_incorrect = len(original_incorrect_samples)
+    
+    # Monitor accuracy when LV=True
+    lv_true_samples = [r for r in monitor_results 
+                      if r["monitor_prediction"] is not None 
+                      and r["latent_variable"] is True]
+    monitor_correct_when_lv_true = sum(1 for r in lv_true_samples 
+                                      if r["monitor_prediction"] == r["latent_variable"])
+    total_lv_true = len(lv_true_samples)
+    
+    # Monitor accuracy when LV=False
+    lv_false_samples = [r for r in monitor_results 
+                       if r["monitor_prediction"] is not None 
+                       and r["latent_variable"] is False]
+    monitor_correct_when_lv_false = sum(1 for r in lv_false_samples 
+                                       if r["monitor_prediction"] == r["latent_variable"])
+    total_lv_false = len(lv_false_samples)
+    
+    # Calculate confidence intervals for conditional accuracies
+    ci_original_correct = calculate_confidence_interval(
+        monitor_correct_when_original_correct, total_original_correct, confidence_level=0.95
+    ) if total_original_correct > 0 else (0.0, 0.0, 0.0)
+    
+    ci_original_incorrect = calculate_confidence_interval(
+        monitor_correct_when_original_incorrect, total_original_incorrect, confidence_level=0.95
+    ) if total_original_incorrect > 0 else (0.0, 0.0, 0.0)
+    
+    ci_lv_true = calculate_confidence_interval(
+        monitor_correct_when_lv_true, total_lv_true, confidence_level=0.95
+    ) if total_lv_true > 0 else (0.0, 0.0, 0.0)
+    
+    ci_lv_false = calculate_confidence_interval(
+        monitor_correct_when_lv_false, total_lv_false, confidence_level=0.95
+    ) if total_lv_false > 0 else (0.0, 0.0, 0.0)
+    
     # Create a summary file
     summary_file = output_file.replace('.json', '_summary.json')
     summary = {
@@ -233,6 +318,53 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
         "valid_predictions": total_valid_predictions,
         "correct_predictions": correct_predictions,
         "accuracy": correct_predictions / total_valid_predictions if total_valid_predictions > 0 else 0,
+        "accuracy_95_ci": {
+            "lower_bound": accuracy_ci_lower,
+            "upper_bound": accuracy_ci_upper,
+            "margin": accuracy_ci_margin
+        },
+        "conditional_accuracies": {
+            "when_original_correct": {
+                "accuracy": monitor_correct_when_original_correct / total_original_correct if total_original_correct > 0 else 0,
+                "correct_predictions": monitor_correct_when_original_correct,
+                "total_samples": total_original_correct,
+                "95_ci": {
+                    "lower_bound": ci_original_correct[0],
+                    "upper_bound": ci_original_correct[1],
+                    "margin": ci_original_correct[2]
+                }
+            },
+            "when_original_incorrect": {
+                "accuracy": monitor_correct_when_original_incorrect / total_original_incorrect if total_original_incorrect > 0 else 0,
+                "correct_predictions": monitor_correct_when_original_incorrect,
+                "total_samples": total_original_incorrect,
+                "95_ci": {
+                    "lower_bound": ci_original_incorrect[0],
+                    "upper_bound": ci_original_incorrect[1],
+                    "margin": ci_original_incorrect[2]
+                }
+            },
+            "when_lv_true": {
+                "accuracy": monitor_correct_when_lv_true / total_lv_true if total_lv_true > 0 else 0,
+                "correct_predictions": monitor_correct_when_lv_true,
+                "total_samples": total_lv_true,
+                "95_ci": {
+                    "lower_bound": ci_lv_true[0],
+                    "upper_bound": ci_lv_true[1],
+                    "margin": ci_lv_true[2]
+                }
+            },
+            "when_lv_false": {
+                "accuracy": monitor_correct_when_lv_false / total_lv_false if total_lv_false > 0 else 0,
+                "correct_predictions": monitor_correct_when_lv_false,
+                "total_samples": total_lv_false,
+                "95_ci": {
+                    "lower_bound": ci_lv_false[0],
+                    "upper_bound": ci_lv_false[1],
+                    "margin": ci_lv_false[2]
+                }
+            }
+        },
         "model": model_name,
         "batch_size": batch_size,
         "max_concurrent": max_concurrent
@@ -248,8 +380,35 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
     print(f"Valid predictions: {total_valid_predictions}")
     print(f"Correct predictions: {correct_predictions}")
     if total_valid_predictions > 0:
-        print(f"Accuracy: {correct_predictions / total_valid_predictions:.2%}")
-    print(f"Results saved to: {output_file}")
+        accuracy = correct_predictions / total_valid_predictions
+        print(f"Overall Accuracy: {accuracy:.2%}")
+        print(f"95% Confidence Interval: [{accuracy_ci_lower:.2%}, {accuracy_ci_upper:.2%}] (±{accuracy_ci_margin:.2%})")
+    
+    print(f"\n=== Conditional Accuracies ===")
+    
+    # Monitor accuracy when original model is correct/incorrect
+    if total_original_correct > 0:
+        acc_orig_correct = monitor_correct_when_original_correct / total_original_correct
+        print(f"When Original Model Correct: {acc_orig_correct:.2%} ({monitor_correct_when_original_correct}/{total_original_correct})")
+        print(f"  95% CI: [{ci_original_correct[0]:.2%}, {ci_original_correct[1]:.2%}] (±{ci_original_correct[2]:.2%})")
+    
+    if total_original_incorrect > 0:
+        acc_orig_incorrect = monitor_correct_when_original_incorrect / total_original_incorrect
+        print(f"When Original Model Incorrect: {acc_orig_incorrect:.2%} ({monitor_correct_when_original_incorrect}/{total_original_incorrect})")
+        print(f"  95% CI: [{ci_original_incorrect[0]:.2%}, {ci_original_incorrect[1]:.2%}] (±{ci_original_incorrect[2]:.2%})")
+    
+    # Monitor accuracy when LV=True/False
+    if total_lv_true > 0:
+        acc_lv_true = monitor_correct_when_lv_true / total_lv_true
+        print(f"When LV=True: {acc_lv_true:.2%} ({monitor_correct_when_lv_true}/{total_lv_true})")
+        print(f"  95% CI: [{ci_lv_true[0]:.2%}, {ci_lv_true[1]:.2%}] (±{ci_lv_true[2]:.2%})")
+    
+    if total_lv_false > 0:
+        acc_lv_false = monitor_correct_when_lv_false / total_lv_false
+        print(f"When LV=False: {acc_lv_false:.2%} ({monitor_correct_when_lv_false}/{total_lv_false})")
+        print(f"  95% CI: [{ci_lv_false[0]:.2%}, {ci_lv_false[1]:.2%}] (±{ci_lv_false[2]:.2%})")
+    
+    print(f"\nResults saved to: {output_file}")
     print(f"Summary saved to: {summary_file}")
 
 def main():
@@ -262,8 +421,8 @@ def main():
                        help="Dataset name to determine which reporter prompt to use")
     parser.add_argument('--input', '-i', default="predictions/global_step_40_raw_outputs.json",
                         help='Input file with raw outputs')
-    parser.add_argument('--output', '-o', default="monitor_predictions.json",
-                        help='Output file for monitor predictions')
+    parser.add_argument('--output', '-o', default=None,
+                        help='Output file for monitor predictions (default: same directory as input with name monitor_predictions.json)')
     parser.add_argument('--api-key', '-k', help='OpenAI API key (can also use OPENAI_API_KEY env var)')
     parser.add_argument('--batch-size', '-b', type=int, default=20,
                         help='Number of samples to process in each batch (default: 20)')
@@ -276,6 +435,11 @@ def main():
     
     args = parser.parse_args()
     
+    # Set default output path if not provided
+    if args.output is None:
+        input_dir = os.path.dirname(args.input)
+        args.output = os.path.join(input_dir, "monitor_predictions.json")
+    
     # Get API key from args or environment
     api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
     
@@ -284,6 +448,8 @@ def main():
         print("Please set OPENAI_API_KEY environment variable or use --api-key argument.")
         print(f"Usage: {sys.argv[0]} --api-key YOUR_KEY")
         sys.exit(1)
+    
+    print(f"\nUsing monitor model: {args.model_name}\n")
     
     # Run the async processing
     asyncio.run(process_evaluation_results_async(

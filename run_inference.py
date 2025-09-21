@@ -549,7 +549,7 @@ def evaluate_checkpoint(checkpoint_path: str,
             # For measurement-wise accuracy, we need to calculate it differently since it's an average of proportions
             # We'll use the total number of measurements as the denominator
             measurement_wise_lower, measurement_wise_upper, measurement_wise_margin = calculate_confidence_interval(
-                int(stats['proportion_correct'] * stats['n_measurements']), stats['n_measurements']
+                stats['proportion_correct'], total
             )
             
             all_correct_lower, all_correct_upper, all_correct_margin = calculate_confidence_interval(
@@ -564,28 +564,23 @@ def evaluate_checkpoint(checkpoint_path: str,
                 stats['partial'], stats['n_measurements']
             )
             
-            # Store basic metrics
-            metrics[f'measurement-wise_accuracy_{difficulty}'] = measurement_wise_acc
-            metrics[f'all_correct_accuracy_{difficulty}'] = all_correct_acc
-            metrics[f'format_accuracy_{difficulty}'] = format_acc
-            metrics[f'partial_accuracy_{difficulty}'] = partial_acc
-            
-            # Store confidence intervals
-            metrics[f'measurement-wise_accuracy_{difficulty}_ci_lower'] = measurement_wise_lower
-            metrics[f'measurement-wise_accuracy_{difficulty}_ci_upper'] = measurement_wise_upper
-            metrics[f'measurement-wise_accuracy_{difficulty}_ci_margin'] = measurement_wise_margin
-            
-            metrics[f'all_correct_accuracy_{difficulty}_ci_lower'] = all_correct_lower
-            metrics[f'all_correct_accuracy_{difficulty}_ci_upper'] = all_correct_upper
-            metrics[f'all_correct_accuracy_{difficulty}_ci_margin'] = all_correct_margin
-            
-            metrics[f'format_accuracy_{difficulty}_ci_lower'] = format_lower
-            metrics[f'format_accuracy_{difficulty}_ci_upper'] = format_upper
-            metrics[f'format_accuracy_{difficulty}_ci_margin'] = format_margin
-            
-            metrics[f'partial_accuracy_{difficulty}_ci_lower'] = partial_lower
-            metrics[f'partial_accuracy_{difficulty}_ci_upper'] = partial_upper
-            metrics[f'partial_accuracy_{difficulty}_ci_margin'] = partial_margin
+            # Store basic metrics with confidence intervals as lists [lower, upper, margin]
+            metrics[f'measurement-wise_accuracy_{difficulty}'] = {
+                'value': measurement_wise_acc,
+                'confidence_interval': [measurement_wise_lower, measurement_wise_upper, measurement_wise_margin]
+            }
+            metrics[f'all_correct_accuracy_{difficulty}'] = {
+                'value': all_correct_acc,
+                'confidence_interval': [all_correct_lower, all_correct_upper, all_correct_margin]
+            }
+            metrics[f'format_accuracy_{difficulty}'] = {
+                'value': format_acc,
+                'confidence_interval': [format_lower, format_upper, format_margin]
+            }
+            metrics[f'partial_accuracy_{difficulty}'] = {
+                'value': partial_acc,
+                'confidence_interval': [partial_lower, partial_upper, partial_margin]
+            }
             
             # Store sample counts
             metrics[f'n_samples_{difficulty}'] = total
@@ -689,17 +684,23 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
             all_metrics.append(metrics)
             
             # Log key metrics with confidence intervals
-            measurement_wise_acc = metrics.get('measurement-wise_accuracy_overall', 0)
-            measurement_wise_margin = metrics.get('measurement-wise_accuracy_overall_ci_margin', 0)
-            logger.info(f"Measurement-wise Accuracy: {measurement_wise_acc:.3f} ± {measurement_wise_margin:.3f} (95% CI: [{measurement_wise_acc - measurement_wise_margin:.3f}, {measurement_wise_acc + measurement_wise_margin:.3f}])")
+            measurement_wise_data = metrics.get('measurement-wise_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+            measurement_wise_acc = measurement_wise_data['value']
+            measurement_wise_ci = measurement_wise_data['confidence_interval']
+            measurement_wise_margin = measurement_wise_ci[2]
+            logger.info(f"Measurement-wise Accuracy: {measurement_wise_acc:.3f} ± {measurement_wise_margin:.3f} (95% CI: [{measurement_wise_ci[0]:.3f}, {measurement_wise_ci[1]:.3f}])")
             
-            all_correct_acc = metrics.get('all_correct_accuracy_overall', 0)
-            all_correct_margin = metrics.get('all_correct_accuracy_overall_ci_margin', 0)
-            logger.info(f"All Correct Accuracy: {all_correct_acc:.3f} ± {all_correct_margin:.3f} (95% CI: [{all_correct_acc - all_correct_margin:.3f}, {all_correct_acc + all_correct_margin:.3f}])")
+            all_correct_data = metrics.get('all_correct_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+            all_correct_acc = all_correct_data['value']
+            all_correct_ci = all_correct_data['confidence_interval']
+            all_correct_margin = all_correct_ci[2]
+            logger.info(f"All Correct Accuracy: {all_correct_acc:.3f} ± {all_correct_margin:.3f} (95% CI: [{all_correct_ci[0]:.3f}, {all_correct_ci[1]:.3f}])")
             
-            format_acc = metrics.get('format_accuracy_overall', 0)
-            format_margin = metrics.get('format_accuracy_overall_ci_margin', 0)
-            logger.info(f"Format Accuracy: {format_acc:.3f} ± {format_margin:.3f} (95% CI: [{format_acc - format_margin:.3f}, {format_acc + format_margin:.3f}])")
+            format_data = metrics.get('format_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+            format_acc = format_data['value']
+            format_ci = format_data['confidence_interval']
+            format_margin = format_ci[2]
+            logger.info(f"Format Accuracy: {format_acc:.3f} ± {format_margin:.3f} (95% CI: [{format_ci[0]:.3f}, {format_ci[1]:.3f}])")
             
             # Log token count information
             avg_total_words = metrics.get('avg_total_word_count_overall', 0)
@@ -750,20 +751,26 @@ def print_summary(all_metrics: List[Dict]):
     logger.info(f"{'='*80}")
     
     # Find best checkpoint by overall accuracy
-    best_checkpoint = max(all_metrics, key=lambda x: x.get('measurement-wise_accuracy_overall', 0))
+    best_checkpoint = max(all_metrics, key=lambda x: x.get('measurement-wise_accuracy_overall', {'value': 0})['value'])
     logger.info(f"\nBest Checkpoint: {best_checkpoint['checkpoint']}")
     
-    measurement_wise_acc = best_checkpoint.get('measurement-wise_accuracy_overall', 0)
-    measurement_wise_margin = best_checkpoint.get('measurement-wise_accuracy_overall_ci_margin', 0)
-    logger.info(f"Measurement-wise Accuracy: {measurement_wise_acc:.3f} ± {measurement_wise_margin:.3f} (95% CI: [{measurement_wise_acc - measurement_wise_margin:.3f}, {measurement_wise_acc + measurement_wise_margin:.3f}])")
+    measurement_wise_data = best_checkpoint.get('measurement-wise_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+    measurement_wise_acc = measurement_wise_data['value']
+    measurement_wise_ci = measurement_wise_data['confidence_interval']
+    measurement_wise_margin = measurement_wise_ci[2]
+    logger.info(f"Measurement-wise Accuracy: {measurement_wise_acc:.3f} ± {measurement_wise_margin:.3f} (95% CI: [{measurement_wise_ci[0]:.3f}, {measurement_wise_ci[1]:.3f}])")
     
-    all_correct_acc = best_checkpoint.get('all_correct_accuracy_overall', 0)
-    all_correct_margin = best_checkpoint.get('all_correct_accuracy_overall_ci_margin', 0)
-    logger.info(f"All Correct Accuracy: {all_correct_acc:.3f} ± {all_correct_margin:.3f} (95% CI: [{all_correct_acc - all_correct_margin:.3f}, {all_correct_acc + all_correct_margin:.3f}])")
+    all_correct_data = best_checkpoint.get('all_correct_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+    all_correct_acc = all_correct_data['value']
+    all_correct_ci = all_correct_data['confidence_interval']
+    all_correct_margin = all_correct_ci[2]
+    logger.info(f"All Correct Accuracy: {all_correct_acc:.3f} ± {all_correct_margin:.3f} (95% CI: [{all_correct_ci[0]:.3f}, {all_correct_ci[1]:.3f}])")
     
-    format_acc = best_checkpoint.get('format_accuracy_overall', 0)
-    format_margin = best_checkpoint.get('format_accuracy_overall_ci_margin', 0)
-    logger.info(f"Format Accuracy: {format_acc:.3f} ± {format_margin:.3f} (95% CI: [{format_acc - format_margin:.3f}, {format_acc + format_margin:.3f}])")
+    format_data = best_checkpoint.get('format_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+    format_acc = format_data['value']
+    format_ci = format_data['confidence_interval']
+    format_margin = format_ci[2]
+    logger.info(f"Format Accuracy: {format_acc:.3f} ± {format_margin:.3f} (95% CI: [{format_ci[0]:.3f}, {format_ci[1]:.3f}])")
     
     # Log token count information for best checkpoint
     avg_total_words = best_checkpoint.get('avg_total_word_count_overall', 0)
@@ -780,12 +787,15 @@ def print_summary(all_metrics: List[Dict]):
     
     for metrics in all_metrics[-10:]:  # Show last 10 checkpoints
         checkpoint = metrics['checkpoint']
-        measurement_wise_acc = metrics.get('measurement-wise_accuracy_overall', 0)
-        measurement_wise_margin = metrics.get('measurement-wise_accuracy_overall_ci_margin', 0)
-        all_correct_acc = metrics.get('all_correct_accuracy_overall', 0)
-        all_correct_margin = metrics.get('all_correct_accuracy_overall_ci_margin', 0)
-        format_acc = metrics.get('format_accuracy_overall', 0)
-        format_margin = metrics.get('format_accuracy_overall_ci_margin', 0)
+        measurement_wise_data = metrics.get('measurement-wise_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+        measurement_wise_acc = measurement_wise_data['value']
+        measurement_wise_margin = measurement_wise_data['confidence_interval'][2]
+        all_correct_data = metrics.get('all_correct_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+        all_correct_acc = all_correct_data['value']
+        all_correct_margin = all_correct_data['confidence_interval'][2]
+        format_data = metrics.get('format_accuracy_overall', {'value': 0, 'confidence_interval': [0, 0, 0]})
+        format_acc = format_data['value']
+        format_margin = format_data['confidence_interval'][2]
         
         measurement_wise_str = f"{measurement_wise_acc:.3f}±{measurement_wise_margin:.3f}"
         all_correct_str = f"{all_correct_acc:.3f}±{all_correct_margin:.3f}"
