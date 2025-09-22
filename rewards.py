@@ -87,10 +87,10 @@ async def call_monitor_openai_async(
     model_name: str = "gpt-4o-mini"
 ) -> Optional[str]:
     """Call monitor model via OpenAI API asynchronously."""
-    # Check cache first
-    cache_key = f"{model_response[:100]}_{dataset_name}"  # Use first 100 chars as key
-    if cache_key in monitor_cache:
-        return monitor_cache[cache_key]
+    # Cache disabled: previously used the first 100 chars of model_response which could collide across samples
+    # cache_key = f"{model_response[:100]}_{dataset_name}"
+    # if cache_key in monitor_cache:
+    #     return monitor_cache[cache_key]
 
     # Extract reasoning trace and create prompt
     reasoning_trace = extract_reasoning_trace(model_response)
@@ -106,9 +106,7 @@ async def call_monitor_openai_async(
         if response.choices and len(response.choices) > 0:
             result = response.choices[0].message.content
 
-            # Cache the result (with size limit)
-            if len(monitor_cache) < MAX_CACHE_SIZE:
-                monitor_cache[cache_key] = result
+            # Cache disabled: do not store responses to avoid unintended collisions during training
 
             return result
         else:

@@ -7,7 +7,6 @@ import os
 import re
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
-from openai import OpenAI
 import asyncio
 from openai import AsyncOpenAI
 import time
@@ -306,7 +305,8 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
         monitor_correct_when_lv_false, total_lv_false, confidence_level=0.95
     ) if total_lv_false > 0 else (0.0, 0.0, 0.0)
     
-    # Create a summary file
+    # Create a summary file with monitor name
+    monitor_name = model_name.replace("-", "_").replace(".", "_")
     summary_file = output_file.replace('.json', '_summary.json')
     summary = {
         "timestamp": datetime.now().isoformat(),
@@ -373,6 +373,31 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
     with open(summary_file, 'w') as f:
         json.dump(summary, f, indent=2)
     
+    # Clean up intermediate files
+    print(f"\nCleaning up intermediate files...")
+    intermediate_files_removed = 0
+    for batch_end in range(100, len(batch_data_all) + 1, 100):
+        intermediate_file = output_file.replace('.json', f'_intermediate_{batch_end}.json')
+        if os.path.exists(intermediate_file):
+            try:
+                os.remove(intermediate_file)
+                intermediate_files_removed += 1
+                print(f"  Removed: {intermediate_file}")
+            except OSError as e:
+                print(f"  Warning: Could not remove {intermediate_file}: {e}")
+    
+    # Also remove the final intermediate file if it exists
+    final_intermediate_file = output_file.replace('.json', f'_intermediate_{len(batch_data_all)}.json')
+    if os.path.exists(final_intermediate_file):
+        try:
+            os.remove(final_intermediate_file)
+            intermediate_files_removed += 1
+            print(f"  Removed: {final_intermediate_file}")
+        except OSError as e:
+            print(f"  Warning: Could not remove {final_intermediate_file}: {e}")
+    
+    print(f"Cleaned up {intermediate_files_removed} intermediate files")
+    
     print(f"\n=== Processing Complete ===")
     print(f"Total samples: {len(monitor_results)}")
     print(f"Successful monitor calls: {successful_predictions}")
@@ -438,7 +463,9 @@ def main():
     # Set default output path if not provided
     if args.output is None:
         input_dir = os.path.dirname(args.input)
-        args.output = os.path.join(input_dir, "monitor_predictions.json")
+        # Extract monitor name from model name (e.g., "gpt-4o-mini" -> "gpt-4o-mini")
+        monitor_name = args.model_name.replace("-", "_").replace(".", "_")
+        args.output = os.path.join(input_dir, f"{monitor_name}_monitor_predictions.json")
     
     # Get API key from args or environment
     api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
