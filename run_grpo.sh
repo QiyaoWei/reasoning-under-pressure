@@ -207,13 +207,14 @@ echo "Log to wandb: $LOG_TO_WANDB"
 echo "Rebalance monitor reward: $REBALANCE_MONITOR_REWARD"
 
 # Determine if KL loss should be used based on coefficient
-USE_KL_LOSS="False"
-if (( $(echo "$KL_COEF != 0.0" | bc -l) )); then
+if [ "$KL_COEF" != "0.0" ] && [ "$KL_COEF" != "0" ]; then
     USE_KL_LOSS="True"
     echo "KL coefficient is $KL_COEF, enabling KL loss"
 else
+    USE_KL_LOSS="False"
     echo "KL coefficient is 0.0, disabling KL loss"
 fi
+
 
 # Set resume mode depending on whether resume from path is provided
 if [ -z "$RESUME_FROM_PATH" ]; then
