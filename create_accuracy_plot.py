@@ -57,10 +57,7 @@ def extract_accuracy_data():
                     
                 predictions_dir = step_dir / "predictions"
                 if not predictions_dir.exists():
-                    print(f"      No predictions dir found")
                     continue
-                
-                print(f"      Processing predictions in {predictions_dir}")
                 
                 # Extract model accuracy from predictions.json
                 model_accuracy = None
@@ -121,9 +118,13 @@ def extract_accuracy_data():
 
                 # Only add data if we have at least the model accuracy
                 if model_accuracy is not None:
-                    print(f"        Found model accuracy: {model_accuracy}")
                     hyperparam_name = hyperparam_dir.name
                     step_name = step_dir.name
+
+                    # Skip specific KL coefficient values
+                    if incentive_name in ["Reward KL", "Penalize KL"] and hyperparam_name in ["kl-coef_-0.0033", "kl-coef_0.0033"]:
+                        print(f"        Skipping {incentive_name} with {hyperparam_name}")
+                        continue
 
                     # retain specific keys for expected legend entries if present
                     gpt4o_mini_accuracy = monitor_name_to_accuracy.get("gpt-4o-mini")
@@ -209,6 +210,12 @@ def extract_accuracy_data():
 
                 if model_accuracy is not None:
                     step_name = hyperparam_dir.name
+                    
+                    # Skip specific KL coefficient values  
+                    if incentive_name in ["Reward KL", "Penalize KL"] and step_name in ["kl-coef_-0.0033", "kl-coef_0.0033"]:
+                        print(f"        Skipping {incentive_name} with {step_name}")
+                        continue
+                        
                     gpt4o_mini_accuracy = monitor_name_to_accuracy.get("gpt-4o-mini")
                     gpt4o_accuracy = monitor_name_to_accuracy.get("gpt-4o")
                     gpt4o_mini_ci = monitor_name_to_ci.get("gpt-4o-mini")
@@ -276,7 +283,7 @@ def create_plot(data, output_dir: Path):
             for item in items:
                 ordered_items.append(item)
 
-    # Create the plot (bar chart without error bars)
+    # Create the plot (bar chart with error bars)
     fig, ax = plt.subplots(figsize=(14, 8))
 
     x_pos = np.arange(len(x_labels))
@@ -286,14 +293,33 @@ def create_plot(data, output_dir: Path):
     def safe_vals(vals):
         return [v if isinstance(v, (int, float)) else np.nan for v in vals]
 
+    def extract_error_bars(items, ci_key):
+        """Extract error bar values from confidence interval data"""
+        errors = []
+        for item in items:
+            ci = item.get(ci_key)
+            if ci and isinstance(ci, dict) and ci.get('margin') is not None:
+                errors.append(ci['margin'])
+            else:
+                errors.append(0)  # No error bar if no CI data
+        return errors
+
     model_vals = safe_vals(model_accs)
     mini_vals = safe_vals(gpt4o_mini_accs)
     gpt4o_vals = safe_vals(gpt4o_accs)
 
-    # Bars
-    bars1 = ax.bar(x_pos - width, model_vals, width, label='Reasoner Accuracy', alpha=0.9, color='#1f77b4')
-    bars2 = ax.bar(x_pos, mini_vals, width, label='Monitorability (gpt-4o-mini)', alpha=0.9, color='#ff7f0e')
-    bars3 = ax.bar(x_pos + width, gpt4o_vals, width, label='Monitorability (gpt-4o)', alpha=0.9, color='#2ca02c')
+    # Extract error bars
+    model_errors = extract_error_bars(ordered_items, 'model_accuracy_ci')
+    mini_errors = extract_error_bars(ordered_items, 'gpt4o_mini_accuracy_ci')
+    gpt4o_errors = extract_error_bars(ordered_items, 'gpt4o_accuracy_ci')
+
+    # Bars with error bars
+    bars1 = ax.bar(x_pos - width, model_vals, width, yerr=model_errors, label='Reasoner Accuracy', 
+                   alpha=0.9, color='#1f77b4', capsize=3)
+    bars2 = ax.bar(x_pos, mini_vals, width, yerr=mini_errors, label='Monitorability (gpt-4o-mini)', 
+                   alpha=0.9, color='#ff7f0e', capsize=3)
+    bars3 = ax.bar(x_pos + width, gpt4o_vals, width, yerr=gpt4o_errors, label='Monitorability (gpt-4o)', 
+                   alpha=0.9, color='#2ca02c', capsize=3)
     
     # Customize the plot
     ax.set_xlabel('Incentive (Hyperparameter)', fontsize=12)
