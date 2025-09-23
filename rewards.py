@@ -363,7 +363,7 @@ def compute_score_batch(
                 monitor_responses_needed,
                 dataset_name,
                 latent_vars,
-                max_concurrent=20  # Process up to 20 API calls concurrently
+                max_concurrent=60  # Process up to 60 API calls concurrently (optimized from testing)
             )
         )
 
@@ -397,13 +397,39 @@ def compute_score_batch(
 
 
 # Wrapper for compatibility with existing code
-def compute_score(response, ground_truth, dataset_name="function_correctness", extra_info=None):
-    """Single-sample wrapper for backward compatibility"""
-    if extra_info is None:
-        extra_info = {}
+def compute_score(response=None, ground_truth=None, dataset_name="function_correctness", extra_info=None,
+                 data_sources=None, solution_strs=None, ground_truths=None, extra_infos=None, **kwargs):
+    """
+    Unified compute_score function that handles both single samples and batch calls.
+    
+    Single sample call (naive reward manager):
+        compute_score(response, ground_truth, dataset_name, extra_info)
+    
+    Batch call (batch reward manager):
+        compute_score(data_sources=list, solution_strs=list, ground_truths=list, extra_infos=list)
+    """
+    
+    # Detect if this is a batch call from BatchRewardManager
+    if solution_strs is not None and ground_truths is not None:
+        # This is a batch call
+        dataset_name = data_sources[0] if data_sources and isinstance(data_sources, list) else dataset_name
+        extra_infos = extra_infos if extra_infos is not None else [{}] * len(solution_strs)
+        
+        # Call our optimized batch function
+        results = compute_score_batch(
+            solution_strs, ground_truths, dataset_name, extra_infos
+        )
+        
+        # Return just the scores as expected by BatchRewardManager
+        return [result["score"] for result in results]
+    
+    else:
+        # Single sample call (backward compatibility)
+        if extra_info is None:
+            extra_info = {}
 
-    # Use batch function with single item
-    results = compute_score_batch(
-        [response], [ground_truth], dataset_name, [extra_info]
-    )
-    return results[0]
+        # Use batch function with single item
+        results = compute_score_batch(
+            [response], [ground_truth], dataset_name, [extra_info]
+        )
+        return results[0]
