@@ -689,6 +689,12 @@ def evaluate_checkpoint(checkpoint_path: str,
             }), f, indent=2)
         logger.info(f"Saved predictions to {predictions_file}")
         
+        # Also save metrics alone for quick access
+        summary_file = os.path.join(predictions_dir, "reasoner_accuracy_summary.json")
+        with open(summary_file, 'w') as f:
+            json.dump(convert_numpy_types(metrics), f, indent=2)
+        logger.info(f"Saved reasoner accuracy summary to {summary_file}")
+        
         # Save raw outputs for analysis
         raw_outputs_file = os.path.join(predictions_dir, f"{checkpoint_name}_raw_outputs.json")
         raw_outputs = [{
