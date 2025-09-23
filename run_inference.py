@@ -725,7 +725,9 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
                                 output_dir: str = None,
                                 batch_size: int = 8,
                                 use_flash_attention: bool = True,
-                                keep_model_loaded: bool = False) -> List[Dict]:
+                                keep_model_loaded: bool = False,
+                                ref_model_path: Optional[str] = None,
+                                kl_penalty: str = "kl") -> List[Dict]:
     """Evaluate multiple checkpoints and compare results."""
     
     # Find all checkpoints
@@ -768,7 +770,9 @@ def evaluate_multiple_checkpoints(checkpoints_dir: str,
                 dataset_name=dataset_name,
                 dataset_set=dataset_set,
                 batch_size=batch_size,
-                use_flash_attention=use_flash_attention
+                use_flash_attention=use_flash_attention,
+                ref_model_path=ref_model_path,
+                kl_penalty=kl_penalty,
             )
             all_metrics.append(metrics)
             
@@ -897,6 +901,8 @@ def main():
     parser = argparse.ArgumentParser(description="Inference script for VERL checkpoints on DIAMONDS and function correctness datasets")
     parser.add_argument("--checkpoint", type=str,
                        help="Path to single checkpoint (e.g., checkpoints/verl_grpo_diamonds/qwen2.5_coder_7b_diamonds/global_step_40)")
+    parser.add_argument("--ref-model", type=str, default=None,
+                       help="Optional path to reference model for KL calculation (e.g., base model or initial checkpoint)")
     parser.add_argument("--checkpoints-dir", type=str,
                        help="Directory containing multiple checkpoints to evaluate")
     parser.add_argument("--pattern", type=str, default="global_step_*",
@@ -929,6 +935,9 @@ def main():
                        help="Disable flash attention even if available")
     parser.add_argument("--keep-model-loaded", action="store_true",
                        help="Keep model loaded between checkpoints (experimental)")
+    parser.add_argument("--kl-penalty", type=str, default="kl",
+                       choices=["kl", "k1", "abs", "mse", "k2", "low_var_kl", "k3"],
+                       help="Type of KL penalty to use when computing KL (default: kl)")
 
     args = parser.parse_args()
     
@@ -961,7 +970,9 @@ def main():
             dataset_name=args.dataset_name,
             dataset_set=args.dataset_set,
             batch_size=args.batch_size,
-            use_flash_attention=not args.no_flash_attention
+            use_flash_attention=not args.no_flash_attention,
+            ref_model_path=args.ref_model,
+            kl_penalty=args.kl_penalty,
         )
         
         logger.info("\nFinal Results:")
@@ -985,7 +996,9 @@ def main():
             dataset_set=args.dataset_set,
             batch_size=args.batch_size,
             use_flash_attention=not args.no_flash_attention,
-            keep_model_loaded=args.keep_model_loaded
+            keep_model_loaded=args.keep_model_loaded,
+            ref_model_path=args.ref_model,
+            kl_penalty=args.kl_penalty,
         )
     
     else:
