@@ -420,8 +420,7 @@ def compute_score(response=None, ground_truth=None, dataset_name="function_corre
             solution_strs, ground_truths, dataset_name, extra_infos
         )
         
-        # Return just the scores as expected by BatchRewardManager
-        return [result["score"] for result in results]
+        return results
     
     else:
         # Single sample call (backward compatibility)
