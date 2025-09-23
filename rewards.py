@@ -363,7 +363,7 @@ def compute_score_batch(
                 monitor_responses_needed,
                 dataset_name,
                 latent_vars,
-                max_concurrent=60  # Process up to 60 API calls concurrently (optimized from testing)
+                max_concurrent=256  # Process up to 60 API calls concurrently (optimized from testing)
             )
         )
 
@@ -412,7 +412,7 @@ def compute_score(response=None, ground_truth=None, dataset_name="function_corre
     # Detect if this is a batch call from BatchRewardManager
     if solution_strs is not None and ground_truths is not None:
         # This is a batch call
-        dataset_name = data_sources[0] if data_sources and isinstance(data_sources, list) else dataset_name
+        dataset_name = data_sources[0] if data_sources is not None and isinstance(data_sources, list) else dataset_name
         extra_infos = extra_infos if extra_infos is not None else [{}] * len(solution_strs)
         
         # Call our optimized batch function

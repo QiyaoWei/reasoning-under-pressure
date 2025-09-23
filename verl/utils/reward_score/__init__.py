@@ -15,6 +15,13 @@
 
 from verl.utils.import_utils import deprecated
 
+# # Import our custom reward function
+# import sys
+# import os
+# # Relative path to repo root
+# sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
+# from rewards import compute_score as custom_compute_score
+
 
 def default_compute_score(
     data_source,
@@ -101,16 +108,11 @@ def default_compute_score(
         from . import search_r1_like_qa_em
 
         res = search_r1_like_qa_em.compute_score(solution_str, ground_truth)
-    elif data_source.startswith("diamonds") or data_source == "function_correctness":
-        # Import our custom reward function
-        import sys
-        import os
-        # Relative path to repo root
-        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
-        # from rewards import compute_score as custom_compute_score
-        from rewards import compute_score as custom_compute_score
-        res = custom_compute_score(solution_str, ground_truth, dataset_name=data_source, extra_info=extra_info)
+    # elif data_source.startswith("diamonds") or data_source == "function_correctness":
+    #     res = custom_compute_score(solution_str, ground_truth, dataset_name=data_source, extra_info=extra_info)
 
+    #     res = compute_score(response=None, ground_truth=None, dataset_name="function_correctness", extra_info=None,
+    #     data_sources=None, solution_strs=None, ground_truths=None, extra_infos=None, **kwargs):
     else:
         raise NotImplementedError(f"Reward function is not implemented for {data_source=}")
 

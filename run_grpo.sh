@@ -274,6 +274,8 @@ echo "Starting GRPO training..."
 
 python3 -m verl.trainer.main_ppo \
     algorithm.adv_estimator=grpo \
+    custom_reward_function.path=rewards.py \
+    custom_reward_function.name=compute_score \
     data.train_files=${TRAIN_FILE} \
     data.val_files=${VAL_FILE} \
     data.train_batch_size=1024 \
