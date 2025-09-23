@@ -1,16 +1,11 @@
 # Reward Optimization Testing Infrastructure
 
-This directory contains essential tests for the async batch reward manager optimization.
-
-## 📊 Performance Results Achieved
-
-- **27x speedup** over naive approach
-- **Optimal concurrency**: 60 concurrent API calls  
+This directory contains essential tests for the async batch reward manager optimization. 
 
 ## 🧪 Minimal Test Structure
 
 ### `benchmarks/`
-- `test_concurrency_optimization.py` - Find optimal concurrency settings for future tuning
+- `test_concurrency_optimization.py` - Find optimal concurrency settings for future tuning (so far have found 60 to be optimal, leading to a 27x speedup over the naive reward manager)
 
 ### `integration/`
 - `test_batch_interface.py` - Regression test for BatchRewardManager interface
@@ -43,5 +38,5 @@ pytest our_tests/benchmarks/test_concurrency_optimization.py -v -s
 
 The optimized implementation requires only:
 1. Modified `rewards.py` with batch interface support
-2. Config change: set reward manager to batch (works with both nai)
+2. Config change: set reward manager to batch (should be backwards compatible with existing reward code for all reward functions)
 
