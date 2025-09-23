@@ -124,7 +124,7 @@ async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str]
                 "error": str(e)
             }
 
-async def process_batch_async(client: AsyncOpenAI, batch_data: List[Dict], max_concurrent: int = 10, model_name: str = "gpt-4o-mini") -> List[Dict]:
+async def process_batch_async(client: AsyncOpenAI, batch_data: List[Dict], max_concurrent: int = 60, model_name: str = "gpt-4o-mini") -> List[Dict]:
     """
     Process a batch of samples asynchronously with rate limiting.
     """
@@ -147,7 +147,7 @@ async def process_batch_async(client: AsyncOpenAI, batch_data: List[Dict], max_c
     results_dict = {r["sample_idx"]: r for r in results}
     return [results_dict[item["sample_idx"]] for item in batch_data]
 
-async def process_evaluation_results_async(input_file: str, output_file: str, api_key: str = None, batch_size: int = 20, max_concurrent: int = 10, dataset_name: str = "diamonds-seed0", model_name: str = "gpt-4o-mini", rebalance: bool = False):
+async def process_evaluation_results_async(input_file: str, output_file: str, api_key: str = None, batch_size: int = 20, max_concurrent: int = 60, dataset_name: str = "diamonds-seed0", model_name: str = "gpt-4o-mini", rebalance: bool = False):
     """Process evaluation results and generate monitor predictions with batching."""
     
     # Initialize AsyncOpenAI client
@@ -451,8 +451,8 @@ def main():
     parser.add_argument('--api-key', '-k', help='OpenAI API key (can also use OPENAI_API_KEY env var)')
     parser.add_argument('--batch-size', '-b', type=int, default=20,
                         help='Number of samples to process in each batch (default: 20)')
-    parser.add_argument('--max-concurrent', '-c', type=int, default=10,
-                        help='Maximum concurrent API requests (default: 10)')
+    parser.add_argument('--max-concurrent', '-c', type=int, default=60,
+                        help='Maximum concurrent API requests (default: 60)')
     parser.add_argument("--model-name", type=str, default="gpt-4o-mini",
                        help="Name of the monitor model to use for analysis (default: gpt-4o-mini)")
     parser.add_argument("--rebalance", action="store_true",
