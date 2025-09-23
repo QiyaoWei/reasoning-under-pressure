@@ -5,7 +5,7 @@ This directory contains essential tests for the async batch reward manager optim
 ## 🧪 Minimal Test Structure
 
 ### `benchmarks/`
-- `test_concurrency_optimization.py` - Find optimal concurrency settings for future tuning (so far have found 60 to be optimal, leading to a 27x speedup over the naive reward manager)
+- `test_concurrency_optimization.py` - Find optimal concurrency settings for future tuning
 
 ### `integration/`
 - `test_batch_interface.py` - Regression test for BatchRewardManager interface
@@ -28,11 +28,10 @@ pytest our_tests/integration/test_non_monitor_rewards.py -v -s
 pytest our_tests/benchmarks/test_concurrency_optimization.py -v -s
 ```
 
-## 📈 Key Findings
+## 📈 Findings:
 
-1. **Concurrency Sweet Spot**: 60 concurrent calls optimal
-2. **Performance Cliff**: Degradation at 80+ concurrent calls  
-3. **API Throughput**: ~6.5 calls/second sustained rate
+- throughput increases until max_concurrent = 1024 and starts decreasing by max_concurrent = 2048
+- so setting max_concurrent to 1024/(number of simultaneous runs) will be safe and effective
 
 ## 🔧 Implementation
 

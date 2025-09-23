@@ -48,17 +48,18 @@ async def test_concurrency_optimization():
     with open(responses_file, 'r') as f:
         sample_responses = [line.strip() for line in f.readlines() if line.strip()]
 
-    print("📊 Testing with 5x max_concurrent samples for each level")
+    print("📊 Testing with 10x max_concurrent samples for each level")
     print("🚫 Cache disabled for accurate measurement")
     print("\n" + "="*80)
 
     # Test different concurrency levels up to 150
-    concurrency_levels = [5, 10, 20, 40, 60, 80, 100, 150]
+    concurrency_levels = [10, 64, 128, 256, 512, 1024]
+  
     results = []
 
     for max_concurrent in concurrency_levels:
-        # Use 5x the concurrency level as sample count
-        num_samples = 5 * max_concurrent
+        # Use 10x the concurrency level as sample count
+        num_samples = 10 * max_concurrent
         test_responses = sample_responses[:num_samples]
         test_ground_truths = ["[true]"] * len(test_responses)
         test_extra_infos = [{"is_correct": True}] * len(test_responses)
@@ -137,7 +138,7 @@ async def test_concurrency_optimization():
     
     baseline_time = None
     best_throughput = 0
-    best_concurrency = 20
+    best_concurrency = None
     
     for result in results:
         if result['success']:
@@ -174,13 +175,8 @@ async def test_concurrency_optimization():
             improvement = (best_throughput / current_result['throughput'] - 1) * 100
             print(f"📈 IMPROVEMENT over current (20): {improvement:.1f}% faster")
         
-        # Practical recommendations
-        if best_concurrency <= 20:
-            print("💡 Current setting (20) is already near-optimal!")
-        elif best_concurrency <= 50:
-            print(f"💡 Recommended: Increase to {best_concurrency} for better performance")
-        else:
-            print(f"💡 Recommended: Increase to {min(best_concurrency, 80)} (cap at 80 for stability)")
+        # Practical recommendations based on actual results
+        print(f"💡 Recommended: Use {best_concurrency} concurrent calls for optimal performance")
             
         print("\n🔧 To apply this change, modify the max_concurrent parameter in:")
         print("   rewards.py, line 367: max_concurrent=20  →  max_concurrent={best_concurrency}")
