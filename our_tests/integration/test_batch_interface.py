@@ -60,12 +60,13 @@ def test_batch_interface_with_monitor():
     
     print(f"✅ Batch call completed in {batch_time:.3f} seconds")
     print(f"   Returned {len(batch_scores)} scores")
-    print(f"   Sample scores: {batch_scores[:3]}")
+    print(f"   Sample scores: {[result['score'] for result in batch_scores[:3]]}")
     
     # Verify results
-    assert isinstance(batch_scores, list), "Batch call should return list of scores"
-    assert len(batch_scores) == len(test_responses), "Should return one score per response"
-    assert all(isinstance(score, (int, float)) for score in batch_scores), "All scores should be numeric"
+    assert isinstance(batch_scores, list), "Batch call should return list of results"
+    assert len(batch_scores) == len(test_responses), "Should return one result per response"
+    assert all(isinstance(result, dict) for result in batch_scores), "All results should be dictionaries"
+    assert all("score" in result for result in batch_scores), "All results should have score field"
     
     print("✅ Batch interface test passed!")
 
@@ -166,6 +167,14 @@ def test_performance_difference():
     
     # Verify both methods give same results
     assert len(single_scores) == len(batch_scores), "Both methods should return same number of scores"
+    
+    # Compare the actual scores (extract from dicts for batch results)
+    single_score_values = [score["score"] if isinstance(score, dict) else score for score in single_scores]
+    batch_score_values = [result["score"] for result in batch_scores]
+    
+    for i, (single_val, batch_val) in enumerate(zip(single_score_values, batch_score_values)):
+        assert abs(single_val - batch_val) < 1e-6, f"Score mismatch at index {i}: {single_val} vs {batch_val}"
+    
     print(f"   Results match: ✅")
     
     print("✅ Performance comparison completed!")

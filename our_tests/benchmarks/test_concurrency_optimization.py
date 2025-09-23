@@ -42,28 +42,26 @@ async def test_concurrency_optimization():
     initialize_openai_clients()
     monitor_cache.clear()
 
-    # Load sample data (use smaller set for quicker testing)
-    responses_file = os.path.join(os.path.dirname(__file__), "sample_responses_expanded.txt")
-    if not os.path.exists(responses_file):
-        responses_file = os.path.join(os.path.dirname(__file__), "sample_responses.txt")
+    # Load sample data from the data directory
+    responses_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "sample_responses_expanded.txt")
     
     with open(responses_file, 'r') as f:
         sample_responses = [line.strip() for line in f.readlines() if line.strip()]
 
-    # Use first 50 responses for testing (enough to see concurrency effects)
-    test_responses = sample_responses[:50]
-    test_ground_truths = ["[true]"] * len(test_responses)
-    test_extra_infos = [{"is_correct": True}] * len(test_responses)
-
-    print(f"📊 Testing with {len(test_responses)} samples")
+    print("📊 Testing with 5x max_concurrent samples for each level")
     print("🚫 Cache disabled for accurate measurement")
     print("\n" + "="*80)
 
-    # Test different concurrency levels - extended range to find true limits
-    concurrency_levels = [5, 10, 20, 40, 60, 80, 100, 150, 200, 300]
+    # Test different concurrency levels up to 150
+    concurrency_levels = [5, 10, 20, 40, 60, 80, 100, 150]
     results = []
 
     for max_concurrent in concurrency_levels:
+        # Use 5x the concurrency level as sample count
+        num_samples = 5 * max_concurrent
+        test_responses = sample_responses[:num_samples]
+        test_ground_truths = ["[true]"] * len(test_responses)
+        test_extra_infos = [{"is_correct": True}] * len(test_responses)
         print(f"\n🔄 Testing max_concurrent = {max_concurrent}")
         print("-" * 40)
         
@@ -113,7 +111,10 @@ async def test_concurrency_optimization():
                 'success': True
             })
             
+            # Estimate time for 1024 samples
+            estimated_1024_time = 1024 / throughput
             print(f"   ✅ Success: {total_time:.2f}s total, {throughput:.2f} calls/sec")
+            print(f"      📈 Estimated 1024-batch time: {estimated_1024_time:.1f}s ({estimated_1024_time/60:.1f} min)")
             
         except Exception as e:
             print(f"   ❌ Failed: {str(e)}")
