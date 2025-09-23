@@ -97,7 +97,7 @@ async def call_monitor_openai_async(
     # Safe cache key based on full prompt content + dataset + model
     if MONITOR_CACHE_ENABLED:
         hasher = hashlib.sha256()
-        hasher.update(monitor_prompt.encode("utf-8"))
+        hasher.update(reasoning_trace.encode("utf-8"))
         cache_key = f"{dataset_name}:{model_name}:{hasher.hexdigest()}"
         cached = monitor_cache.get(cache_key)
         if cached is not None:
