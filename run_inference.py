@@ -86,6 +86,10 @@ logger = logging.getLogger(__name__)
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import pandas as pd
 from utils.extract_measurements import extract_measurements
+from utils.kl_utils import (
+    compute_token_level_kl,
+    extract_token_log_probs,
+)
 
 # Constants
 MAX_LEN_PROMPT = 2048
@@ -342,7 +346,7 @@ def evaluate_single_sample(model, tokenizer, sample, temperature: float = 0.1, d
     return result
 
 
-def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_size: int = 8, dataset_name: str = "diamonds-seed0") -> List[Dict]:
+def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_size: int = 8, dataset_name: str = "diamonds-seed0", ref_model=None, kl_penalty: str = "kl") -> List[Dict]:
     """Evaluate a batch of samples and return predictions."""
     results = []
 
@@ -375,6 +379,52 @@ def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_si
             pad_token_id=tokenizer.pad_token_id,
             eos_token_id=tokenizer.eos_token_id,
         )
+
+    # Optional KL computation using a reference model
+    kl_mean_per_seq = None
+    kl_sum_per_seq = None
+    kl_max_per_seq = None
+    if ref_model is not None:
+        with torch.no_grad():
+            # attention mask for the full sequences returned by generate
+            outputs_attention_mask = (outputs != tokenizer.pad_token_id).long()
+
+            # Forward both models on the full sequences
+            model_output = model(
+                input_ids=outputs,
+                attention_mask=outputs_attention_mask,
+                return_dict=True,
+            )
+            ref_output = ref_model(
+                input_ids=outputs,
+                attention_mask=outputs_attention_mask,
+                return_dict=True,
+            )
+
+            # Align logits and tokens for next-token prediction
+            generated_tokens = outputs[:, 1:]  # [batch, seq_len-1]
+            current_logits = model_output.logits[:, :-1, :]  # [batch, seq_len-1, vocab]
+            ref_logits = ref_output.logits[:, :-1, :]  # [batch, seq_len-1, vocab]
+
+            # Extract log probs for actual tokens
+            logprobs_current = extract_token_log_probs(current_logits, generated_tokens)
+            logprobs_ref = extract_token_log_probs(ref_logits, generated_tokens)
+
+            # Build response mask per sample: 1 for generated tokens, 0 for prompt tokens
+            # inputs['attention_mask'] has left padding; its sum per row is prompt length
+            prompt_lengths = inputs['attention_mask'].sum(dim=1)  # [batch]
+            seq_len_m1 = generated_tokens.shape[1]
+            arange_idx = torch.arange(seq_len_m1, device=outputs.device).unsqueeze(0).expand(outputs.size(0), -1)
+            response_mask = (arange_idx >= (prompt_lengths.unsqueeze(1) - 1)).float()
+
+            # Token-level KL, then aggregate per sequence
+            kl_tokens = compute_token_level_kl(logprobs_current, logprobs_ref, kl_penalty=kl_penalty)
+            kl_tokens = kl_tokens * response_mask
+
+            num_tokens = response_mask.sum(dim=-1).clamp(min=1)
+            kl_sum_per_seq = kl_tokens.sum(dim=-1)
+            kl_mean_per_seq = kl_sum_per_seq / num_tokens
+            kl_max_per_seq = kl_tokens.max(dim=-1).values
 
     # Process each output
     for i, (sample, output) in enumerate(zip(samples, outputs)):
@@ -417,6 +467,13 @@ def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_si
             'before_measurements_token_count': before_measurements_token_count,
         }
 
+        # Attach per-sample KL metrics if available
+        if kl_mean_per_seq is not None:
+            result['kl_mean'] = float(kl_mean_per_seq[i].item())
+            result['kl_sum'] = float(kl_sum_per_seq[i].item())
+            result['kl_max'] = float(kl_max_per_seq[i].item())
+            result['kl_penalty_type'] = kl_penalty
+
         if predicted is not None and ground_truth is not None:
             result['is_correct'] = predicted == ground_truth
             
@@ -448,11 +505,19 @@ def evaluate_checkpoint(checkpoint_path: str,
                        dataset_set: str = "test",
                        output_dir: str = None,
                        batch_size: int = 8,
-                       use_flash_attention: bool = True) -> Dict:
+                       use_flash_attention: bool = True,
+                       ref_model_path: Optional[str] = None,
+                       kl_penalty: str = "kl") -> Dict:
     """Evaluate a single checkpoint on test dataset."""
     
     # Load model
     model, tokenizer = load_checkpoint_verl(checkpoint_path, use_flash_attention=use_flash_attention)
+
+    # Load reference model
+    ref_model = None
+    if ref_model_path:
+        logger.info(f"Loading reference model from {ref_model_path}")
+        ref_model, _ = load_checkpoint_verl(ref_model_path, use_flash_attention=use_flash_attention)
     
     # Sample subset if requested
     if num_samples and num_samples < len(eval_dataset):
@@ -475,7 +540,8 @@ def evaluate_checkpoint(checkpoint_path: str,
     results = []
     metrics_by_difficulty = defaultdict(lambda: {
         'total': 0, 'n_measurements': 0, 'correct': 0, 'partial': 0, 'proportion_correct': 0, 'format_correct': 0, 'wrong_nb_measurements': 0,
-        'total_word_count': 0, 'total_token_count': 0, 'before_measurements_word_count': 0, 'before_measurements_token_count': 0,
+    'total_word_count': 0, 'total_token_count': 0, 'before_measurements_word_count': 0, 'before_measurements_token_count': 0,
+        'kl_mean_sum': 0.0,
     })
     
     # Evaluate samples
@@ -487,7 +553,16 @@ def evaluate_checkpoint(checkpoint_path: str,
         batch_samples = [eval_dataset[i] for i in range(batch_start, batch_end)]
 
         # Evaluate batch
-        batch_results = evaluate_batch(model, tokenizer, batch_samples, temperature, batch_size, dataset_name)
+        batch_results = evaluate_batch(
+            model,
+            tokenizer,
+            batch_samples,
+            temperature,
+            batch_size,
+            dataset_name,
+            ref_model=ref_model,
+            kl_penalty=kl_penalty,
+        )
         results.extend(batch_results)
 
         # Update metrics for batch
@@ -525,6 +600,11 @@ def evaluate_checkpoint(checkpoint_path: str,
             metrics_by_difficulty['overall']['total_token_count'] += result['total_token_count']
             metrics_by_difficulty['overall']['before_measurements_word_count'] += result['before_measurements_word_count']
             metrics_by_difficulty['overall']['before_measurements_token_count'] += result['before_measurements_token_count']
+
+            # Accumulate KL if present
+            if 'kl_mean' in result:
+                metrics_by_difficulty[difficulty]['kl_mean_sum'] += result['kl_mean']
+                metrics_by_difficulty['overall']['kl_mean_sum'] += result['kl_mean']
     
     # Compute final metrics
     metrics = {
@@ -534,6 +614,7 @@ def evaluate_checkpoint(checkpoint_path: str,
         'timestamp': datetime.now().isoformat(),
         'dataset_name': dataset_name,
         'dataset_set': dataset_set,
+        'has_kl': ref_model is not None,
     }
     
     for difficulty, stats in metrics_by_difficulty.items():
@@ -593,6 +674,10 @@ def evaluate_checkpoint(checkpoint_path: str,
             metrics[f'avg_total_token_count_{difficulty}'] = stats['total_token_count'] / total
             metrics[f'avg_before_measurements_word_count_{difficulty}'] = stats['before_measurements_word_count'] / total
             metrics[f'avg_before_measurements_token_count_{difficulty}'] = stats['before_measurements_token_count'] / total
+
+            # Add average KL metrics if available
+            if metrics.get('has_kl') and stats.get('kl_mean_sum', 0) != 0:
+                metrics[f'kl_mean_{difficulty}'] = stats['kl_mean_sum'] / total
     
     # Save predictions if requested
     if save_predictions:
@@ -612,7 +697,11 @@ def evaluate_checkpoint(checkpoint_path: str,
             'response': result['response'],
             'predicted': result['predicted'],
             'ground_truth': result['ground_truth'],
-            'latent_variable': result.get('latent_variable', None)
+            'latent_variable': result.get('latent_variable', None),
+            'kl_mean': result.get('kl_mean', None),
+            'kl_sum': result.get('kl_sum', None),
+            'kl_max': result.get('kl_max', None),
+            'kl_penalty_type': result.get('kl_penalty_type', None),
         } for i, result in enumerate(results)]
         with open(raw_outputs_file, 'w') as f:
             json.dump(convert_numpy_types(raw_outputs), f, indent=2)
