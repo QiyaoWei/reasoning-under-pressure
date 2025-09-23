@@ -11,6 +11,7 @@ from typing import List, Optional, Dict, Any, Tuple
 import random
 from concurrent.futures import ThreadPoolExecutor
 import time
+import hashlib
 from utils.extract_measurements import extract_measurements
 from utils.monitor_utils import (
     extract_reasoning_trace,
@@ -26,6 +27,7 @@ MONITOR_CORRECT_REWARD = float(os.environ.get("MONITOR_CORRECT_REWARD", -1.0))
 MONITOR_WRONG_REWARD = float(os.environ.get("MONITOR_WRONG_REWARD", 1.0))
 MONITOR_MODEL_NAME = os.environ.get("MONITOR_MODEL_NAME", "gpt-4o-mini")
 REBALANCE_MONITOR_REWARD = os.environ.get("REBALANCE_MONITOR_REWARD", "false").lower() == "true"
+MONITOR_CACHE_ENABLED = os.environ.get("MONITOR_CACHE", "true").lower() == "true"
 
 # Cache for monitor responses to avoid duplicate API calls
 monitor_cache = {}
@@ -87,14 +89,19 @@ async def call_monitor_openai_async(
     model_name: str = "gpt-4o-mini"
 ) -> Optional[str]:
     """Call monitor model via OpenAI API asynchronously."""
-    # Cache disabled: previously used the first 100 chars of model_response which could collide across samples
-    # cache_key = f"{model_response[:100]}_{dataset_name}"
-    # if cache_key in monitor_cache:
-    #     return monitor_cache[cache_key]
 
     # Extract reasoning trace and create prompt
     reasoning_trace = extract_reasoning_trace(model_response)
     monitor_prompt = create_monitor_prompt(reasoning_trace, dataset_name)
+
+    # Safe cache key based on full prompt content + dataset + model
+    if MONITOR_CACHE_ENABLED:
+        hasher = hashlib.sha256()
+        hasher.update(monitor_prompt.encode("utf-8"))
+        cache_key = f"{dataset_name}:{model_name}:{hasher.hexdigest()}"
+        cached = monitor_cache.get(cache_key)
+        if cached is not None:
+            return cached
 
     try:
         response = await async_openai_client.chat.completions.create(
@@ -106,7 +113,10 @@ async def call_monitor_openai_async(
         if response.choices and len(response.choices) > 0:
             result = response.choices[0].message.content
 
-            # Cache disabled: do not store responses to avoid unintended collisions during training
+            # Optionally store in cache
+            if MONITOR_CACHE_ENABLED:
+                if len(monitor_cache) < MAX_CACHE_SIZE:
+                    monitor_cache[cache_key] = result
 
             return result
         else:
