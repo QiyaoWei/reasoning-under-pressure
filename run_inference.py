@@ -386,18 +386,18 @@ def evaluate_batch(model, tokenizer, samples, temperature: float = 0.1, batch_si
     kl_max_per_seq = None
     if ref_model is not None:
         with torch.no_grad():
-            # attention mask for the full sequences returned by generate
-            outputs_attention_mask = (outputs != tokenizer.pad_token_id).long()
+            # Match other_inference_with_kl.py: use all-ones attention mask when scoring sequences
+            ones_attention_mask = torch.ones_like(outputs)
 
             # Forward both models on the full sequences
             model_output = model(
                 input_ids=outputs,
-                attention_mask=outputs_attention_mask,
+                attention_mask=ones_attention_mask,
                 return_dict=True,
             )
             ref_output = ref_model(
                 input_ids=outputs,
-                attention_mask=outputs_attention_mask,
+                attention_mask=ones_attention_mask,
                 return_dict=True,
             )
 
