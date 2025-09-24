@@ -1,0 +1,89 @@
+{
+  "checkpoint": "func-corr-deepseek-verbosity-k-1e-7-step_260",
+  "num_samples": 2500,
+  "temperature": 0.1,
+  "timestamp": "2025-09-23T23:31:56.465339",
+  "dataset_name": "function_correctness",
+  "dataset_set": "val",
+  "has_kl": false,
+  "measurement-wise_accuracy_-1": {
+    "value": 0.7833236507936513,
+    "confidence_interval": [
+      0.7667461796795773,
+      0.7990317568497914,
+      0.016142788585107114
+    ]
+  },
+  "all_correct_accuracy_-1": {
+    "value": 0.5788,
+    "confidence_interval": [
+      0.5593388742685409,
+      0.5980193317041221,
+      0.019340228717790665
+    ]
+  },
+  "format_accuracy_-1": {
+    "value": 0.9996,
+    "confidence_interval": [
+      0.9977376146310255,
+      0.9999293866880412,
+      0.001095886028507818
+    ]
+  },
+  "partial_accuracy_-1": {
+    "value": 0.7814073101335084,
+    "confidence_interval": [
+      0.7753566176663564,
+      0.7873397286433992,
+      0.005991555488521399
+    ]
+  },
+  "n_samples_-1": 2500,
+  "n_measurements_-1": 18276,
+  "n_format_correct_-1": 2499,
+  "n_wrong_nb_measurements_-1": 2,
+  "avg_total_word_count_-1": 378.626,
+  "avg_total_token_count_-1": 667.6988,
+  "avg_before_measurements_word_count_-1": 338.0732,
+  "avg_before_measurements_token_count_-1": 594.6204,
+  "measurement-wise_accuracy_overall": {
+    "value": 0.7833236507936513,
+    "confidence_interval": [
+      0.7667461796795773,
+      0.7990317568497914,
+      0.016142788585107114
+    ]
+  },
+  "all_correct_accuracy_overall": {
+    "value": 0.5788,
+    "confidence_interval": [
+      0.5593388742685409,
+      0.5980193317041221,
+      0.019340228717790665
+    ]
+  },
+  "format_accuracy_overall": {
+    "value": 0.9996,
+    "confidence_interval": [
+      0.9977376146310255,
+      0.9999293866880412,
+      0.001095886028507818
+    ]
+  },
+  "partial_accuracy_overall": {
+    "value": 0.7814073101335084,
+    "confidence_interval": [
+      0.7753566176663564,
+      0.7873397286433992,
+      0.005991555488521399
+    ]
+  },
+  "n_samples_overall": 2500,
+  "n_measurements_overall": 18276,
+  "n_format_correct_overall": 2499,
+  "n_wrong_nb_measurements_overall": 2,
+  "avg_total_word_count_overall": 378.626,
+  "avg_total_token_count_overall": 667.6988,
+  "avg_before_measurements_word_count_overall": 338.0732,
+  "avg_before_measurements_token_count_overall": 594.6204
+}
