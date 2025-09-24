@@ -1,5 +1,11 @@
-# actor_rollout_ref.ref: FSDP config same as actor. For models larger than 7B, it’s recommended to turn on offload for ref by default
+# actor_rollout_ref.ref: FSDP config same as actor. For models larger than 7B, it's recommended to turn on offload for ref by default
 strategy: ${actor_rollout_ref.actor.strategy}
+
+# Reference model configuration - allows using a different model for KL divergence computation
+model:
+  # Path to reference model. If null, uses same model as actor (actor_rollout_ref.model.path)
+  # Set this to use a different model for KL divergence computation
+  path: null
 
 # whether to enable torch.compile
 # same as actor_rollout_ref.actor.use_torch_compile if it exists, otherwise 1

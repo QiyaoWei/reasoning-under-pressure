@@ -303,6 +303,7 @@ python3 -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.temperature=1.0 \
     actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=32 \
     actor_rollout_ref.ref.fsdp_config.param_offload=True \
+    actor_rollout_ref.ref.model.path=deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B \
     algorithm.use_kl_in_reward=False \
     trainer.critic_warmup=0 \
     trainer.logger='["console", "wandb"]' \
@@ -315,4 +316,5 @@ python3 -m verl.trainer.main_ppo \
     trainer.test_freq=5 \
     trainer.total_epochs=${EPOCHS} \
     trainer.resume_mode=${RESUME_MODE} \
-    trainer.resume_from_path=${RESUME_FROM_PATH} $@
+    trainer.resume_from_path=${RESUME_FROM_PATH} \
+    $@
