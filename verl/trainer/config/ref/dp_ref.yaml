@@ -10,7 +10,10 @@ defaults:
 # ref model is assumed to be identical to actor model. Specify model.path for using a different ref model.
 # Potential use case involves on policy distillation where we calculate KL divergence between student actor
 # and teacher ref
-model: null
+model:
+  # Path to reference model. If null, uses same model as actor (actor_rollout_ref.model.path)
+  # Set this to use a different model for KL divergence computation
+  path: null
 
 # config for FSDP strategy
 fsdp_config:
