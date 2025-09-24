@@ -304,7 +304,7 @@ def create_plot(data, baseline_data, output_dir: Path):
     plt.close()
     
     # Save data as JSON
-    data_json_path = output_subdir / 'accuracy_plot_data.json'
+    data_json_path = output_subdir / 'plot_data.json'
     with open(data_json_path, 'w') as f:
         json.dump(data, f, indent=2)
     
