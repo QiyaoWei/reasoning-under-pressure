@@ -142,7 +142,7 @@ def extract_accuracy_data(config_path):
     return data, baseline_data
 
 def create_plot(data, baseline_data, output_dir: Path):
-    """Create the accuracy plot as a bar chart with error bars, and save JSONs."""
+    """Create separate accuracy and monitorability plots."""
     if not data:
         print("No data found!")
         return
@@ -182,11 +182,15 @@ def create_plot(data, baseline_data, output_dir: Path):
         gpt4o_mini_errors.append(gpt4o_mini_error)
         gpt4o_errors.append(gpt4o_error)
     
-    # Create the plot (bar chart with error bars)
-    fig, ax = plt.subplots(figsize=(14, 8))
+    # Create output directory
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    setting = data[0].get('setting', 'unknown') if data else 'unknown'
+    setting_first_word = setting.split()[0] if setting else 'unknown'
+    output_subdir = output_dir / 'plots' / f"{setting_first_word}_main_{timestamp}"
+    output_subdir.mkdir(parents=True, exist_ok=True)
     
-    x_pos = np.arange(len(x_labels))
-    width = 0.25
+    # Get seaborn pastel colors
+    colors = sns.color_palette("pastel", 3)
     
     # Replace None with NaN so bars simply don't render for missing values
     def safe_vals(vals):
@@ -196,25 +200,63 @@ def create_plot(data, baseline_data, output_dir: Path):
     mini_vals = safe_vals(gpt4o_mini_accs)
     gpt4o_vals = safe_vals(gpt4o_accs)
     
-    # Get seaborn pastel colors
-    colors = sns.color_palette("pastel", 3)
+    x_pos = np.arange(len(x_labels))
     
-    # Bars with error bars
-    bars1 = ax.bar(x_pos - width, reasoner_vals, width, yerr=reasoner_errors, 
-                   label='Reasoner accuracy', alpha=0.9, color=colors[0], 
-                   capsize=3, hatch='///')
-    bars2 = ax.bar(x_pos, mini_vals, width, yerr=gpt4o_mini_errors, 
-                   label='Monitorability (GPT-4o mini)', alpha=0.9, color=colors[1], 
-                   capsize=3)
-    bars3 = ax.bar(x_pos + width, gpt4o_vals, width, yerr=gpt4o_errors, 
-                   label='Monitorability (GPT-4o)', alpha=0.9, color=colors[2], 
-                   capsize=3)
+    # Create accuracy plot
+    fig1, ax1 = plt.subplots(figsize=(14, 8))
+    width = 0.4  # Original width
+    x_pos_accuracy = np.arange(len(x_labels)) * 0.5  # Much more compact spacing for accuracy plot
     
-    # Add baseline lines if baseline data exists
+    bars1 = ax1.bar(x_pos_accuracy, reasoner_vals, width, yerr=reasoner_errors, 
+                   label='Reasoner accuracy', alpha=0.9, color=colors[0], capsize=3)
+    
+    # Add baseline line for accuracy
+    baseline_handles = []
+    baseline_labels = []
+    if baseline_data and baseline_data['reasoner_accuracy'] is not None:
+        line1 = ax1.axhline(y=baseline_data['reasoner_accuracy'], color=colors[0], linestyle='--', 
+                           linewidth=2, alpha=0.8)
+        baseline_handles.append(line1)
+        baseline_labels.append('RL baseline reasoner accuracy')
+    
+    ax1.set_ylabel('Accuracy', fontsize=12)
+    ax1.set_xticks(x_pos_accuracy)
+    ax1.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=10)
+    
+    # Create two separate legends for accuracy plot
+    if baseline_handles:
+        # Baseline legend (top right)
+        legend1 = ax1.legend(baseline_handles, baseline_labels, loc='upper right', fontsize=11)
+        ax1.add_artist(legend1)
+    
+    # Experimental runs legend (top left)
+    legend2 = ax1.legend([bars1], ['Reasoner accuracy'], loc='upper left', fontsize=11)
+    
+    ax1.set_ylim(0.4, 1.0)
+    ax1.grid(True, which='major', axis='y', alpha=0.8, linestyle='-', linewidth=0.8)
+    ax1.grid(True, which='major', axis='x', alpha=0.8, linestyle='-', linewidth=0.8)
+    ax1.minorticks_on()
+    ax1.grid(True, which='minor', axis='y', alpha=0.5, linestyle=':', linewidth=0.5)
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+    
+    plt.tight_layout()
+    accuracy_path = output_subdir / 'accuracy_plot.png'
+    plt.savefig(accuracy_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    # Create monitorability plot
+    fig2, ax2 = plt.subplots(figsize=(14, 8))
+    
+    bars2 = ax2.bar(x_pos - width/2, mini_vals, width, yerr=gpt4o_mini_errors, 
+                   label='GPT-4o mini', alpha=0.9, color=colors[1], capsize=3)
+    bars3 = ax2.bar(x_pos + width/2, gpt4o_vals, width, yerr=gpt4o_errors, 
+                   label='GPT-4o', alpha=0.9, color=colors[2], capsize=3)
+    
+    # Add baseline lines for monitorability
     baseline_handles = []
     baseline_labels = []
     if baseline_data:
-        baseline_reasoner = baseline_data['reasoner_accuracy']
         baseline_mini = None
         baseline_gpt4o = None
         
@@ -224,74 +266,50 @@ def create_plot(data, baseline_data, output_dir: Path):
             elif monitor_name == 'gpt-4o':
                 baseline_gpt4o = monitor_data['accuracy']
         
-        # Draw horizontal dashed lines for baseline
-        if baseline_reasoner is not None:
-            line1 = ax.axhline(y=baseline_reasoner, color=colors[0], linestyle='--', 
-                              linewidth=2, alpha=0.8)
-            baseline_handles.append(line1)
-            baseline_labels.append('RL baseline reasoner accuracy')
         if baseline_mini is not None:
-            line2 = ax.axhline(y=baseline_mini, color=colors[1], linestyle='--', 
-                              linewidth=2, alpha=0.8)
+            line2 = ax2.axhline(y=baseline_mini, color=colors[1], linestyle='--', 
+                               linewidth=2, alpha=0.8)
             baseline_handles.append(line2)
             baseline_labels.append('RL baseline monitorability (GPT-4o mini)')
         if baseline_gpt4o is not None:
-            line3 = ax.axhline(y=baseline_gpt4o, color=colors[2], linestyle='--', 
-                              linewidth=2, alpha=0.8)
+            line3 = ax2.axhline(y=baseline_gpt4o, color=colors[2], linestyle='--', 
+                               linewidth=2, alpha=0.8)
             baseline_handles.append(line3)
             baseline_labels.append('RL baseline monitorability (GPT-4o)')
     
-    # Customize the plot
-    ax.set_ylabel('Accuracy', fontsize=12)
-    ax.set_xticks(x_pos)
-    ax.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=10)
+    ax2.set_ylabel('Monitorability', fontsize=12)
+    ax2.set_xticks(x_pos)
+    ax2.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=10)
     
-    # Create two separate legends
+    # Create two separate legends for monitorability plot
     if baseline_handles:
         # Baseline legend (top right)
-        legend1 = ax.legend(baseline_handles, baseline_labels, loc='upper right', fontsize=11)
-        ax.add_artist(legend1)
+        legend1 = ax2.legend(baseline_handles, baseline_labels, loc='upper right', fontsize=11)
+        ax2.add_artist(legend1)
     
     # Experimental runs legend (top left)
-    legend2 = ax.legend([bars1, bars2, bars3], 
-                       ['Reasoner accuracy', 'Monitorability (GPT-4o mini)', 'Monitorability (GPT-4o)'], 
-                       loc='upper left', fontsize=11)
+    legend2 = ax2.legend([bars2, bars3], ['GPT-4o mini', 'GPT-4o'], loc='upper left', fontsize=11)
     
-    # Fine-grained grid and y-axis limits
-    ax.set_ylim(0.4, 1.0)
-    
-    # Fine-grained grid
-    ax.grid(True, which='major', axis='y', alpha=0.8, linestyle='-', linewidth=0.8)
-    ax.grid(True, which='major', axis='x', alpha=0.8, linestyle='-', linewidth=0.8)
-    ax.minorticks_on()
-    ax.grid(True, which='minor', axis='y', alpha=0.5, linestyle=':', linewidth=0.5)
-    
-    # Remove top and right spines
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    ax2.set_ylim(0.4, 1.0)
+    ax2.grid(True, which='major', axis='y', alpha=0.8, linestyle='-', linewidth=0.8)
+    ax2.grid(True, which='major', axis='x', alpha=0.8, linestyle='-', linewidth=0.8)
+    ax2.minorticks_on()
+    ax2.grid(True, which='minor', axis='y', alpha=0.5, linestyle=':', linewidth=0.5)
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['right'].set_visible(False)
     
     plt.tight_layout()
+    monitorability_path = output_subdir / 'monitorability_plot.png'
+    plt.savefig(monitorability_path, dpi=300, bbox_inches='tight')
+    plt.close()
     
-    # Create timestamped output directory
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    setting = data[0].get('setting', 'unknown') if data else 'unknown'
-    setting_first_word = setting.split()[0] if setting else 'unknown'
-    output_subdir = output_dir / 'plots' / f"{setting_first_word}_main_{timestamp}"
-    output_subdir.mkdir(parents=True, exist_ok=True)
-    
-    plot_path = output_subdir / 'accuracy_plot.png'
-    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
-    try:
-        plt.close(fig)
-    except Exception:
-        pass
-    
-    # Save data and summary as JSON
+    # Save data as JSON
     data_json_path = output_subdir / 'accuracy_plot_data.json'
     with open(data_json_path, 'w') as f:
         json.dump(data, f, indent=2)
     
-    print(f"Plot saved as {plot_path}")
+    print(f"Accuracy plot saved as {accuracy_path}")
+    print(f"Monitorability plot saved as {monitorability_path}")
     print(f"Data JSON saved as {data_json_path}")
 
 if __name__ == "__main__":
