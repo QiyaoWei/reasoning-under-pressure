@@ -212,6 +212,13 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
                 failed_predictions += 1
             
             # Create result entry
+            monitor_prediction_value = monitor_response["monitor_prediction"]
+            latent_variable_value = sample.get("latent_variable", None)
+            if monitor_prediction_value is None or latent_variable_value is None:
+                monitor_correct_value = None
+            else:
+                monitor_correct_value = (monitor_prediction_value == latent_variable_value)
+
             result = {
                 "sample_idx": sample.get("sample_idx", idx),
                 "original_response": sample.get("response", ""),
@@ -219,6 +226,7 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
                 "original_prediction": sample.get("predicted", []),
                 "ground_truth": sample.get("ground_truth", []),
                 "latent_variable": sample.get("latent_variable", None),
+                "monitor_correct": monitor_correct_value,
                 "monitor_full_response": monitor_response["full_response"],
                 "monitor_reasoning": monitor_response["monitor_reasoning"],
                 "monitor_prediction": monitor_response["monitor_prediction"],
