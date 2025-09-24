@@ -208,13 +208,13 @@ def create_plot(data, baseline_data, output_dir: Path):
     x_pos_accuracy = np.arange(len(x_labels)) * 0.5  # Much more compact spacing for accuracy plot
     
     bars1 = ax1.bar(x_pos_accuracy, reasoner_vals, width, yerr=reasoner_errors, 
-                   label='Reasoner accuracy', alpha=0.9, color=colors[0], capsize=3)
+                   label='Reasoner accuracy', alpha=0.9, color=colors[2], capsize=3)
     
     # Add baseline line for accuracy
     baseline_handles = []
     baseline_labels = []
     if baseline_data and baseline_data['reasoner_accuracy'] is not None:
-        line1 = ax1.axhline(y=baseline_data['reasoner_accuracy'], color=colors[0], linestyle='--', 
+        line1 = ax1.axhline(y=baseline_data['reasoner_accuracy'], color=colors[2], linestyle='--', 
                            linewidth=2, alpha=0.8)
         baseline_handles.append(line1)
         baseline_labels.append('RL baseline reasoner accuracy')
@@ -251,7 +251,7 @@ def create_plot(data, baseline_data, output_dir: Path):
     bars2 = ax2.bar(x_pos - width/2, mini_vals, width, yerr=gpt4o_mini_errors, 
                    label='GPT-4o mini', alpha=0.9, color=colors[1], capsize=3)
     bars3 = ax2.bar(x_pos + width/2, gpt4o_vals, width, yerr=gpt4o_errors, 
-                   label='GPT-4o', alpha=0.9, color=colors[2], capsize=3)
+                   label='GPT-4o', alpha=0.9, color=colors[0], capsize=3)
     
     # Add baseline lines for monitorability
     baseline_handles = []
@@ -272,7 +272,7 @@ def create_plot(data, baseline_data, output_dir: Path):
             baseline_handles.append(line2)
             baseline_labels.append('RL baseline monitorability (GPT-4o mini)')
         if baseline_gpt4o is not None:
-            line3 = ax2.axhline(y=baseline_gpt4o, color=colors[2], linestyle='--', 
+            line3 = ax2.axhline(y=baseline_gpt4o, color=colors[0], linestyle='--', 
                                linewidth=2, alpha=0.8)
             baseline_handles.append(line3)
             baseline_labels.append('RL baseline monitorability (GPT-4o)')
