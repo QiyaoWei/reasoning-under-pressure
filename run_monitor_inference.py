@@ -312,6 +312,7 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
         "timestamp": datetime.now().isoformat(),
         "input_file": input_file,
         "output_file": output_file,
+        "monitor_model": model_name,
         "total_samples": len(monitor_results),
         "successful_predictions": successful_predictions,
         "failed_predictions": failed_predictions,
