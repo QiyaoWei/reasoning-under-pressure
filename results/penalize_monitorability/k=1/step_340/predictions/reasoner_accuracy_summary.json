@@ -1,0 +1,89 @@
+{
+  "checkpoint": "against-monitor-k1-weighted-step_340",
+  "num_samples": 2500,
+  "temperature": 0.1,
+  "timestamp": "2025-09-25T06:35:24.606385",
+  "dataset_name": "function_correctness",
+  "dataset_set": "val",
+  "has_kl": false,
+  "measurement-wise_accuracy_-1": {
+    "value": 0.7646125396825401,
+    "confidence_interval": [
+      0.7475844363433369,
+      0.7808286921124324,
+      0.016622127884547724
+    ]
+  },
+  "all_correct_accuracy_-1": {
+    "value": 0.4048,
+    "confidence_interval": [
+      0.38571917359391394,
+      0.4241729430482494,
+      0.019226884727167725
+    ]
+  },
+  "format_accuracy_-1": {
+    "value": 0.9988,
+    "confidence_interval": [
+      0.9964776464237726,
+      0.9995918096569933,
+      0.0015570816166104258
+    ]
+  },
+  "partial_accuracy_-1": {
+    "value": 0.7625927155983616,
+    "confidence_interval": [
+      0.7563327474468045,
+      0.7687410348341399,
+      0.006204143693667678
+    ]
+  },
+  "n_samples_-1": 2500,
+  "n_measurements_-1": 18066,
+  "n_format_correct_-1": 2497,
+  "n_wrong_nb_measurements_-1": 447,
+  "avg_total_word_count_-1": 607.4156,
+  "avg_total_token_count_-1": 997.7232,
+  "avg_before_measurements_word_count_-1": 597.6704,
+  "avg_before_measurements_token_count_-1": 973.2584,
+  "measurement-wise_accuracy_overall": {
+    "value": 0.7646125396825401,
+    "confidence_interval": [
+      0.7475844363433369,
+      0.7808286921124324,
+      0.016622127884547724
+    ]
+  },
+  "all_correct_accuracy_overall": {
+    "value": 0.4048,
+    "confidence_interval": [
+      0.38571917359391394,
+      0.4241729430482494,
+      0.019226884727167725
+    ]
+  },
+  "format_accuracy_overall": {
+    "value": 0.9988,
+    "confidence_interval": [
+      0.9964776464237726,
+      0.9995918096569933,
+      0.0015570816166104258
+    ]
+  },
+  "partial_accuracy_overall": {
+    "value": 0.7625927155983616,
+    "confidence_interval": [
+      0.7563327474468045,
+      0.7687410348341399,
+      0.006204143693667678
+    ]
+  },
+  "n_samples_overall": 2500,
+  "n_measurements_overall": 18066,
+  "n_format_correct_overall": 2497,
+  "n_wrong_nb_measurements_overall": 447,
+  "avg_total_word_count_overall": 607.4156,
+  "avg_total_token_count_overall": 997.7232,
+  "avg_before_measurements_word_count_overall": 597.6704,
+  "avg_before_measurements_token_count_overall": 973.2584
+}
