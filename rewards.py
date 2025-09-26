@@ -12,6 +12,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor
 import time
 import hashlib
+import numpy as np
 from utils.extract_measurements import extract_measurements
 from utils.monitor_utils import (
     extract_reasoning_trace,
@@ -397,22 +398,38 @@ def compute_score_batch(
 
 
 # Wrapper for compatibility with existing code
-def compute_score(response=None, ground_truth=None, dataset_name="function_correctness", extra_info=None,
+def compute_score(response=None, ground_truth=None, extra_info=None, data_source=None,
                  data_sources=None, solution_strs=None, ground_truths=None, extra_infos=None, **kwargs):
     """
     Unified compute_score function that handles both single samples and batch calls.
     
     Single sample call (naive reward manager):
-        compute_score(response, ground_truth, dataset_name, extra_info)
+        compute_score(response, ground_truth, extra_info)
     
     Batch call (batch reward manager):
         compute_score(data_sources=list, solution_strs=list, ground_truths=list, extra_infos=list)
     """
     
+
+    # Dataset name
+    print(f"Data source: {data_source}")
+    print(f"Data sources: {data_sources}")
     # Detect if this is a batch call from BatchRewardManager
     if solution_strs is not None and ground_truths is not None:
         # This is a batch call
-        dataset_name = data_sources[0] if data_sources is not None and isinstance(data_sources, list) else dataset_name
+        if data_sources is None:
+            raise ValueError("Dataset name is required")
+
+        # Normalize data_sources to a Python list
+        if isinstance(data_sources, np.ndarray):
+            data_sources = data_sources.tolist()
+        elif not isinstance(data_sources, list):
+            data_sources = [data_sources]
+
+        if len(data_sources) == 0 or data_sources[0] is None:
+            raise ValueError("Dataset name is required")
+
+        dataset_name = data_sources[0]
         extra_infos = extra_infos if extra_infos is not None else [{}] * len(solution_strs)
         
         # Call our optimized batch function
@@ -424,11 +441,15 @@ def compute_score(response=None, ground_truth=None, dataset_name="function_corre
     
     else:
         # Single sample call (backward compatibility)
+        # naive reward manager
         if extra_info is None:
             extra_info = {}
 
         # Use batch function with single item
+        if data_source is None:
+            raise ValueError("Dataset name is required")
+            
         results = compute_score_batch(
-            [response], [ground_truth], dataset_name, [extra_info]
+            [response], [ground_truth], [data_source], [extra_info]
         )
         return results[0]
