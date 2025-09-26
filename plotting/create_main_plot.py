@@ -14,6 +14,18 @@ from pathlib import Path
 from matplotlib.ticker import AutoMinorLocator
 from datetime import datetime
 
+def _darker_color(color, factor=0.8):
+    """Return a slightly darker shade of the given RGB color by blending toward black.
+    factor < 1 darkens; keep within [0,1].
+    """
+    try:
+        r, g, b = color
+        return (max(0.0, min(1.0, r * factor)),
+                max(0.0, min(1.0, g * factor)),
+                max(0.0, min(1.0, b * factor)))
+    except Exception:
+        return color
+
 def load_config(config_path):
     """Load the YAML configuration file."""
     with open(config_path, 'r') as f:
@@ -214,14 +226,29 @@ def create_plot(data, baseline_data, output_dir: Path):
     baseline_handles = []
     baseline_labels = []
     if baseline_data and baseline_data['reasoner_accuracy'] is not None:
-        line1 = ax1.axhline(y=baseline_data['reasoner_accuracy'], color=colors[2], linestyle='--', 
+        line1 = ax1.axhline(y=baseline_data['reasoner_accuracy'], color=_darker_color(colors[2], 0.8), linestyle='--', 
                            linewidth=2, alpha=0.8)
         baseline_handles.append(line1)
         baseline_labels.append('RL baseline reasoner accuracy')
+        # Add CI shading around baseline line if available
+        ci_info = baseline_data.get('reasoner_accuracy_ci', {})
+        ci_lower = ci_info.get('lower')
+        ci_upper = ci_info.get('upper')
+        ci_margin = ci_info.get('margin')
+        baseline_mean = baseline_data['reasoner_accuracy']
+        if (ci_lower is None or ci_upper is None) and ci_margin is not None:
+            ci_lower = baseline_mean - ci_margin
+            ci_upper = baseline_mean + ci_margin
+        if ci_lower is not None and ci_upper is not None:
+            # Shade full width of axis so it matches baseline line extent
+            ax1.axhspan(ci_lower, ci_upper, xmin=0, xmax=1, color=colors[2], alpha=0.25, zorder=0)
     
     ax1.set_ylabel('Accuracy', fontsize=12)
     ax1.set_xticks(x_pos_accuracy)
     ax1.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=10)
+    # Ensure only a small margin on each side (quarter step for accuracy plot)
+    if len(x_pos_accuracy) > 0:
+        ax1.set_xlim(x_pos_accuracy[0] - 0.3, x_pos_accuracy[-1] + 0.3)
     
     # Create two separate legends for accuracy plot
     if baseline_handles:
@@ -259,27 +286,64 @@ def create_plot(data, baseline_data, output_dir: Path):
     if baseline_data:
         baseline_mini = None
         baseline_gpt4o = None
+        baseline_mini_ci = None
+        baseline_gpt4o_ci = None
         
         for monitor_name, monitor_data in baseline_data['monitors'].items():
             if monitor_name == 'gpt-4o-mini':
                 baseline_mini = monitor_data['accuracy']
+                baseline_mini_ci = {
+                    'lower': monitor_data.get('ci_lower'),
+                    'upper': monitor_data.get('ci_upper'),
+                    'margin': monitor_data.get('ci_margin'),
+                }
             elif monitor_name == 'gpt-4o':
                 baseline_gpt4o = monitor_data['accuracy']
+                baseline_gpt4o_ci = {
+                    'lower': monitor_data.get('ci_lower'),
+                    'upper': monitor_data.get('ci_upper'),
+                    'margin': monitor_data.get('ci_margin'),
+                }
         
         if baseline_mini is not None:
-            line2 = ax2.axhline(y=baseline_mini, color=colors[1], linestyle='--', 
+            line2 = ax2.axhline(y=baseline_mini, color=_darker_color(colors[1], 0.8), linestyle='--', 
                                linewidth=2, alpha=0.8)
             baseline_handles.append(line2)
             baseline_labels.append('RL baseline monitorability (GPT-4o mini)')
+            # Add CI shading for GPT-4o mini baseline
+            if baseline_mini_ci is not None:
+                ci_lower = baseline_mini_ci.get('lower')
+                ci_upper = baseline_mini_ci.get('upper')
+                ci_margin = baseline_mini_ci.get('margin')
+                if (ci_lower is None or ci_upper is None) and ci_margin is not None:
+                    ci_lower = baseline_mini - ci_margin
+                    ci_upper = baseline_mini + ci_margin
+                if ci_lower is not None and ci_upper is not None:
+                    # Shade full width of axis so it matches baseline line extent
+                    ax2.axhspan(ci_lower, ci_upper, xmin=0, xmax=1, color=colors[1], alpha=0.25, zorder=0)
         if baseline_gpt4o is not None:
-            line3 = ax2.axhline(y=baseline_gpt4o, color=colors[0], linestyle='--', 
+            line3 = ax2.axhline(y=baseline_gpt4o, color=_darker_color(colors[0], 0.8), linestyle='--', 
                                linewidth=2, alpha=0.8)
             baseline_handles.append(line3)
             baseline_labels.append('RL baseline monitorability (GPT-4o)')
+            # Add CI shading for GPT-4o baseline
+            if baseline_gpt4o_ci is not None:
+                ci_lower = baseline_gpt4o_ci.get('lower')
+                ci_upper = baseline_gpt4o_ci.get('upper')
+                ci_margin = baseline_gpt4o_ci.get('margin')
+                if (ci_lower is None or ci_upper is None) and ci_margin is not None:
+                    ci_lower = baseline_gpt4o - ci_margin
+                    ci_upper = baseline_gpt4o + ci_margin
+                if ci_lower is not None and ci_upper is not None:
+                    # Shade full width of axis so it matches baseline line extent
+                    ax2.axhspan(ci_lower, ci_upper, xmin=0, xmax=1, color=colors[0], alpha=0.25, zorder=0)
     
     ax2.set_ylabel('Monitorability', fontsize=12)
     ax2.set_xticks(x_pos)
     ax2.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=10)
+    # Ensure only a small margin on each side (half unit for standard bar positions)
+    if len(x_pos) > 0:
+        ax2.set_xlim(-0.6, len(x_pos) - 0.4)
     
     # Create two separate legends for monitorability plot
     if baseline_handles:

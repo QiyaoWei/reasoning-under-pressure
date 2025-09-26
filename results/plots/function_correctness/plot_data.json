@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Penalise verbosity",
+    "setting": "Function correctness",
+    "reasoner_accuracy": 0.7833236507936513,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7667461796795773,
+      "upper": 0.7990317568497914,
+      "margin": 0.016142788585107114
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7277918781725888,
+        "ci_lower": 0.705282976908385,
+        "ci_upper": 0.7491930061032053,
+        "ci_margin": 0.0219550145974101
+      },
+      "gpt-4o": {
+        "accuracy": 0.7341370558375635,
+        "ci_lower": 0.7117752400372073,
+        "ci_upper": 0.7553602411084108,
+        "ci_margin": 0.021792500535601826
+      }
+    }
+  },
+  {
+    "name": "Reward verbosity",
+    "setting": "Function correctness",
+    "reasoner_accuracy": 0.8010417460317468,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7849360677175291,
+      "upper": 0.8162236921610718,
+      "margin": 0.015643812221771317
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7385786802030457,
+        "ci_lower": 0.7163232297496069,
+        "ci_upper": 0.7596739000898305,
+        "ci_margin": 0.021675335170111783
+      },
+      "gpt-4o": {
+        "accuracy": 0.7576142131979695,
+        "ci_lower": 0.7358475822895978,
+        "ci_upper": 0.7781280419519221,
+        "ci_margin": 0.021140229831162097
+      }
+    }
+  },
+  {
+    "name": "Penalise KL",
+    "setting": "Function correctness",
+    "reasoner_accuracy": 0.8241306349206364,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8087129901371317,
+      "upper": 0.8385537003691064,
+      "margin": 0.014920355115987294
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7779187817258884,
+        "ci_lower": 0.7567360948591814,
+        "ci_upper": 0.797749923411227,
+        "ci_margin": 0.020506914276022824
+      },
+      "gpt-4o": {
+        "accuracy": 0.7887055837563451,
+        "ci_lower": 0.7678613905873761,
+        "ci_upper": 0.8081457745108791,
+        "ci_margin": 0.02014219196175152
+      }
+    }
+  },
+  {
+    "name": "Reward KL",
+    "setting": "Function correctness",
+    "reasoner_accuracy": 0.7933387301587306,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7770222846647106,
+      "upper": 0.8087550798032712,
+      "margin": 0.015866397569280273
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7373096446700508,
+        "ci_lower": 0.7150235146634164,
+        "ci_upper": 0.7584417155492155,
+        "ci_margin": 0.021709100442899584
+      },
+      "gpt-4o": {
+        "accuracy": 0.7493654822335025,
+        "ci_lower": 0.727380336365492,
+        "ci_upper": 0.7701379403017921,
+        "ci_margin": 0.021378801968149962
+      }
+    }
+  },
+  {
+    "name": "Penalise monitorability",
+    "setting": "Function correctness",
+    "reasoner_accuracy": 0.8053100000000005,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7893250046753322,
+      "upper": 0.8203581662068233,
+      "margin": 0.015516580765745544
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.6613965744400527,
+        "ci_lower": 0.6372096165071297,
+        "ci_upper": 0.6847687322623348,
+        "ci_margin": 0.0237795578776025
+      },
+      "gpt-4o": {
+        "accuracy": 0.7134387351778656,
+        "ci_lower": 0.6901766080248773,
+        "ci_upper": 0.7356233307559655,
+        "ci_margin": 0.022723361365544117
+      }
+    }
+  },
+  {
+    "name": "Reward monitorability",
+    "setting": "Function correctness",
+    "reasoner_accuracy": 0.8175268253968259,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8019033493189262,
+      "upper": 0.8321759856130478,
+      "margin": 0.015136318147060896
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.764163372859025,
+        "ci_lower": 0.7421575574487816,
+        "ci_upper": 0.784835576659607,
+        "ci_margin": 0.021339009605412705
+      },
+      "gpt-4o": {
+        "accuracy": 0.7648221343873518,
+        "ci_lower": 0.7428352247910165,
+        "ci_upper": 0.7854721066592886,
+        "ci_margin": 0.021318440934136013
+      }
+    }
+  }
+]
