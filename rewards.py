@@ -409,11 +409,7 @@ def compute_score(response=None, ground_truth=None, extra_info=None, data_source
     Batch call (batch reward manager):
         compute_score(data_sources=list, solution_strs=list, ground_truths=list, extra_infos=list)
     """
-    
 
-    # Dataset name
-    print(f"Data source: {data_source}")
-    print(f"Data sources: {data_sources}")
     # Detect if this is a batch call from BatchRewardManager
     if solution_strs is not None and ground_truths is not None:
         # This is a batch call
