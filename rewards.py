@@ -241,17 +241,20 @@ def compute_verbosity_reward(solution_str: str) -> float:
         solution_str: Model's response containing measurements prediction
     
     Returns:
-        float: Verbosity reward (K * token_count)
+        float: verbosity reward (K * word_count), float: word count before <measurements> tag
     """
+    # Word count: split by whitespace
     if '<measurements>' not in solution_str:
-        return 0.0
-    
+        # If no <measurements> tag, report word count of the whole response
+        word_count = len(solution_str.split())
+        return 0.0, word_count
+
     text_before_measurements = solution_str.split('<measurements>')[0]
-    # Simple token count: split by whitespace
-    token_count = len(text_before_measurements.split())
-    # Reward proportional to token count
-    verbosity_reward = K * token_count
-    return verbosity_reward
+    word_count = len(text_before_measurements.split())
+
+    # Reward proportional to word count
+    verbosity_reward = K * word_count
+    return verbosity_reward, word_count
 
 
 def log_example_result(
@@ -321,10 +324,8 @@ def compute_score_batch(
         # Correctness reward
         correctness_reward, proportion_correct, all_correct, wrong_number_of_measurements = compute_correctness_reward(predicted, ground_truth_list, dataset_name)
 
-        # Verbosity penalty: only apply if K is not zero
-        verbosity_reward = 0.0
-        if K != 0.0:
-            verbosity_reward = compute_verbosity_reward(solution_str)
+        # Verbosity reward
+        verbosity_reward, word_count = compute_verbosity_reward(solution_str)
 
         # Store base result
         base_result = {
@@ -332,6 +333,7 @@ def compute_score_batch(
             "correctness_reward": correctness_reward,
             "format_reward": format_reward,
             "verbosity_reward": verbosity_reward,
+            "word_count_before_measurements": word_count,
             "monitor_correctness_reward": 0.0,  # Will be updated if needed
             "monitor_correctness": 0.0,  # Will be updated if needed
             "monitor_answer": 0.0,  # Will be updated if needed
