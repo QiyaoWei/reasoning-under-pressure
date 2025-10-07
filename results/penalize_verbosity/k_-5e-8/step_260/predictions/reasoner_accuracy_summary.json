@@ -1,0 +1,89 @@
+{
+  "checkpoint": "verbosity-k-5e-8-step_260",
+  "num_samples": 2500,
+  "temperature": 0.1,
+  "timestamp": "2025-10-07T07:33:05.672403",
+  "dataset_name": "function_correctness",
+  "dataset_set": "val",
+  "has_kl": false,
+  "measurement-wise_accuracy_-1": {
+    "value": 0.8006319047619052,
+    "confidence_interval": [
+      0.7845147865744072,
+      0.815826548342825,
+      0.01565588088420893
+    ]
+  },
+  "all_correct_accuracy_-1": {
+    "value": 0.6088,
+    "confidence_interval": [
+      0.5895170339873678,
+      0.6277491184215883,
+      0.01911604221711023
+    ]
+  },
+  "format_accuracy_-1": {
+    "value": 0.9992,
+    "confidence_interval": [
+      0.9970876449764905,
+      0.9997805837234259,
+      0.0013464693734676703
+    ]
+  },
+  "partial_accuracy_-1": {
+    "value": 0.7989040185984723,
+    "confidence_interval": [
+      0.7929959986062352,
+      0.8046849508703879,
+      0.0058444761320764396
+    ]
+  },
+  "n_samples_-1": 2500,
+  "n_measurements_-1": 18066,
+  "n_format_correct_-1": 2498,
+  "n_wrong_nb_measurements_-1": 4,
+  "avg_total_word_count_-1": 309.8256,
+  "avg_total_token_count_-1": 552.098,
+  "avg_before_measurements_word_count_-1": 300.58,
+  "avg_before_measurements_token_count_-1": 528.6228,
+  "measurement-wise_accuracy_overall": {
+    "value": 0.8006319047619052,
+    "confidence_interval": [
+      0.7845147865744072,
+      0.815826548342825,
+      0.01565588088420893
+    ]
+  },
+  "all_correct_accuracy_overall": {
+    "value": 0.6088,
+    "confidence_interval": [
+      0.5895170339873678,
+      0.6277491184215883,
+      0.01911604221711023
+    ]
+  },
+  "format_accuracy_overall": {
+    "value": 0.9992,
+    "confidence_interval": [
+      0.9970876449764905,
+      0.9997805837234259,
+      0.0013464693734676703
+    ]
+  },
+  "partial_accuracy_overall": {
+    "value": 0.7989040185984723,
+    "confidence_interval": [
+      0.7929959986062352,
+      0.8046849508703879,
+      0.0058444761320764396
+    ]
+  },
+  "n_samples_overall": 2500,
+  "n_measurements_overall": 18066,
+  "n_format_correct_overall": 2498,
+  "n_wrong_nb_measurements_overall": 4,
+  "avg_total_word_count_overall": 309.8256,
+  "avg_total_token_count_overall": 552.098,
+  "avg_before_measurements_word_count_overall": 300.58,
+  "avg_before_measurements_token_count_overall": 528.6228
+}
