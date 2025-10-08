@@ -209,6 +209,107 @@ def display_lv_statistics(train_df, val_df, test_df, logger=None):
         print(stats_message)
 
 
+def create_balanced_by_lv(df, seed=42, logger=None):
+    """Return a new DataFrame rebalanced to 50/50 by latent variable `extra_info['is_correct']`.
+
+    Downsamples the majority class to the minority count. Returns None if a class has 0 samples.
+    """
+    # Extract LV booleans
+    is_correct_series = df['extra_info'].apply(lambda x: x.get('is_correct', False))
+
+    true_indices = is_correct_series[is_correct_series is True].index if isinstance(is_correct_series, pd.Series) else []
+    false_indices = is_correct_series[is_correct_series is False].index if isinstance(is_correct_series, pd.Series) else []
+
+    true_indices = is_correct_series[is_correct_series == True].index.tolist()
+    false_indices = is_correct_series[is_correct_series == False].index.tolist()
+
+    true_count = len(true_indices)
+    false_count = len(false_indices)
+    target_per_class = min(true_count, false_count)
+
+    if target_per_class == 0:
+        message = (
+            "Cannot create balanced validation set: one class has 0 samples "
+            f"(LV True: {true_count}, LV False: {false_count})."
+        )
+        if logger:
+            log_and_print(logger, message)
+        else:
+            print(message)
+        return None
+
+    rng = np.random.default_rng(seed)
+    selected_true = rng.choice(true_indices, size=target_per_class, replace=False)
+    selected_false = rng.choice(false_indices, size=target_per_class, replace=False)
+
+    selected_indices = np.concatenate([selected_true, selected_false])
+    rng.shuffle(selected_indices)
+
+    balanced_df = df.iloc[selected_indices].reset_index(drop=True)
+
+    message = (
+        "Created balanced validation set: "
+        f"{len(balanced_df)} samples ({target_per_class} True / {target_per_class} False)"
+    )
+    if logger:
+        log_and_print(logger, message)
+    else:
+        print(message)
+
+    return balanced_df
+
+
+def rebalance_dataset_by_lv(dataset, seed=42, logger=None):
+    """Rebalance a HuggingFace Dataset to 50/50 by latent variable `is_correct`.
+
+    Downsamples the majority class to the minority count, shuffles selected indices,
+    and returns a new `datasets.Dataset` with the balanced rows.
+    """
+    # Collect indices by LV
+    true_indices = []
+    false_indices = []
+    for i, sample in enumerate(dataset):
+        is_correct = bool(sample.get('is_correct', False))
+        if is_correct:
+            true_indices.append(i)
+        else:
+            false_indices.append(i)
+
+    true_count = len(true_indices)
+    false_count = len(false_indices)
+    target_per_class = min(true_count, false_count)
+
+    if target_per_class == 0:
+        message = (
+            "Cannot rebalance split by LV: one class has 0 samples "
+            f"(LV True: {true_count}, LV False: {false_count})."
+        )
+        if logger:
+            log_and_print(logger, message)
+        else:
+            print(message)
+        return dataset
+
+    rng = np.random.default_rng(seed)
+    selected_true = rng.choice(true_indices, size=target_per_class, replace=False)
+    selected_false = rng.choice(false_indices, size=target_per_class, replace=False)
+
+    selected_indices = np.concatenate([selected_true, selected_false])
+    rng.shuffle(selected_indices)
+
+    balanced_dataset = dataset.select(selected_indices.tolist())
+
+    message = (
+        "Rebalanced split to 50/50 LV: "
+        f"{len(balanced_dataset)} samples ({target_per_class} True / {target_per_class} False)"
+    )
+    if logger:
+        log_and_print(logger, message)
+    else:
+        print(message)
+
+    return balanced_dataset
+
 def main():
     """Main conversion function."""
     # Parse command line arguments
@@ -226,6 +327,13 @@ def main():
                         help="Output directory for parquet files (default: ~/data/{dataset-name})")
     parser.add_argument("--limit-val-size", type=int, default=None,
                         help="Limit validation dataset size (default: None for no limit)")
+    parser.add_argument("--save-val-balanced", action="store_true",
+                        help="Also save val_balanced.parquet with 50/50 LV distribution by downsampling")
+    parser.add_argument("--rebalance-by-lv", action="store_true",
+                        help="Rebalance specified splits by latent variable 'is_correct' to 50/50")
+    parser.add_argument("--rebalance-by-lv-splits", type=str, nargs="+", default=["val"],
+                        choices=["train", "val", "test"],
+                        help="Splits to apply LV rebalancing to (default: val)")
     
     args = parser.parse_args()
     
@@ -293,6 +401,19 @@ def main():
     
     log_and_print(logger, f"Split sizes - Train: {len(train_dataset)}, Val: {len(val_dataset)}, Test: {len(test_dataset)}")
 
+    # Optionally rebalance by LV (is_correct) after splitting
+    if args.rebalance_by_lv:
+        def _rebalance_named_split(split_name, ds):
+            log_and_print(logger, f"Rebalancing {split_name} split by LV (is_correct) to 50/50...")
+            return rebalance_dataset_by_lv(ds, seed=args.seed, logger=logger)
+
+        if "train" in args.rebalance_by_lv_splits:
+            train_dataset = _rebalance_named_split("train", train_dataset)
+        if "val" in args.rebalance_by_lv_splits:
+            val_dataset = _rebalance_named_split("validation", val_dataset)
+        if "test" in args.rebalance_by_lv_splits:
+            test_dataset = _rebalance_named_split("test", test_dataset)
+
     # Specify the system prompt for the dataset
     if args.dataset_name.startswith("diamonds"):
         system_prompt = SYSTEM_PROMPT_DIAMONDS
@@ -321,6 +442,14 @@ def main():
     
     val_df.to_parquet(val_path)
     log_and_print(logger, f"Saved {len(val_df)} validation samples to {val_path}")
+
+    # Optionally save a balanced validation set (50/50 LV)
+    if args.save_val_balanced:
+        balanced_val_df = create_balanced_by_lv(val_df, seed=args.seed, logger=logger)
+        if balanced_val_df is not None:
+            val_balanced_path = os.path.join(output_dir, "val_balanced.parquet")
+            balanced_val_df.to_parquet(val_balanced_path)
+            log_and_print(logger, f"Saved {len(balanced_val_df)} balanced validation samples to {val_balanced_path}")
     
     test_df.to_parquet(test_path)
     log_and_print(logger, f"Saved {len(test_df)} test samples to {test_path}")
