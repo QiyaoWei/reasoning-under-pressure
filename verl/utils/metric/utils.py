@@ -51,4 +51,5 @@ def reduce_metrics(metrics: dict[str, list[Any]]) -> dict[str, Any]:
             metrics[key] = np.min(val)
         else:
             metrics[key] = np.mean(val)
+            # metrics[key + "_stderr"] = np.std(val) / np.sqrt(len(val))
     return metrics

@@ -13,9 +13,9 @@ Accuracies are computed the same way as in run_inference.py:
 - all_correct_accuracy: fraction of samples with is_correct == True
 - format_accuracy: fraction of samples with correct_format == True
 
-Confidence intervals use the Wilson score interval with the same inputs as run_inference.py:
-- measurement-wise CI: successes = sum of per-sample proportions, total = number of samples
-- others: successes = counts, total = number of samples
+Confidence intervals:
+- measurement-wise CI: t-interval over per-sample proportions (mean with unbiased variance)
+- others: Wilson score for binomial proportions (successes/total)
 
 Usage:
   python reasoner_performance_analysis.py \
@@ -28,41 +28,13 @@ This will update the sibling summary file in the same directory:
 import os
 import json
 import argparse
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List
 
 from datetime import datetime
-
-try:
-    from scipy import stats
-except Exception as _:
-    stats = None
-
-
-def calculate_confidence_interval(successes: float, total: int, confidence_level: float = 0.95) -> Tuple[float, float, float]:
-    """Wilson score interval for a proportion.
-
-    Mirrors run_inference.py, using scipy.stats.norm.ppf when available; falls back to z=1.96.
-    """
-    if total == 0:
-        return 0.0, 0.0, 0.0
-
-    alpha = 1 - confidence_level
-    if stats is not None:
-        z_score = stats.norm.ppf(1 - alpha / 2)
-    else:
-        # 95% fallback
-        z_score = 1.959963984540054
-
-    n = float(total)
-    p_hat = float(successes) / n
-
-    denominator = 1.0 + (z_score * z_score / n)
-    center = (p_hat + (z_score * z_score / (2.0 * n))) / denominator
-    margin = (z_score / denominator) * ((p_hat * (1.0 - p_hat) / n) + (z_score * z_score / (4.0 * n * n))) ** 0.5
-
-    lower_bound = max(0.0, center - margin)
-    upper_bound = min(1.0, center + margin)
-    return lower_bound, upper_bound, margin
+from utils.stats import (
+    calculate_wilson_confidence_interval,
+    calculate_t_confidence_interval,
+)
 
 
 def is_all_false(values: List[bool]) -> bool:
@@ -85,12 +57,15 @@ def aggregate_group_metrics(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Aggregate counters required to compute metrics and CIs."""
     total = 0
     proportion_sum = 0.0
+    proportion_sq_sum = 0.0
     correct_count = 0
     format_correct_count = 0
 
     for s in samples:
         total += 1
-        proportion_sum += float(s.get('proportion_correct', 0.0))
+        pc = float(s.get('proportion_correct', 0.0))
+        proportion_sum += pc
+        proportion_sq_sum += (pc * pc)
         if s.get('is_correct', False):
             correct_count += 1
         if s.get('correct_format', False):
@@ -102,9 +77,16 @@ def aggregate_group_metrics(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     format_acc = (format_correct_count / total) if total > 0 else 0.0
 
     # CIs
-    mw_lower, mw_upper, mw_margin = calculate_confidence_interval(proportion_sum, total)
-    ac_lower, ac_upper, ac_margin = calculate_confidence_interval(correct_count, total)
-    fm_lower, fm_upper, fm_margin = calculate_confidence_interval(format_correct_count, total)
+    if total > 0:
+        if total > 1:
+            sample_variance = (proportion_sq_sum - total * (measurement_wise_acc ** 2)) / (total - 1)
+        else:
+            sample_variance = 0.0
+        mw_lower, mw_upper, mw_margin = calculate_t_confidence_interval(measurement_wise_acc, sample_variance, total)
+    else:
+        mw_lower, mw_upper, mw_margin = (0.0, 0.0, 0.0)
+    ac_lower, ac_upper, ac_margin = calculate_wilson_confidence_interval(correct_count, total)
+    fm_lower, fm_upper, fm_margin = calculate_wilson_confidence_interval(format_correct_count, total)
 
     return {
         'n_samples': total,
@@ -124,6 +106,67 @@ def aggregate_group_metrics(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
         },
     }
 
+
+def compute_measurementwise_t_ci_by_difficulty(predictions: List[Dict[str, Any]]) -> Dict[str, List[float]]:
+    """Compute t-interval CIs for measurement-wise accuracy overall and by difficulty.
+
+    Returns a map: suffix -> [lower, upper, margin], where suffix is 'overall' or the difficulty value.
+    """
+    # NOTE: This function is used to correct earlier summaries that used Wilson CI for measurement-wise accuracy.
+    #       It can be removed later once all summaries are regenerated with the correct t-interval.
+
+    accumulators: Dict[Any, Dict[str, float]] = {}
+    # Prepare an 'overall' bucket
+    accumulators['overall'] = {'n': 0.0, 'sum': 0.0, 'sumsq': 0.0}
+
+    for p in predictions:
+        pc = float(p.get('proportion_correct', 0.0))
+        diff = p.get('difficulty', -1)
+
+        # Overall
+        accumulators['overall']['n'] += 1.0
+        accumulators['overall']['sum'] += pc
+        accumulators['overall']['sumsq'] += pc * pc
+
+        # Per-difficulty
+        if diff not in accumulators:
+            accumulators[diff] = {'n': 0.0, 'sum': 0.0, 'sumsq': 0.0}
+        accumulators[diff]['n'] += 1.0
+        accumulators[diff]['sum'] += pc
+        accumulators[diff]['sumsq'] += pc * pc
+
+    ci_map: Dict[str, List[float]] = {}
+    for suffix, acc in accumulators.items():
+        n = int(acc['n'])
+        if n <= 0:
+            ci_map[str(suffix)] = [0.0, 0.0, 0.0]
+            continue
+        mean_val = acc['sum'] / n
+        if n > 1:
+            sample_var = (acc['sumsq'] - n * (mean_val ** 2)) / (n - 1)
+        else:
+            sample_var = 0.0
+        lower, upper, margin = calculate_t_confidence_interval(mean_val, sample_var, n)
+        ci_map[str(suffix)] = [lower, upper, margin]
+
+    return ci_map
+
+
+def apply_measurementwise_ci_correction(summary_path: str, ci_map: Dict[str, List[float]]):
+    """Update measurement-wise CI fields in the existing summary using provided t-intervals."""
+    with open(summary_path, 'r') as f:
+        summary = json.load(f)
+
+    updated = False
+    for suffix, ci in ci_map.items():
+        key = f'measurement-wise_accuracy_{suffix}'
+        if key in summary and isinstance(summary[key], dict):
+            summary[key]['confidence_interval'] = ci
+            updated = True
+
+    if updated:
+        with open(summary_path, 'w') as f:
+            json.dump(summary, f, indent=2)
 
 def compute_groups(predictions: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     all_false_lv_false = []
@@ -208,6 +251,13 @@ def main():
     # Compute and append
     group_metrics = compute_groups(predictions)
     append_to_summary(summary_path, group_metrics)
+
+    # --- Temporary correction block ---
+    # NOTE: This block corrects earlier summaries where measurement-wise CI used Wilson instead of t-interval.
+    #       It recomputes t-intervals from the per-sample proportions in predictions and updates the summary.
+    #       This code can be removed once all summaries are regenerated correctly.
+    ci_map = compute_measurementwise_t_ci_by_difficulty(predictions)
+    apply_measurementwise_ci_correction(summary_path, ci_map)
 
     print("Appended group metrics to:", summary_path)
 

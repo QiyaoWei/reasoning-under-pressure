@@ -12,7 +12,7 @@ from openai import AsyncOpenAI
 import time
 import random
 import numpy as np
-from scipy import stats
+from utils.stats import calculate_wilson_confidence_interval
 
 # Import monitor utilities
 from utils.monitor_utils import (
@@ -23,33 +23,7 @@ from utils.monitor_utils import (
 )
 
 
-def calculate_confidence_interval(successes: int, total: int, confidence_level: float = 0.95) -> Tuple[float, float, float]:
-    """Calculate confidence interval for a proportion using Wilson Score interval."""
-    if total == 0:
-        return 0.0, 0.0, 0.0
-    
-    # Calculate z-score for given confidence level
-    alpha = 1 - confidence_level
-    z_score = stats.norm.ppf(1 - alpha / 2)
-    
-    # Wilson Score interval formula
-    n = total
-    p_hat = successes / n
-    
-    # Wilson Score interval components
-    denominator = 1 + (z_score**2 / n)
-    
-    # Center of the interval
-    center = (p_hat + (z_score**2 / (2 * n))) / denominator
-    
-    # Margin of error
-    margin = (z_score / denominator) * np.sqrt((p_hat * (1 - p_hat) / n) + (z_score**2 / (4 * n**2)))
-    
-    # Calculate bounds
-    lower_bound = max(0.0, center - margin)
-    upper_bound = min(1.0, center + margin)
-    
-    return lower_bound, upper_bound, margin
+ 
 
 
 def rebalance_samples(samples: List[Dict]) -> List[Dict]:
@@ -259,7 +233,7 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
     total_valid_predictions = sum(1 for r in monitor_results if r["monitor_prediction"] is not None)
     
     # Calculate 95% confidence interval for overall accuracy
-    accuracy_ci_lower, accuracy_ci_upper, accuracy_ci_margin = calculate_confidence_interval(
+    accuracy_ci_lower, accuracy_ci_upper, accuracy_ci_margin = calculate_wilson_confidence_interval(
         correct_predictions, total_valid_predictions, confidence_level=0.95
     )
     
@@ -297,19 +271,19 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
     total_lv_false = len(lv_false_samples)
     
     # Calculate confidence intervals for conditional accuracies
-    ci_original_correct = calculate_confidence_interval(
+    ci_original_correct = calculate_wilson_confidence_interval(
         monitor_correct_when_original_correct, total_original_correct, confidence_level=0.95
     ) if total_original_correct > 0 else (0.0, 0.0, 0.0)
     
-    ci_original_incorrect = calculate_confidence_interval(
+    ci_original_incorrect = calculate_wilson_confidence_interval(
         monitor_correct_when_original_incorrect, total_original_incorrect, confidence_level=0.95
     ) if total_original_incorrect > 0 else (0.0, 0.0, 0.0)
     
-    ci_lv_true = calculate_confidence_interval(
+    ci_lv_true = calculate_wilson_confidence_interval(
         monitor_correct_when_lv_true, total_lv_true, confidence_level=0.95
     ) if total_lv_true > 0 else (0.0, 0.0, 0.0)
     
-    ci_lv_false = calculate_confidence_interval(
+    ci_lv_false = calculate_wilson_confidence_interval(
         monitor_correct_when_lv_false, total_lv_false, confidence_level=0.95
     ) if total_lv_false > 0 else (0.0, 0.0, 0.0)
     

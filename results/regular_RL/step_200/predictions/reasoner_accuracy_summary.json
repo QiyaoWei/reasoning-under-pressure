@@ -9,9 +9,9 @@
   "measurement-wise_accuracy_-1": {
     "value": 0.8216955555555558,
     "confidence_interval": [
-      0.8062011326326171,
-      0.8362028710679088,
-      0.015000869217645828
+      0.8093880078608989,
+      0.8340031032502128,
+      0.012307547694656864
     ]
   },
   "all_correct_accuracy_-1": {
@@ -49,9 +49,9 @@
   "measurement-wise_accuracy_overall": {
     "value": 0.8216955555555558,
     "confidence_interval": [
-      0.8062011326326171,
-      0.8362028710679088,
-      0.015000869217645828
+      0.8093880078608989,
+      0.8340031032502128,
+      0.012307547694656864
     ]
   },
   "all_correct_accuracy_overall": {
@@ -85,5 +85,123 @@
   "avg_total_word_count_overall": 661.7608,
   "avg_total_token_count_overall": 1119.9976,
   "avg_before_measurements_word_count_overall": 652.5804,
-  "avg_before_measurements_token_count_overall": 1096.702
+  "avg_before_measurements_token_count_overall": 1096.702,
+  "group_metrics": {
+    "all_false_lv_false": {
+      "measurement-wise_accuracy": {
+        "value": 0.7913580800829542,
+        "confidence_interval": [
+          0.7653521991787396,
+          0.8173639609871687,
+          0.026005880904214494
+        ]
+      },
+      "all_correct_accuracy": {
+        "value": 0.7085427135678392,
+        "confidence_interval": [
+          0.6760320200130026,
+          0.7390502395256675,
+          0.03150910975633247
+        ],
+        "correct_count": 564
+      },
+      "format_accuracy": {
+        "value": 0.9861809045226131,
+        "confidence_interval": [
+          0.9754253676089075,
+          0.9922664061348598,
+          0.008420519262976182
+        ],
+        "format_correct_count": 785
+      },
+      "n_samples": 796
+    },
+    "mixed_lv_false": {
+      "measurement-wise_accuracy": {
+        "value": 0.8032674974751808,
+        "confidence_interval": [
+          0.7850722820497962,
+          0.8214627129005654,
+          0.018195215425384645
+        ]
+      },
+      "all_correct_accuracy": {
+        "value": 0.48139255702280914,
+        "confidence_interval": [
+          0.44762499052841853,
+          0.5153309556986168,
+          0.03385298258509913
+        ],
+        "correct_count": 401
+      },
+      "format_accuracy": {
+        "value": 0.985594237695078,
+        "confidence_interval": [
+          0.9749899057409223,
+          0.991740400785801,
+          0.008375247522439316
+        ],
+        "format_correct_count": 821
+      },
+      "n_samples": 833
+    },
+    "all_true_lv_true": {
+      "measurement-wise_accuracy": {
+        "value": 0.8671254330835548,
+        "confidence_interval": [
+          0.8468541568445634,
+          0.8873967093225462,
+          0.02027127623899137
+        ]
+      },
+      "all_correct_accuracy": {
+        "value": 0.7652284263959391,
+        "confidence_interval": [
+          0.7343915955990269,
+          0.7934918529672254,
+          0.02955012868409924
+        ],
+        "correct_count": 603
+      },
+      "format_accuracy": {
+        "value": 0.9885786802030457,
+        "confidence_interval": [
+          0.9784371184078088,
+          0.9939797605300243,
+          0.007771321061107742
+        ],
+        "format_correct_count": 779
+      },
+      "n_samples": 788
+    },
+    "all_true_lv_false": {
+      "measurement-wise_accuracy": {
+        "value": 0.8662794033275961,
+        "confidence_interval": [
+          0.8045999163453678,
+          0.9279588903098245,
+          0.06167948698222836
+        ]
+      },
+      "all_correct_accuracy": {
+        "value": 0.7349397590361446,
+        "confidence_interval": [
+          0.6311383922971716,
+          0.8179558597987684,
+          0.09340873375079833
+        ],
+        "correct_count": 61
+      },
+      "format_accuracy": {
+        "value": 0.9879518072289156,
+        "confidence_interval": [
+          0.934864193319676,
+          0.9978700225718917,
+          0.031502914626107915
+        ],
+        "format_correct_count": 82
+      },
+      "n_samples": 83
+    }
+  }
 }

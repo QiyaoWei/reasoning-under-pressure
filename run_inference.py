@@ -21,7 +21,10 @@ from tqdm import tqdm
 import numpy as np
 from collections import defaultdict
 from datetime import datetime
-from scipy import stats
+from utils.stats import (
+    calculate_wilson_confidence_interval,
+    calculate_t_confidence_interval,
+)
 
 # Suppress warnings
 warnings.filterwarnings("ignore")
@@ -44,33 +47,7 @@ def convert_numpy_types(obj):
         return obj
 
 
-def calculate_confidence_interval(successes: int, total: int, confidence_level: float = 0.95) -> Tuple[float, float, float]:
-    """Calculate confidence interval for a proportion using Wilson Score interval."""
-    if total == 0:
-        return 0.0, 0.0, 0.0
-    
-    # Calculate z-score for given confidence level
-    alpha = 1 - confidence_level
-    z_score = stats.norm.ppf(1 - alpha / 2)
-    
-    # Wilson Score interval formula
-    n = total
-    p_hat = successes / n
-    
-    # Wilson Score interval components
-    denominator = 1 + (z_score**2 / n)
-    
-    # Center of the interval
-    center = (p_hat + (z_score**2 / (2 * n))) / denominator
-    
-    # Margin of error
-    margin = (z_score / denominator) * np.sqrt((p_hat * (1 - p_hat) / n) + (z_score**2 / (4 * n**2)))
-    
-    # Calculate bounds
-    lower_bound = max(0.0, center - margin)
-    upper_bound = min(1.0, center + margin)
-    
-    return lower_bound, upper_bound, margin
+ 
 
 os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
 os.environ['HF_HUB_VERBOSITY'] = 'error'
@@ -542,6 +519,7 @@ def evaluate_checkpoint(checkpoint_path: str,
         'total': 0, 'n_measurements': 0, 'correct': 0, 'partial': 0, 'proportion_correct': 0, 'format_correct': 0, 'wrong_nb_measurements': 0,
     'total_word_count': 0, 'total_token_count': 0, 'before_measurements_word_count': 0, 'before_measurements_token_count': 0,
         'kl_mean_sum': 0.0,
+        'proportion_correct_sq_sum': 0.0,
     })
     
     # Evaluate samples
@@ -581,6 +559,8 @@ def evaluate_checkpoint(checkpoint_path: str,
             metrics_by_difficulty['overall']['partial'] += result['partial_correct']
             metrics_by_difficulty[difficulty]['proportion_correct'] += result['proportion_correct']
             metrics_by_difficulty['overall']['proportion_correct'] += result['proportion_correct']
+            metrics_by_difficulty[difficulty]['proportion_correct_sq_sum'] += (result['proportion_correct'] ** 2)
+            metrics_by_difficulty['overall']['proportion_correct_sq_sum'] += (result['proportion_correct'] ** 2)
 
             if result['correct_format']:
                 metrics_by_difficulty[difficulty]['format_correct'] += 1
@@ -627,21 +607,27 @@ def evaluate_checkpoint(checkpoint_path: str,
             partial_acc = stats['partial'] / stats['n_measurements']
             
             # Calculate confidence intervals
-            # For measurement-wise accuracy, we need to calculate it differently since it's an average of proportions
-            # We'll use the total number of measurements as the denominator
-            measurement_wise_lower, measurement_wise_upper, measurement_wise_margin = calculate_confidence_interval(
-                stats['proportion_correct'], total
+            # For measurement-wise (mean of per-sample proportions), use t-interval
+            mean_prop = measurement_wise_acc
+            if total > 1:
+                sum_sq = stats.get('proportion_correct_sq_sum', 0.0)
+                # Unbiased sample variance of per-sample proportions
+                sample_variance = (sum_sq - total * (mean_prop ** 2)) / (total - 1)
+            else:
+                sample_variance = 0.0
+            measurement_wise_lower, measurement_wise_upper, measurement_wise_margin = calculate_t_confidence_interval(
+                mean_prop, sample_variance, total
             )
             
-            all_correct_lower, all_correct_upper, all_correct_margin = calculate_confidence_interval(
+            all_correct_lower, all_correct_upper, all_correct_margin = calculate_wilson_confidence_interval(
                 stats['correct'], total
             )
             
-            format_lower, format_upper, format_margin = calculate_confidence_interval(
+            format_lower, format_upper, format_margin = calculate_wilson_confidence_interval(
                 stats['format_correct'], total
             )
             
-            partial_lower, partial_upper, partial_margin = calculate_confidence_interval(
+            partial_lower, partial_upper, partial_margin = calculate_wilson_confidence_interval(
                 stats['partial'], stats['n_measurements']
             )
             

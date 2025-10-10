@@ -9,9 +9,9 @@
   "measurement-wise_accuracy_-1": {
     "value": 0.8006319047619052,
     "confidence_interval": [
-      0.7845147865744072,
-      0.815826548342825,
-      0.01565588088420893
+      0.787926764420935,
+      0.8133370451028753,
+      0.012705140340970176
     ]
   },
   "all_correct_accuracy_-1": {
@@ -49,9 +49,9 @@
   "measurement-wise_accuracy_overall": {
     "value": 0.8006319047619052,
     "confidence_interval": [
-      0.7845147865744072,
-      0.815826548342825,
-      0.01565588088420893
+      0.787926764420935,
+      0.8133370451028753,
+      0.012705140340970176
     ]
   },
   "all_correct_accuracy_overall": {
@@ -85,5 +85,123 @@
   "avg_total_word_count_overall": 309.8256,
   "avg_total_token_count_overall": 552.098,
   "avg_before_measurements_word_count_overall": 300.58,
-  "avg_before_measurements_token_count_overall": 528.6228
+  "avg_before_measurements_token_count_overall": 528.6228,
+  "group_metrics": {
+    "all_false_lv_false": {
+      "measurement-wise_accuracy": {
+        "value": 0.7988939965425113,
+        "confidence_interval": [
+          0.7726029585520333,
+          0.8251850345329892,
+          0.02629103799047791
+        ]
+      },
+      "all_correct_accuracy": {
+        "value": 0.754950495049505,
+        "confidence_interval": [
+          0.7241326970622369,
+          0.7833555514419525,
+          0.029611427189857733
+        ],
+        "correct_count": 610
+      },
+      "format_accuracy": {
+        "value": 0.9987623762376238,
+        "confidence_interval": [
+          0.9930231847273501,
+          0.9997814955988065,
+          0.0033791554357282465
+        ],
+        "format_correct_count": 807
+      },
+      "n_samples": 808
+    },
+    "mixed_lv_false": {
+      "measurement-wise_accuracy": {
+        "value": 0.754081834634092,
+        "confidence_interval": [
+          0.7368681934807536,
+          0.7712954757874303,
+          0.01721364115333838
+        ]
+      },
+      "all_correct_accuracy": {
+        "value": 0.3182897862232779,
+        "confidence_interval": [
+          0.2877124908856215,
+          0.3505175854378571,
+          0.03140254727611782
+        ],
+        "correct_count": 268
+      },
+      "format_accuracy": {
+        "value": 0.998812351543943,
+        "confidence_interval": [
+          0.9933035880194276,
+          0.9997903201121994,
+          0.0032433660463858315
+        ],
+        "format_correct_count": 841
+      },
+      "n_samples": 842
+    },
+    "all_true_lv_true": {
+      "measurement-wise_accuracy": {
+        "value": 0.8448695024781984,
+        "confidence_interval": [
+          0.8217519682611045,
+          0.8679870366952922,
+          0.02311753421709389
+        ]
+      },
+      "all_correct_accuracy": {
+        "value": 0.7549407114624506,
+        "confidence_interval": [
+          0.7231072128840145,
+          0.7842065880704828,
+          0.030549687593234225
+        ],
+        "correct_count": 573
+      },
+      "format_accuracy": {
+        "value": 1.0,
+        "confidence_interval": [
+          0.9949642762906031,
+          0.9999999999999999,
+          0.002517861854698343
+        ],
+        "format_correct_count": 759
+      },
+      "n_samples": 759
+    },
+    "all_true_lv_false": {
+      "measurement-wise_accuracy": {
+        "value": 0.8778083028083027,
+        "confidence_interval": [
+          0.8189365134624027,
+          0.9366800921542027,
+          0.05887178934589998
+        ]
+      },
+      "all_correct_accuracy": {
+        "value": 0.7802197802197802,
+        "confidence_interval": [
+          0.6847607621793044,
+          0.8529787521023122,
+          0.08410899496150398
+        ],
+        "correct_count": 71
+      },
+      "format_accuracy": {
+        "value": 1.0,
+        "confidence_interval": [
+          0.9594959960711198,
+          1.0,
+          0.020252001964440106
+        ],
+        "format_correct_count": 91
+      },
+      "n_samples": 91
+    }
+  }
 }
