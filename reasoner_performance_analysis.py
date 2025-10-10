@@ -152,21 +152,38 @@ def compute_measurementwise_t_ci_by_difficulty(predictions: List[Dict[str, Any]]
     return ci_map
 
 
-def apply_measurementwise_ci_correction(summary_path: str, ci_map: Dict[str, List[float]]):
-    """Update measurement-wise CI fields in the existing summary using provided t-intervals."""
-    with open(summary_path, 'r') as f:
-        summary = json.load(f)
+def apply_measurementwise_ci_correction_file(file_path: str, ci_map: Dict[str, List[float]]):
+    """Update measurement-wise CI fields in a JSON file (summary or predictions) using provided t-intervals.
+
+    NOTE: Temporary correction to fix earlier files that used Wilson CI for measurement-wise accuracy.
+    This can be removed once all artifacts are regenerated with the correct t-interval.
+    """
+    with open(file_path, 'r') as f:
+        data = json.load(f)
+
+    if not isinstance(data, dict):
+        return
+
+    # Determine where measurement-wise keys live
+    # - Summary JSON: keys are at top level
+    # - Predictions JSON: keys are under metrics
+    if 'metrics' in data and isinstance(data['metrics'], dict):
+        target_container = data['metrics']
+    else:
+        target_container = data
 
     updated = False
     for suffix, ci in ci_map.items():
-        key = f'measurement-wise_accuracy_{suffix}'
-        if key in summary and isinstance(summary[key], dict):
-            summary[key]['confidence_interval'] = ci
-            updated = True
+        keys_to_try = [f'measurement-wise_accuracy_{suffix}']
+
+        for key in keys_to_try:
+            if key in target_container and isinstance(target_container[key], dict):
+                target_container[key]['confidence_interval'] = ci
+                updated = True
 
     if updated:
-        with open(summary_path, 'w') as f:
-            json.dump(summary, f, indent=2)
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=2)
 
 def compute_groups(predictions: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     all_false_lv_false = []
@@ -257,7 +274,10 @@ def main():
     #       It recomputes t-intervals from the per-sample proportions in predictions and updates the summary.
     #       This code can be removed once all summaries are regenerated correctly.
     ci_map = compute_measurementwise_t_ci_by_difficulty(predictions)
-    apply_measurementwise_ci_correction(summary_path, ci_map)
+    apply_measurementwise_ci_correction_file(summary_path, ci_map)
+    # Also correct the predictions JSON metrics for measurement-wise CI.
+    # NOTE: Temporary correction; can be removed once predictions are regenerated correctly.
+    apply_measurementwise_ci_correction_file(predictions_file, ci_map)
 
     print("Appended group metrics to:", summary_path)
 
