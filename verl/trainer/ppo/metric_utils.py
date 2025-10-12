@@ -488,6 +488,5 @@ def process_validation_metrics(
                 data_src2var2metric2val[data_source][var_name][metric_name] = np.mean(prompt_vals)
                 # Add stderr and std
                 data_src2var2metric2val[data_source][var_name]["std@1"] = np.std(prompt_vals)
-                data_src2var2metric2val[data_source][var_name]["stderr@1"] = np.std(prompt_vals, ddof=1) / np.sqrt(len(prompt_vals))
 
     return data_src2var2metric2val
