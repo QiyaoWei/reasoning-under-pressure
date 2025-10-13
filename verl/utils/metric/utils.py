@@ -44,12 +44,13 @@ def reduce_metrics(metrics: dict[str, list[Any]]) -> dict[str, Any]:
         >>> reduce_metrics(metrics)
         {"loss": 2.0, "accuracy": 0.8, "max_reward": 8.0, "min_error": 0.05}
     """
+    reduced_metrics = {}
     for key, val in metrics.items():
         if "max" in key:
-            metrics[key] = np.max(val)
+            reduced_metrics[key] = np.max(val)
         elif "min" in key:
-            metrics[key] = np.min(val)
+            reduced_metrics[key] = np.min(val)
         else:
-            metrics[key] = np.mean(val)
-            metrics[key + "_std"] = np.std(val)
-    return metrics
+            reduced_metrics[key] = np.mean(val)
+            reduced_metrics[key + "_std"] = np.std(val)
+    return reduced_metrics
