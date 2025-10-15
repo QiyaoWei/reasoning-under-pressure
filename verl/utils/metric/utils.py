@@ -46,6 +46,11 @@ def reduce_metrics(metrics: dict[str, list[Any]]) -> dict[str, Any]:
     """
     reduced_metrics = {}
     for key, val in metrics.items():
+        # Handle case where val is already a scalar (not a list)
+        if not isinstance(val, (list, np.ndarray)):
+            reduced_metrics[key] = val
+            continue
+
         if "max" in key:
             reduced_metrics[key] = np.max(val)
         elif "min" in key:
@@ -53,4 +58,5 @@ def reduce_metrics(metrics: dict[str, list[Any]]) -> dict[str, Any]:
         else:
             reduced_metrics[key] = np.mean(val)
             reduced_metrics[key + "_std"] = np.std(val)
+            reduced_metrics[key + "_se"] = np.std(val) / np.sqrt(len(val))
     return reduced_metrics
