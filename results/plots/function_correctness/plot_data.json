@@ -1,5 +1,29 @@
 [
   {
+    "name": "RL baseline",
+    "setting": "Function correctness",
+    "reasoner_accuracy": 0.8216955555555558 ,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8093880078608989,
+      "upper": 0.8340031032502128,
+      "margin": 0.012307547694656864
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7880710659898477,
+        "ci_lower": 0.7672063913489573,
+        "ci_upper": 0.807534823935895,
+        "ci_margin": 0.020164216293468925
+      },
+      "gpt-4o": {
+        "accuracy": 0.774746192893401,
+        "ci_lower": 0.7534677830942348,
+        "ci_upper": 0.7946884861091595,
+        "ci_margin": 0.020610351507462415
+      }
+    }
+  },
+  {
     "name": "Penalise verbosity",
     "setting": "Function correctness",
     "reasoner_accuracy": 0.8006319047619052,
