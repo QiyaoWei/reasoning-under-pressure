@@ -51,12 +51,12 @@ runs:
         accuracy_path: "results/penalize_monitorability/k=1/step_300/predictions/gpt_4o_monitor_predictions_summary.json"
 
   - name: "Reward monitorability"
-    accuracy_path: "results/reward_monitorability/k=2/step_260/predictions/reasoner_accuracy_summary.json"
+    accuracy_path: "results/reward_monitorability/k=3/step_260/predictions/reasoner_accuracy_summary.json"
     monitors:
       - name: "gpt-4o-mini"
-        accuracy_path: "results/reward_monitorability/k=2/step_260/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+        accuracy_path: "results/reward_monitorability/k=3/step_260/predictions/gpt_4o_mini_monitor_predictions_summary.json"
       - name: "gpt-4o"
-        accuracy_path: "results/reward_monitorability/k=2/step_260/predictions/gpt_4o_monitor_predictions_summary.json"
+        accuracy_path: "results/reward_monitorability/k=3/step_260/predictions/gpt_4o_monitor_predictions_summary.json"
 
 
 
