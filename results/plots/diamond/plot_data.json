@@ -1,0 +1,242 @@
+[
+  {
+    "name": "Penalise verbosity",
+    "setting": "Diamond in a vault",
+    "reasoner_accuracy": 0.8302666666666674,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8150471823354662,
+      "upper": 0.8444727435431924,
+      "margin": 0.01471278060386306
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "raw": {
+          "accuracy": 0.7521739130434782,
+          "ci_lower": 0.7331189096374612,
+          "ci_upper": 0.7702946929595661,
+          "ci_margin": 0.01858789166105246
+        },
+        "conditional": {
+          "accuracy": 0.7521739130434782,
+          "ci_lower": 0.7331189096374612,
+          "ci_upper": 0.7702946929595661,
+          "ci_margin": 0.01858789166105246
+        }
+      },
+      "gpt-4o": {
+        "raw": {
+          "accuracy": 0.6375968992248062,
+          "ci_lower": 0.6166211965602755,
+          "ci_upper": 0.6580613704117277,
+          "ci_margin": 0.020720086925726123
+        },
+        "conditional": {
+          "accuracy": 0.6375968992248062,
+          "ci_lower": 0.6166211965602755,
+          "ci_upper": 0.6580613704117277,
+          "ci_margin": 0.020720086925726123
+        }
+      }
+    }
+  },
+  {
+    "name": "Reward verbosity",
+    "setting": "Diamond in a vault",
+    "reasoner_accuracy": 0.8316000000000012,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8164244836836406,
+      "upper": 0.8457580175921876,
+      "margin": 0.014666766954273444
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "raw": {
+          "accuracy": 0.7676328502415459,
+          "ci_lower": 0.7489532501269057,
+          "ci_upper": 0.7853209564607438,
+          "ci_margin": 0.018183853166919024
+        },
+        "conditional": {
+          "accuracy": 0.7676328502415459,
+          "ci_lower": 0.7489532501269057,
+          "ci_upper": 0.7853209564607438,
+          "ci_margin": 0.018183853166919024
+        }
+      },
+      "gpt-4o": {
+        "raw": {
+          "accuracy": 0.6611889801836636,
+          "ci_lower": 0.6405126476462389,
+          "ci_upper": 0.6812678711491916,
+          "ci_margin": 0.0203776117514763
+        },
+        "conditional": {
+          "accuracy": 0.6611889801836636,
+          "ci_lower": 0.6405126476462389,
+          "ci_upper": 0.6812678711491916,
+          "ci_margin": 0.0203776117514763
+        }
+      }
+    }
+  },
+  {
+    "name": "Penalise KL",
+    "setting": "Diamond in a vault",
+    "reasoner_accuracy": 0.8476000000000011,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8329788752541323,
+      "upper": 0.8611545307877189,
+      "margin": 0.014087827766793303
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "raw": {
+          "accuracy": 0.7893719806763285,
+          "ci_lower": 0.771278504060434,
+          "ci_upper": 0.8063934268890283,
+          "ci_margin": 0.01755746141429713
+        },
+        "conditional": {
+          "accuracy": 0.7893719806763285,
+          "ci_lower": 0.771278504060434,
+          "ci_upper": 0.8063934268890283,
+          "ci_margin": 0.01755746141429713
+        }
+      },
+      "gpt-4o": {
+        "raw": {
+          "accuracy": 0.7322377960367327,
+          "ci_lower": 0.7127406659387251,
+          "ci_upper": 0.7508741444996688,
+          "ci_margin": 0.01906673928047185
+        },
+        "conditional": {
+          "accuracy": 0.7322377960367327,
+          "ci_lower": 0.7127406659387251,
+          "ci_upper": 0.7508741444996688,
+          "ci_margin": 0.01906673928047185
+        }
+      }
+    }
+  },
+  {
+    "name": "Reward KL",
+    "setting": "Diamond in a vault",
+    "reasoner_accuracy": 0.8194666666666679,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8039028719691574,
+      "upper": 0.8340501931924369,
+      "margin": 0.015073660611639684
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "raw": {
+          "accuracy": 0.7618357487922706,
+          "ci_lower": 0.743011505473178,
+          "ci_upper": 0.7796899746179883,
+          "ci_margin": 0.018339234572405157
+        },
+        "conditional": {
+          "accuracy": 0.7618357487922706,
+          "ci_lower": 0.743011505473178,
+          "ci_upper": 0.7796899746179883,
+          "ci_margin": 0.018339234572405157
+        }
+      },
+      "gpt-4o": {
+        "raw": {
+          "accuracy": 0.6932367149758454,
+          "ci_lower": 0.6730281859267343,
+          "ci_upper": 0.7127293639560451,
+          "ci_margin": 0.019850589014655376
+        },
+        "conditional": {
+          "accuracy": 0.6932367149758454,
+          "ci_lower": 0.6730281859267343,
+          "ci_upper": 0.7127293639560451,
+          "ci_margin": 0.019850589014655376
+        }
+      }
+    }
+  },
+  {
+    "name": "Penalise monitorability",
+    "setting": "Diamond in a vault",
+    "reasoner_accuracy": 0.814400000000001,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7986816624485729,
+      "upper": 0.8291536162037803,
+      "margin": 0.015235976877603662
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "raw": {
+          "accuracy": 0.6946859903381642,
+          "ci_lower": 0.6745009763491635,
+          "ci_upper": 0.7141497551577368,
+          "ci_margin": 0.019824389404286682
+        },
+        "conditional": {
+          "accuracy": 0.6946859903381642,
+          "ci_lower": 0.6745009763491635,
+          "ci_upper": 0.7141497551577368,
+          "ci_margin": 0.019824389404286682
+        }
+      },
+      "gpt-4o": {
+        "raw": {
+          "accuracy": 0.6275362318840579,
+          "ci_lower": 0.6064910627099535,
+          "ci_upper": 0.648108920212681,
+          "ci_margin": 0.02080892875136375
+        },
+        "conditional": {
+          "accuracy": 0.6275362318840579,
+          "ci_lower": 0.6064910627099535,
+          "ci_upper": 0.648108920212681,
+          "ci_margin": 0.02080892875136375
+        }
+      }
+    }
+  },
+  {
+    "name": "Reward monitorability",
+    "setting": "Diamond in a vault",
+    "reasoner_accuracy": 0.8145333333333343,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7988190074619087,
+      "upper": 0.8292825287301614,
+      "margin": 0.015231760634126346
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "raw": {
+          "accuracy": 0.8,
+          "ci_lower": 0.782219805269871,
+          "ci_upper": 0.8166687909231443,
+          "ci_margin": 0.017224492826636625
+        },
+        "conditional": {
+          "accuracy": 0.8,
+          "ci_lower": 0.782219805269871,
+          "ci_upper": 0.8166687909231443,
+          "ci_margin": 0.017224492826636625
+        }
+      },
+      "gpt-4o": {
+        "raw": {
+          "accuracy": 0.6975845410628019,
+          "ci_lower": 0.6774472505909047,
+          "ci_upper": 0.7169898441642372,
+          "ci_margin": 0.019771296786666236
+        },
+        "conditional": {
+          "accuracy": 0.6975845410628019,
+          "ci_lower": 0.6774472505909047,
+          "ci_upper": 0.7169898441642372,
+          "ci_margin": 0.019771296786666236
+        }
+      }
+    }
+  }
+]
