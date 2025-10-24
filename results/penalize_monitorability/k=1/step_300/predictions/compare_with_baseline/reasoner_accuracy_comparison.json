@@ -1,0 +1,229 @@
+{
+  "incentive_dir": "results/penalize_monitorability/k=1/step_300/predictions",
+  "baseline_dir": "results/regular_RL/step_200/predictions",
+  "metrics_overall": {
+    "measurement-wise_accuracy_overall": {
+      "incentive_value": 0.8053100000000005,
+      "baseline_value": 0.8216955555555558,
+      "diff": -0.01638555555555532,
+      "ci": {
+        "incentive_margin": 0.012189374295011794,
+        "baseline_margin": 0.012307547694656864,
+        "overlap": 0.008111366434113365,
+        "has_overlap": true
+      }
+    },
+    "all_correct_accuracy_overall": {
+      "incentive_value": 0.5972,
+      "baseline_value": 0.6516,
+      "diff": -0.054400000000000004,
+      "ci": {
+        "incentive_margin": 0.019211549439973625,
+        "baseline_margin": 0.01866414129867747,
+        "overlap": 0.0,
+        "has_overlap": false
+      }
+    },
+    "format_accuracy_overall": {
+      "incentive_value": 0.9928,
+      "baseline_value": 0.9868,
+      "diff": 0.006000000000000005,
+      "ci": {
+        "incentive_margin": 0.0033968411906262906,
+        "baseline_margin": 0.00453235724415102,
+        "overlap": 0.001938403791148069,
+        "has_overlap": true
+      }
+    }
+  },
+  "group_metrics": {
+    "all_false_lv_false": {
+      "measurement-wise_accuracy": {
+        "incentive_value": 0.8468745088794596,
+        "baseline_value": 0.7913580800829542,
+        "diff": 0.055516428796505424,
+        "ci": {
+          "incentive_margin": 0.02243109967136269,
+          "baseline_margin": 0.026005880904214494,
+          "overlap": 0.0,
+          "has_overlap": false
+        },
+        "incentive_total_samples": 808,
+        "baseline_total_samples": 796,
+        "diff_total_samples": 12
+      },
+      "all_correct_accuracy": {
+        "incentive_value": 0.7685643564356436,
+        "baseline_value": 0.7085427135678392,
+        "diff": 0.060021642867804426,
+        "ci": {
+          "incentive_margin": 0.029039154397172015,
+          "baseline_margin": 0.03150910975633247,
+          "overlap": 0.000795826142720335,
+          "has_overlap": true
+        },
+        "incentive_correct_count": 621,
+        "baseline_correct_count": 564,
+        "diff_correct_count": 57,
+        "incentive_total_samples": 808,
+        "baseline_total_samples": 796,
+        "diff_total_samples": 12
+      },
+      "format_accuracy": {
+        "incentive_value": 0.9938118811881188,
+        "baseline_value": 0.9861809045226131,
+        "diff": 0.007630976665505718,
+        "ci": {
+          "incentive_margin": 0.005878724698552756,
+          "baseline_margin": 0.008420519262976182,
+          "overlap": 0.00666986104416134,
+          "has_overlap": true
+        },
+        "incentive_total_samples": 808,
+        "baseline_total_samples": 796,
+        "diff_total_samples": 12
+      }
+    },
+    "mixed_lv_false": {
+      "measurement-wise_accuracy": {
+        "incentive_value": 0.7801379934396568,
+        "baseline_value": 0.8032674974751808,
+        "diff": -0.02312950403552394,
+        "ci": {
+          "incentive_margin": 0.0177443148001576,
+          "baseline_margin": 0.018195215425384645,
+          "overlap": 0.012810026190018253,
+          "has_overlap": true
+        },
+        "incentive_total_samples": 842,
+        "baseline_total_samples": 833,
+        "diff_total_samples": 9
+      },
+      "all_correct_accuracy": {
+        "incentive_value": 0.4168646080760095,
+        "baseline_value": 0.48139255702280914,
+        "diff": -0.06452794894679964,
+        "ci": {
+          "incentive_margin": 0.033228738754679805,
+          "baseline_margin": 0.03385298258509913,
+          "overlap": 0.0028459225486256456,
+          "has_overlap": true
+        },
+        "incentive_correct_count": 351,
+        "baseline_correct_count": 401,
+        "diff_correct_count": -50,
+        "incentive_total_samples": 842,
+        "baseline_total_samples": 833,
+        "diff_total_samples": 9
+      },
+      "format_accuracy": {
+        "incentive_value": 0.9893111638954869,
+        "baseline_value": 0.985594237695078,
+        "diff": 0.0037169262004088655,
+        "ci": {
+          "incentive_margin": 0.007277618586401468,
+          "baseline_margin": 0.008375247522439316,
+          "overlap": 0.011929102526689994,
+          "has_overlap": true
+        },
+        "incentive_total_samples": 842,
+        "baseline_total_samples": 833,
+        "diff_total_samples": 9
+      }
+    },
+    "all_true_lv_true": {
+      "measurement-wise_accuracy": {
+        "incentive_value": 0.7892993077775686,
+        "baseline_value": 0.8671254330835548,
+        "diff": -0.0778261253059862,
+        "ci": {
+          "incentive_margin": 0.02401676543544847,
+          "baseline_margin": 0.02027127623899137,
+          "overlap": 0.0,
+          "has_overlap": false
+        },
+        "incentive_total_samples": 759,
+        "baseline_total_samples": 788,
+        "diff_total_samples": -29
+      },
+      "all_correct_accuracy": {
+        "incentive_value": 0.61133069828722,
+        "baseline_value": 0.7652284263959391,
+        "diff": -0.15389772810871916,
+        "ci": {
+          "incentive_margin": 0.03459522848266153,
+          "baseline_margin": 0.02955012868409924,
+          "overlap": 0.0,
+          "has_overlap": false
+        },
+        "incentive_correct_count": 464,
+        "baseline_correct_count": 603,
+        "diff_correct_count": -139,
+        "incentive_total_samples": 759,
+        "baseline_total_samples": 788,
+        "diff_total_samples": -29
+      },
+      "format_accuracy": {
+        "incentive_value": 0.994729907773386,
+        "baseline_value": 0.9885786802030457,
+        "diff": 0.006151227570340256,
+        "ci": {
+          "incentive_margin": 0.005710127647425629,
+          "baseline_margin": 0.007771321061107742,
+          "overlap": 0.007451303530386033,
+          "has_overlap": true
+        },
+        "incentive_total_samples": 759,
+        "baseline_total_samples": 788,
+        "diff_total_samples": -29
+      }
+    },
+    "all_true_lv_false": {
+      "measurement-wise_accuracy": {
+        "incentive_value": 0.8027036455607884,
+        "baseline_value": 0.8662794033275961,
+        "diff": -0.06357575776680768,
+        "ci": {
+          "incentive_margin": 0.06993686264303821,
+          "baseline_margin": 0.06167948698222836,
+          "overlap": 0.0680405918584589,
+          "has_overlap": true
+        },
+        "incentive_total_samples": 91,
+        "baseline_total_samples": 83,
+        "diff_total_samples": 8
+      },
+      "all_correct_accuracy": {
+        "incentive_value": 0.6263736263736264,
+        "baseline_value": 0.7349397590361446,
+        "diff": -0.10856613266251824,
+        "ci": {
+          "incentive_margin": 0.09749533633666653,
+          "baseline_margin": 0.09340873375079833,
+          "overlap": 0.08761193255397703,
+          "has_overlap": true
+        },
+        "incentive_correct_count": 57,
+        "baseline_correct_count": 61,
+        "diff_correct_count": -4,
+        "incentive_total_samples": 91,
+        "baseline_total_samples": 83,
+        "diff_total_samples": 8
+      },
+      "format_accuracy": {
+        "incentive_value": 1.0,
+        "baseline_value": 0.9879518072289156,
+        "diff": 0.012048192771084376,
+        "ci": {
+          "incentive_margin": 0.020252001964440106,
+          "baseline_margin": 0.031502914626107915,
+          "overlap": 0.03837402650077193,
+          "has_overlap": true
+        },
+        "incentive_total_samples": 91,
+        "baseline_total_samples": 83,
+        "diff_total_samples": 8
+      }
+    }
+  }
+}

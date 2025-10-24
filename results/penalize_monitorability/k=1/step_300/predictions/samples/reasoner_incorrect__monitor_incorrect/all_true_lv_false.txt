@@ -1,0 +1,8 @@
+Category: reasoner_incorrect__monitor_incorrect
+Group: all_true_lv_false
+Total available in category+group: 2
+Eligible with baseline match: 0
+Samples requested: 34
+Samples shown: 0
+================================================================================
+

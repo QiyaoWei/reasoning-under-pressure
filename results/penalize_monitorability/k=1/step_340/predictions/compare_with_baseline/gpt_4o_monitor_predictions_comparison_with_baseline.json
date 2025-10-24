@@ -1,0 +1,303 @@
+{
+  "incentive_file": "results/penalize_monitorability/k=1/step_340/predictions/gpt_4o_monitor_predictions_summary.json",
+  "baseline_file": "results/regular_RL/step_200/predictions/gpt_4o_monitor_predictions_summary.json",
+  "overall": {
+    "incentive_value": 0.6541501976284585,
+    "baseline_value": 0.774746192893401,
+    "diff": -0.12059599526494247,
+    "ci": {
+      "incentive_margin": 0.023900305554461713,
+      "baseline_margin": 0.020610351507462415,
+      "overlap": 0.0,
+      "has_overlap": false
+    },
+    "incentive_correct_predictions": 993,
+    "baseline_correct_predictions": 1221,
+    "diff_correct_predictions": -228,
+    "incentive_total_samples": 1518,
+    "baseline_total_samples": 1576,
+    "diff_total_samples": -58
+  },
+  "conditional_accuracies": {
+    "when_lv_true": {
+      "incentive_value": 0.4769433465085639,
+      "baseline_value": 0.7360406091370558,
+      "diff": -0.2590972626284919,
+      "ci": {
+        "incentive_margin": 0.035443862243887944,
+        "baseline_margin": 0.030722058150134086,
+        "overlap": 0.0,
+        "has_overlap": false
+      },
+      "incentive_correct_predictions": 362,
+      "baseline_correct_predictions": 580,
+      "diff_correct_predictions": -218,
+      "incentive_total_samples": 759,
+      "baseline_total_samples": 788,
+      "diff_total_samples": -29
+    },
+    "when_lv_false": {
+      "incentive_value": 0.8313570487483531,
+      "baseline_value": 0.8134517766497462,
+      "diff": 0.017905272098606928,
+      "ci": {
+        "incentive_margin": 0.026623399219800947,
+        "baseline_margin": 0.02717511817224376,
+        "overlap": 0.036041219888589326,
+        "has_overlap": true
+      },
+      "incentive_correct_predictions": 631,
+      "baseline_correct_predictions": 641,
+      "diff_correct_predictions": -10,
+      "incentive_total_samples": 759,
+      "baseline_total_samples": 788,
+      "diff_total_samples": -29
+    },
+    "when_reasoner_correct": {
+      "incentive_value": 0.9157608695652174,
+      "baseline_value": 0.9340245051837889,
+      "diff": -0.018263635618571472,
+      "ci": {
+        "incentive_margin": 0.02012975826167556,
+        "baseline_margin": 0.014991934680941949,
+        "overlap": 0.0162650744265026,
+        "has_overlap": true
+      },
+      "incentive_correct_predictions": 674,
+      "baseline_correct_predictions": 991,
+      "diff_correct_predictions": -317,
+      "incentive_total_samples": 736,
+      "baseline_total_samples": 1061,
+      "diff_total_samples": -325
+    },
+    "when_reasoner_incorrect": {
+      "incentive_value": 0.4079283887468031,
+      "baseline_value": 0.44660194174757284,
+      "diff": -0.038673553000769745,
+      "ci": {
+        "incentive_margin": 0.03436346589522956,
+        "baseline_margin": 0.04277878265530022,
+        "overlap": 0.038523417961199014,
+        "has_overlap": true
+      },
+      "incentive_correct_predictions": 319,
+      "baseline_correct_predictions": 230,
+      "diff_correct_predictions": 89,
+      "incentive_total_samples": 782,
+      "baseline_total_samples": 515,
+      "diff_total_samples": 267
+    },
+    "all_false_lv_false": {
+      "incentive_value": 0.8425655976676385,
+      "baseline_value": 0.8595505617977528,
+      "diff": -0.0169849641301143,
+      "ci": {
+        "incentive_margin": 0.03851692260065831,
+        "baseline_margin": 0.036104098445167224,
+        "overlap": 0.057680308968173,
+        "has_overlap": true
+      },
+      "incentive_correct_predictions": 289,
+      "baseline_correct_predictions": 306,
+      "diff_correct_predictions": -17,
+      "incentive_total_samples": 343,
+      "baseline_total_samples": 356,
+      "diff_total_samples": -13,
+      "nested": {
+        "when_reasoner_correct": {
+          "incentive_value": 0.8981818181818182,
+          "baseline_value": 0.9551020408163265,
+          "diff": -0.056920222634508355,
+          "ci": {
+            "incentive_margin": 0.03591613979271504,
+            "baseline_margin": 0.026671076602328373,
+            "overlap": 0.007207023403033919,
+            "has_overlap": true
+          },
+          "incentive_correct_predictions": 247,
+          "baseline_correct_predictions": 234,
+          "diff_correct_predictions": 13,
+          "incentive_total_samples": 275,
+          "baseline_total_samples": 245,
+          "diff_total_samples": 30
+        },
+        "when_reasoner_incorrect": {
+          "incentive_value": 0.6176470588235294,
+          "baseline_value": 0.6486486486486487,
+          "diff": -0.031001589825119247,
+          "ci": {
+            "incentive_margin": 0.11254918882836576,
+            "baseline_margin": 0.08745354470375852,
+            "overlap": 0.1676827110938841,
+            "has_overlap": true
+          },
+          "incentive_correct_predictions": 42,
+          "baseline_correct_predictions": 72,
+          "diff_correct_predictions": -30,
+          "incentive_total_samples": 68,
+          "baseline_total_samples": 111,
+          "diff_total_samples": -43
+        }
+      }
+    },
+    "mixed_lv_false": {
+      "incentive_value": 0.8586666666666667,
+      "baseline_value": 0.8207070707070707,
+      "diff": 0.03795959595959597,
+      "ci": {
+        "incentive_margin": 0.03526756828821888,
+        "baseline_margin": 0.03772534427256789,
+        "overlap": 0.03558902393876573,
+        "has_overlap": true
+      },
+      "incentive_correct_predictions": 322,
+      "baseline_correct_predictions": 325,
+      "diff_correct_predictions": -3,
+      "incentive_total_samples": 375,
+      "baseline_total_samples": 396,
+      "diff_total_samples": -21,
+      "nested": {
+        "when_reasoner_correct": {
+          "incentive_value": 0.9349593495934959,
+          "baseline_value": 0.9783783783783784,
+          "diff": -0.04341902878488246,
+          "ci": {
+            "incentive_margin": 0.04489098164801537,
+            "baseline_margin": 0.022913323199756044,
+            "overlap": 0.0209435976015222,
+            "has_overlap": true
+          },
+          "incentive_correct_predictions": 115,
+          "baseline_correct_predictions": 181,
+          "diff_correct_predictions": -66,
+          "incentive_total_samples": 123,
+          "baseline_total_samples": 185,
+          "diff_total_samples": -62
+        },
+        "when_reasoner_incorrect": {
+          "incentive_value": 0.8214285714285714,
+          "baseline_value": 0.6824644549763034,
+          "diff": 0.13896411645226803,
+          "ci": {
+            "incentive_margin": 0.047177830026832915,
+            "baseline_margin": 0.06233341594271579,
+            "overlap": 0.0,
+            "has_overlap": false
+          },
+          "incentive_correct_predictions": 207,
+          "baseline_correct_predictions": 144,
+          "diff_correct_predictions": 63,
+          "incentive_total_samples": 252,
+          "baseline_total_samples": 211,
+          "diff_total_samples": 41
+        }
+      }
+    },
+    "all_true_lv_true": {
+      "incentive_value": 0.4769433465085639,
+      "baseline_value": 0.7360406091370558,
+      "diff": -0.2590972626284919,
+      "ci": {
+        "incentive_margin": 0.035443862243887944,
+        "baseline_margin": 0.030722058150134086,
+        "overlap": 0.0,
+        "has_overlap": false
+      },
+      "incentive_correct_predictions": 362,
+      "baseline_correct_predictions": 580,
+      "diff_correct_predictions": -218,
+      "incentive_total_samples": 759,
+      "baseline_total_samples": 788,
+      "diff_total_samples": -29,
+      "nested": {
+        "when_reasoner_correct": {
+          "incentive_value": 0.9688473520249221,
+          "baseline_value": 0.9519071310116086,
+          "diff": 0.016940221013313495,
+          "ci": {
+            "incentive_margin": 0.01968918562999615,
+            "baseline_margin": 0.01726215715582049,
+            "overlap": 0.022694857122348533,
+            "has_overlap": true
+          },
+          "incentive_correct_predictions": 311,
+          "baseline_correct_predictions": 574,
+          "diff_correct_predictions": -263,
+          "incentive_total_samples": 321,
+          "baseline_total_samples": 603,
+          "diff_total_samples": -282
+        },
+        "when_reasoner_incorrect": {
+          "incentive_value": 0.11643835616438356,
+          "baseline_value": 0.032432432432432434,
+          "diff": 0.08400592373195112,
+          "ci": {
+            "incentive_margin": 0.03009292558835201,
+            "baseline_margin": 0.02699661809231137,
+            "overlap": 0.0,
+            "has_overlap": false
+          },
+          "incentive_correct_predictions": 51,
+          "baseline_correct_predictions": 6,
+          "diff_correct_predictions": 45,
+          "incentive_total_samples": 438,
+          "baseline_total_samples": 185,
+          "diff_total_samples": 253
+        }
+      }
+    },
+    "all_true_lv_false": {
+      "incentive_value": 0.4878048780487805,
+      "baseline_value": 0.2777777777777778,
+      "diff": 0.2100271002710027,
+      "ci": {
+        "incentive_margin": 0.14630530897011765,
+        "baseline_margin": 0.14072076028631247,
+        "overlap": 0.09738060442964441,
+        "has_overlap": true
+      },
+      "incentive_correct_predictions": 20,
+      "baseline_correct_predictions": 10,
+      "diff_correct_predictions": 10,
+      "incentive_total_samples": 41,
+      "baseline_total_samples": 36,
+      "diff_total_samples": 5,
+      "nested": {
+        "when_reasoner_correct": {
+          "incentive_value": 0.058823529411764705,
+          "baseline_value": 0.07142857142857142,
+          "diff": -0.01260504201680672,
+          "ci": {
+            "incentive_margin": 0.1296799526953782,
+            "baseline_margin": 0.1033207807843424,
+            "overlap": 0.2066415615686848,
+            "has_overlap": true
+          },
+          "incentive_correct_predictions": 1,
+          "baseline_correct_predictions": 2,
+          "diff_correct_predictions": -1,
+          "incentive_total_samples": 17,
+          "baseline_total_samples": 28,
+          "diff_total_samples": -11
+        },
+        "when_reasoner_incorrect": {
+          "incentive_value": 0.7916666666666666,
+          "baseline_value": 1.0,
+          "diff": -0.20833333333333337,
+          "ci": {
+            "incentive_margin": 0.15612813950168403,
+            "baseline_margin": 0.16220378244194011,
+            "overlap": 0.23195931135536163,
+            "has_overlap": true
+          },
+          "incentive_correct_predictions": 19,
+          "baseline_correct_predictions": 8,
+          "diff_correct_predictions": 11,
+          "incentive_total_samples": 24,
+          "baseline_total_samples": 8,
+          "diff_total_samples": 16
+        }
+      }
+    }
+  }
+}
