@@ -1,0 +1,25 @@
+{
+  "_comment": "Example configuration file for run_grpo.sh",
+  "_usage": "Copy this to config.json and modify as needed, then run: ./run_grpo.sh --config config.json",
+  "_note": "Command-line arguments will override values in this file",
+
+  "dataset": "diamonds-seed0",
+  "experiment_name": "my_experiment",
+
+  "epochs": 10,
+  "learning_rate": 5e-6,
+  "kl_coef": 0.0,
+  "k": 0.0,
+
+  "resume_from_path": "",
+
+  "train_with_monitor": false,
+  "monitor_correct_reward": -1.0,
+  "monitor_wrong_reward": 1.0,
+  "monitor_model_name": "gpt-4o-mini",
+  "rebalance_monitor_reward": false,
+
+  "log_hyperparams": true,
+  "log_to_wandb": true
+}
+

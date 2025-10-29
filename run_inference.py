@@ -8,7 +8,6 @@ This script supports both diamonds-seed0 to diamonds-seed7 and function_correctn
 """
 
 import os
-import re
 import json
 import glob
 import torch
@@ -45,9 +44,6 @@ def convert_numpy_types(obj):
         return [convert_numpy_types(item) for item in obj]
     else:
         return obj
-
-
- 
 
 os.environ['TRANSFORMERS_VERBOSITY'] = 'error'
 os.environ['HF_HUB_VERBOSITY'] = 'error'

@@ -4,7 +4,6 @@ Process reasoning traces from regular evaluation results through monitor model.
 """
 import json
 import os
-import re
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 import asyncio
@@ -21,10 +20,6 @@ from utils.monitor_utils import (
     extract_monitor_prediction,
     extract_monitor_reasoning
 )
-
-
- 
-
 
 def rebalance_samples(samples: List[Dict]) -> List[Dict]:
     """Rebalance samples to achieve 50/50 split of True/False latent variables."""

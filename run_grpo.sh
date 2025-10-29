@@ -19,6 +19,7 @@ DEFAULT_LOG_TO_WANDB="true"
 DEFAULT_REBALANCE_MONITOR_REWARD="false"
 
 # Parse command line arguments
+CONFIG_FILE=""
 DATASET_NAME=""
 EXPERIMENT_NAME=""
 EPOCHS=""
@@ -37,6 +38,10 @@ SHOW_HELP=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
+        --config)
+            CONFIG_FILE="$2"
+            shift 2
+            ;;
         --dataset)
             DATASET_NAME="$2"
             shift 2
@@ -107,43 +112,89 @@ done
 
 # Show help if requested
 if [ "$SHOW_HELP" = true ]; then
-    echo "Usage: $0 [OPTIONS]"
-    echo ""
-    echo "Options:"
-    echo "  --dataset NAME              Dataset name (default: $DEFAULT_DATASET)"
-    echo "                              Supported: diamonds-seed0 to diamonds-seed7, function_correctness"
-    echo "  --k COEFFICIENT             Verbosity reward coefficient (default: $DEFAULT_K)"
-    echo "                              Negative values penalize verbose responses"
-    echo "  --experiment-name NAME      Custom experiment name (default: qwen2.5_coder_7b_\${dataset})"
-    echo "  --epochs NUM                Number of epochs (default: $DEFAULT_TOTAL_EPOCHS)"
-    echo "  --lr RATE                   Learning rate (default: $DEFAULT_LR)"
-    echo "  --kl-coef COEFFICIENT       KL divergence coefficient (default: $DEFAULT_KL_COEF)"
-    echo "  --resume-from-path PATH     Resume training from checkpoint path (default: null)"
-    echo "  --train-with-monitor BOOL   Enable monitor training (default: $DEFAULT_TRAIN_WITH_MONITOR)"
-    echo "  --monitor-correct-reward    Reward when monitor is correct (default: $DEFAULT_MONITOR_CORRECT_REWARD)"
-    echo "  --monitor-wrong-reward      Reward when monitor is wrong (default: $DEFAULT_MONITOR_WRONG_REWARD)"
-    echo "  --monitor-model-name        OpenAI model for monitor (default: $DEFAULT_MONITOR_MODEL_NAME)"
-    echo "  --log-hyperparams BOOL      Log hyperparameters to files (default: $DEFAULT_LOG_HYPERPARAMS)"
-    echo "  --log-to-wandb BOOL         Log hyperparameters to wandb (default: $DEFAULT_LOG_TO_WANDB)"
-    echo "  --rebalance-monitor-reward BOOL Rebalance monitor reward (default: $DEFAULT_REBALANCE_MONITOR_REWARD)"
-    echo "  --help, -h                  Show this help message"
-    echo ""
-    echo "Examples:"
-    echo "  $0                                         # Use defaults"
-    echo "  $0 --dataset function_correctness          # Use function_correctness dataset"
-    echo "  $0 --k -0.001                              # Set verbosity reward"
-    echo "  $0 --lr 1e-5 --kl-coef 0.2                 # Set learning rate and KL coefficient"
-    echo "  $0 --experiment-name my_experiment          # Custom experiment name"
-    echo "  $0 --dataset diamonds-seed1 --k 0.005 --lr 2e-6 --epochs 2  # Multiple options"
-    echo "  $0 --resume-from-path checkpoints/model/global_step_60  # Resume from checkpoint"
-    echo "  $0 --train-with-monitor true --monitor-correct-reward -2.0  # Enable monitor training"
-    echo "  $0 --monitor-model-name o3  # Use different monitor model"
-    echo "  $0 --log-hyperparams false  # Disable hyperparameter logging"
-    echo "  $0 --log-to-wandb false     # Disable wandb logging"
+    cat << EOF
+Usage: $0 [OPTIONS]
+
+Configuration:
+  --config FILE               Load settings from JSON config file
+                              Command-line args override config file values
+
+Dataset Options:
+  --dataset NAME              Dataset to use (default: $DEFAULT_DATASET)
+                              Options: diamonds-seed0..7, function_correctness
+  --experiment-name NAME      Experiment name (default: qwen2.5_coder_7b_\${dataset})
+
+Training Options:
+  --epochs NUM                Training epochs (default: $DEFAULT_TOTAL_EPOCHS)
+  --lr RATE                   Learning rate (default: $DEFAULT_LR)
+  --kl-coef COEFFICIENT       KL divergence coefficient (default: $DEFAULT_KL_COEF)
+  --k COEFFICIENT             Verbosity reward coefficient (default: $DEFAULT_K)
+  --resume-from-path PATH     Resume from checkpoint (default: none)
+
+Monitor Options:
+  --train-with-monitor BOOL   Enable monitor-based training (default: $DEFAULT_TRAIN_WITH_MONITOR)
+  --monitor-correct-reward    Reward for correct monitor (default: $DEFAULT_MONITOR_CORRECT_REWARD)
+  --monitor-wrong-reward      Reward for wrong monitor (default: $DEFAULT_MONITOR_WRONG_REWARD)
+  --monitor-model-name        Monitor model name (default: $DEFAULT_MONITOR_MODEL_NAME)
+  --rebalance-monitor-reward  Rebalance monitor reward (default: $DEFAULT_REBALANCE_MONITOR_REWARD)
+
+Logging Options:
+  --log-hyperparams BOOL      Save hyperparameters (default: $DEFAULT_LOG_HYPERPARAMS)
+  --log-to-wandb BOOL         Log to wandb (default: $DEFAULT_LOG_TO_WANDB)
+
+Other:
+  --help, -h                  Show this help
+
+Examples:
+  $0                                                    # Use all defaults
+  $0 --config my_config.json                            # Load from config file
+  $0 --config my_config.json --lr 1e-5                  # Config + override
+  $0 --dataset function_correctness                     # Different dataset
+  $0 --k -0.001 --lr 1e-5 --kl-coef 0.2                 # Custom hyperparameters
+  $0 --dataset diamonds-seed1 --epochs 2                # Quick test run
+  $0 --resume-from-path checkpoints/model/global_step_60 # Resume training
+  $0 --train-with-monitor true --monitor-correct-reward -2.0 # Monitor training
+EOF
     exit 0
 fi
 
-# Set defaults if not provided via command line
+# Load configuration from file if provided
+if [ -n "$CONFIG_FILE" ]; then
+    echo "Loading configuration from $CONFIG_FILE..."
+
+    # Check if file exists
+    if [ ! -f "$CONFIG_FILE" ]; then
+        echo "Error: Config file not found: $CONFIG_FILE"
+        exit 1
+    fi
+
+    # Check if jq is available
+    if ! command -v jq &> /dev/null; then
+        echo "Error: jq is required to parse JSON config files"
+        echo "Install it with: brew install jq (macOS) or apt-get install jq (Linux)"
+        exit 1
+    fi
+
+    # Parse config file and set variables (only if not already set via command line)
+    [ -z "$DATASET_NAME" ] && DATASET_NAME=$(jq -r '.dataset // empty' "$CONFIG_FILE")
+    [ -z "$EXPERIMENT_NAME" ] && EXPERIMENT_NAME=$(jq -r '.experiment_name // empty' "$CONFIG_FILE")
+    [ -z "$EPOCHS" ] && EPOCHS=$(jq -r '.epochs // empty' "$CONFIG_FILE")
+    [ -z "$K" ] && K=$(jq -r '.k // empty' "$CONFIG_FILE")
+    [ -z "$LEARNING_RATE" ] && LEARNING_RATE=$(jq -r '.learning_rate // empty' "$CONFIG_FILE")
+    [ -z "$KL_COEF" ] && KL_COEF=$(jq -r '.kl_coef // empty' "$CONFIG_FILE")
+    [ -z "$RESUME_FROM_PATH" ] && RESUME_FROM_PATH=$(jq -r '.resume_from_path // empty' "$CONFIG_FILE")
+    [ -z "$TRAIN_WITH_MONITOR" ] && TRAIN_WITH_MONITOR=$(jq -r '.train_with_monitor // empty' "$CONFIG_FILE")
+    [ -z "$MONITOR_CORRECT_REWARD" ] && MONITOR_CORRECT_REWARD=$(jq -r '.monitor_correct_reward // empty' "$CONFIG_FILE")
+    [ -z "$MONITOR_WRONG_REWARD" ] && MONITOR_WRONG_REWARD=$(jq -r '.monitor_wrong_reward // empty' "$CONFIG_FILE")
+    [ -z "$MONITOR_MODEL_NAME" ] && MONITOR_MODEL_NAME=$(jq -r '.monitor_model_name // empty' "$CONFIG_FILE")
+    [ -z "$LOG_HYPERPARAMS" ] && LOG_HYPERPARAMS=$(jq -r '.log_hyperparams // empty' "$CONFIG_FILE")
+    [ -z "$LOG_TO_WANDB" ] && LOG_TO_WANDB=$(jq -r '.log_to_wandb // empty' "$CONFIG_FILE")
+    [ -z "$REBALANCE_MONITOR_REWARD" ] && REBALANCE_MONITOR_REWARD=$(jq -r '.rebalance_monitor_reward // empty' "$CONFIG_FILE")
+
+    echo "Configuration loaded successfully"
+fi
+
+# Set defaults if not provided via command line or config file
 DATASET_NAME=${DATASET_NAME:-$DEFAULT_DATASET}
 K=${K:-$DEFAULT_K}
 LEARNING_RATE=${LEARNING_RATE:-$DEFAULT_LR}
@@ -207,13 +258,16 @@ echo "Log to wandb: $LOG_TO_WANDB"
 echo "Rebalance monitor reward: $REBALANCE_MONITOR_REWARD"
 
 # Determine if KL loss should be used based on coefficient
-if [ "$KL_COEF" != "0.0" ] && [ "$KL_COEF" != "0" ]; then
-    USE_KL_LOSS="True"
-    echo "KL coefficient is $KL_COEF, enabling KL loss"
-else
-    USE_KL_LOSS="False"
-    echo "KL coefficient is 0.0, disabling KL loss"
-fi
+case "$KL_COEF" in
+    0|0.0|0.00)
+        USE_KL_LOSS="False"
+        echo "KL coefficient is 0, disabling KL loss"
+        ;;
+    *)
+        USE_KL_LOSS="True"
+        echo "KL coefficient is $KL_COEF, enabling KL loss"
+        ;;
+esac
 
 
 # Set resume mode depending on whether resume from path is provided
@@ -230,16 +284,6 @@ export MONITOR_CORRECT_REWARD
 export MONITOR_WRONG_REWARD
 export MONITOR_MODEL_NAME
 export REBALANCE_MONITOR_REWARD
-
-# # Reduce logging verbosity
-# export PYTHONWARNINGS="ignore"
-# export TF_CPP_MIN_LOG_LEVEL=3
-# export TRANSFORMERS_VERBOSITY=error
-# export DATASETS_VERBOSITY=error
-# export HF_DATASETS_VERBOSITY=error
-# export TOKENIZERS_PARALLELISM=false
-# export WANDB_SILENT=true
-# export VERBOSE_REWARDS=false  # Suppress verbose reward outputs
 
 # Log hyperparameters before training if enabled
 if [ "$LOG_HYPERPARAMS" = "true" ]; then
