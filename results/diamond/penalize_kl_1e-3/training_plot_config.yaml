@@ -1,0 +1,133 @@
+setting: "Penalize KL 1e-3 training progress"
+
+# Global KL values file (contains kl_value and kl_std_value for all steps)
+kl_values_path: "results/penalize_kl_1e-3/kl_values.json"
+
+checkpoints:
+  - step: 460
+    accuracy_path: "results/regular/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/regular/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/regular/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 480
+    accuracy_path: "results/penalize_kl_1e-3/s480/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s480/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s480/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 500
+    accuracy_path: "results/penalize_kl_1e-3/s500/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s500/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s500/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 520
+    accuracy_path: "results/penalize_kl_1e-3/s520/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s520/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s520/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 540
+    accuracy_path: "results/penalize_kl_1e-3/s540/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s540/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s540/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 560
+    accuracy_path: "results/penalize_kl_1e-3/s560/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s560/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s560/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 580
+    accuracy_path: "results/penalize_kl_1e-3/s580/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s580/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s580/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 600
+    accuracy_path: "results/penalize_kl_1e-3/s600/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s600/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s600/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 620
+    accuracy_path: "results/penalize_kl_1e-3/s620/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s620/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s620/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 640
+    accuracy_path: "results/penalize_kl_1e-3/s640/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s640/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s640/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 660
+    accuracy_path: "results/penalize_kl_1e-3/s660/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s660/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s660/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 680
+    accuracy_path: "results/penalize_kl_1e-3/s680/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s680/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s680/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 700
+    accuracy_path: "results/penalize_kl_1e-3/s700/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s700/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s700/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 720
+    accuracy_path: "results/penalize_kl_1e-3/s720/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s720/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s720/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 740
+    accuracy_path: "results/penalize_kl_1e-3/s740/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s740/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s740/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 760
+    accuracy_path: "results/penalize_kl_1e-3/s760/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/penalize_kl_1e-3/s760/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/penalize_kl_1e-3/s760/predictions/gpt_4o_monitor_predictions_summary.json"

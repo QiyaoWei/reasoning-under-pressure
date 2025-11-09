@@ -1,0 +1,98 @@
+{
+  "/root/ckpts/global_step_460": {
+    "step": 460,
+    "kl_value": 0.043791058299255371,
+    "kl_std_value": 0.003468723654150009,
+    "kl_se_value": 0.0006213491809950763
+  },
+  "/root/ckpts/global_step_480": {
+    "step": 480,
+    "kl_value": 0.043091223924420774,
+    "kl_std_value": 0.0035566859077860863,
+    "kl_se_value": 0.0006287391809865433
+  },
+  "/root/ckpts/global_step_500": {
+    "step": 500,
+    "kl_value": 0.0426672293106094,
+    "kl_std_value": 0.003382090840009888,
+    "kl_se_value": 0.0005978748418899746
+  },
+  "/root/ckpts/global_step_520": {
+    "step": 520,
+    "kl_value": 0.04199635097756982,
+    "kl_std_value": 0.0035040128077789908,
+    "kl_se_value": 0.0006194278044362597
+  },
+  "/root/ckpts/global_step_540": {
+    "step": 540,
+    "kl_value": 0.042524847318418324,
+    "kl_std_value": 0.004288634575677888,
+    "kl_se_value": 0.0007581306476232315
+  },
+  "/root/ckpts/global_step_560": {
+    "step": 560,
+    "kl_value": 0.04193469346500933,
+    "kl_std_value": 0.0044327694027613855,
+    "kl_se_value": 0.0007836103260322044
+  },
+  "/root/ckpts/global_step_580": {
+    "step": 580,
+    "kl_value": 0.04368661472108215,
+    "kl_std_value": 0.003128686172137332,
+    "kl_se_value": 0.0005530788021307223
+  },
+  "/root/ckpts/global_step_600": {
+    "step": 600,
+    "kl_value": 0.04329824319574982,
+    "kl_std_value": 0.003122692715290239,
+    "kl_se_value": 0.0005520192986358903
+  },
+  "/root/ckpts/global_step_620": {
+    "step": 620,
+    "kl_value": 0.041648196638561785,
+    "kl_std_value": 0.0032207772286602073,
+    "kl_se_value": 0.000569358354769212
+  },
+  "/root/ckpts/global_step_640": {
+    "step": 640,
+    "kl_value": 0.040430743945762515,
+    "kl_std_value": 0.0039323811896301,
+    "kl_se_value": 0.0006951533513494667
+  },
+  "/root/ckpts/global_step_660": {
+    "step": 660,
+    "kl_value": 0.038344590459018946,
+    "kl_std_value": 0.0037307560627771945,
+    "kl_se_value": 0.0006595107277356447
+  },
+  "/root/ckpts/global_step_680": {
+    "step": 680,
+    "kl_value": 0.03496742062270641,
+    "kl_std_value": 0.0048298078717286695,
+    "kl_se_value": 0.0008537974744818772
+  },
+  "/root/ckpts/global_step_700": {
+    "step": 700,
+    "kl_value": 0.04151084995828569,
+    "kl_std_value": 0.0015559653980850433,
+    "kl_se_value": 0.00027505842106939
+  },
+  "/root/ckpts/global_step_720": {
+    "step": 720,
+    "kl_value": 0.03591725428123027,
+    "kl_std_value": 0.004738302380189921,
+    "kl_se_value": 0.0008376214360861629
+  },
+  "/root/ckpts/global_step_740": {
+    "step": 740,
+    "kl_value": 0.03277853754116222,
+    "kl_std_value": 0.004304246718203974,
+    "kl_se_value": 0.0007608905105854931
+  },
+  "/root/ckpts/global_step_760": {
+    "step": 760,
+    "kl_value": 0.03112151235109195,
+    "kl_std_value": 0.00543184623823566,
+    "kl_se_value": 0.0009602238273547685
+  }
+}

@@ -1,0 +1,129 @@
+{
+  "checkpoint": "",
+  "num_samples": 2500,
+  "temperature": 0.1,
+  "timestamp": "2025-10-01T22:51:10.768255",
+  "dataset_name": "diamonds-seed0",
+  "dataset_set": "val",
+  "has_kl": false,
+  "measurement-wise_accuracy_2": {
+    "value": 0.8324060023604797,
+    "confidence_interval": [
+      0.8153004739641038,
+      0.8482222564798726,
+      0.01646089125788445
+    ]
+  },
+  "all_correct_accuracy_2": {
+    "value": 0.7526555386949925,
+    "confidence_interval": [
+      0.7331584206518581,
+      0.771172703654658,
+      0.019007141501399913
+    ]
+  },
+  "format_accuracy_2": {
+    "value": 1.0,
+    "confidence_interval": [
+      0.9980606934474295,
+      0.9999999999999999,
+      0.0009696532762852109
+    ]
+  },
+  "partial_accuracy_2": {
+    "value": 0.8324060023604788,
+    "confidence_interval": [
+      0.8226858553148533,
+      0.8416958349727097,
+      0.009504989828928188
+    ]
+  },
+  "n_samples_2": 1977,
+  "n_measurements_2": 5931,
+  "n_format_correct_2": 1977,
+  "n_wrong_nb_measurements_2": 0,
+  "avg_total_word_count_2": 7.970156803237228,
+  "avg_total_token_count_2": 102.6272129489125,
+  "avg_before_measurements_word_count_2": 2.970156803237228,
+  "avg_before_measurements_token_count_2": 87.6272129489125,
+  "measurement-wise_accuracy_overall": {
+    "value": 0.8342666666666679,
+    "confidence_interval": [
+      0.8191800827785333,
+      0.8483275692916322,
+      0.014573743256549507
+    ]
+  },
+  "all_correct_accuracy_overall": {
+    "value": 0.7712,
+    "confidence_interval": [
+      0.754325237140275,
+      0.7872425986438142,
+      0.01645868075176958
+    ]
+  },
+  "format_accuracy_overall": {
+    "value": 1.0,
+    "confidence_interval": [
+      0.9984657739382173,
+      0.9999999999999999,
+      0.0007671130308912304
+    ]
+  },
+  "partial_accuracy_overall": {
+    "value": 0.8342666666666667,
+    "confidence_interval": [
+      0.8256805575671347,
+      0.8425105319588961,
+      0.008414987195880741
+    ]
+  },
+  "n_samples_overall": 2500,
+  "n_measurements_overall": 7500,
+  "n_format_correct_overall": 2500,
+  "n_wrong_nb_measurements_overall": 0,
+  "avg_total_word_count_overall": 7.9684,
+  "avg_total_token_count_overall": 102.1372,
+  "avg_before_measurements_word_count_overall": 2.9684,
+  "avg_before_measurements_token_count_overall": 87.1372,
+  "measurement-wise_accuracy_0": {
+    "value": 0.8413001912045889,
+    "confidence_interval": [
+      0.807511280820556,
+      0.8701119282547605,
+      0.031300323717102285
+    ]
+  },
+  "all_correct_accuracy_0": {
+    "value": 0.8413001912045889,
+    "confidence_interval": [
+      0.807511280820556,
+      0.8701119282547605,
+      0.031300323717102285
+    ]
+  },
+  "format_accuracy_0": {
+    "value": 1.0,
+    "confidence_interval": [
+      0.9927085107742034,
+      1.0,
+      0.0036457446128983677
+    ]
+  },
+  "partial_accuracy_0": {
+    "value": 0.8413001912045889,
+    "confidence_interval": [
+      0.8223893948961509,
+      0.8585438256733453,
+      0.018077215388597242
+    ]
+  },
+  "n_samples_0": 523,
+  "n_measurements_0": 1569,
+  "n_format_correct_0": 523,
+  "n_wrong_nb_measurements_0": 0,
+  "avg_total_word_count_0": 7.961759082217974,
+  "avg_total_token_count_0": 100.2848948374761,
+  "avg_before_measurements_word_count_0": 2.961759082217973,
+  "avg_before_measurements_token_count_0": 85.2848948374761
+}

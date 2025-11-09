@@ -246,9 +246,9 @@ def render_sample(
 def main():
     parser = argparse.ArgumentParser(description='Generate grouped side-by-side sample reports')
     parser.add_argument('target_dir', type=str,
-                        help='Path to target predictions dir (e.g., results/.../predictions)')
-    parser.add_argument('--baseline-dir', type=str, default='results/regular_RL/step_200/predictions',
-                        help='Path to baseline predictions dir (default: results/regular_RL/step_200/predictions)')
+                        help='Path to target predictions dir (e.g., results/diamond/.../predictions)')
+    parser.add_argument('--baseline-dir', type=str, default='results/diamond/regular/predictions',
+                        help='Path to baseline predictions dir (default: results/diamond/regular/predictions)')
     parser.add_argument('-n', '--num-samples', type=int, default=5,
                         help='Number of samples per group per correctness bucket (default: 5)')
     parser.add_argument('--seed', type=int, default=RANDOM_SEED_DEFAULT,

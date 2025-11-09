@@ -19,10 +19,10 @@ Confidence intervals:
 
 Usage:
   python reasoner_performance_analysis.py \
-    --predictions-file results/regular_RL/step_200/predictions/func-corr-deepseek-regularRL-global_step_200_predictions.json
+    --predictions-file results/diamond/regular/predictions/global_step_460_predictions.json
 
 This will update the sibling summary file in the same directory:
-  results/regular_RL/step_200/predictions/reasoner_accuracy_summary.json
+  results/diamond/regular/predictions/reasoner_accuracy_summary.json
 """
 
 import os

@@ -1,0 +1,91 @@
+setting: "Reward Verbosity (k=1e-9) Training Progress"
+verbosity_values_path: "results/reward_verbosity_1e-9/verbosity_values.json"
+
+checkpoints:
+  - step: 460
+    accuracy_path: "results/regular/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/regular/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/regular/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 465
+    accuracy_path: "results/reward_verbosity_1e-9/s465/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s465/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s465/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 475
+    accuracy_path: "results/reward_verbosity_1e-9/s475/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s475/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s475/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 485
+    accuracy_path: "results/reward_verbosity_1e-9/s485/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s485/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s485/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 495
+    accuracy_path: "results/reward_verbosity_1e-9/s495/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s495/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s495/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 505
+    accuracy_path: "results/reward_verbosity_1e-9/s505/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s505/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s505/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 515
+    accuracy_path: "results/reward_verbosity_1e-9/s515/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s515/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s515/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 525
+    accuracy_path: "results/reward_verbosity_1e-9/s525/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s525/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s525/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 535
+    accuracy_path: "results/reward_verbosity_1e-9/s535/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s535/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s535/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 545
+    accuracy_path: "results/reward_verbosity_1e-9/s545/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s545/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s545/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 555
+    accuracy_path: "results/reward_verbosity_1e-9/s555/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/reward_verbosity_1e-9/s555/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/reward_verbosity_1e-9/s555/predictions/gpt_4o_monitor_predictions_summary.json"

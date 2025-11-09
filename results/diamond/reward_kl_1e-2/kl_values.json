@@ -1,0 +1,260 @@
+{
+  "/root/ckpts/global_step_460": {
+    "step": 460,
+    "kl_value": 0.043791058299255371,
+    "kl_std_value": 0.003468723654150009,
+    "kl_se_value": 0.0006213491809950763
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_465": {
+    "step": 465,
+    "kl_value": 0.050664539681747556,
+    "kl_std_value": 0.002970627979638103,
+    "kl_se_value": 0.0005251377971961489
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_470": {
+    "step": 470,
+    "kl_value": 0.05424310942180455,
+    "kl_std_value": 0.0026664114908967708,
+    "kl_se_value": 0.0004713594116617097
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_475": {
+    "step": 475,
+    "kl_value": 0.08433209732174873,
+    "kl_std_value": 0.010793408522874871,
+    "kl_se_value": 0.0019080230896603744
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_480": {
+    "step": 480,
+    "kl_value": 0.12277516769245267,
+    "kl_std_value": 0.013216843378902034,
+    "kl_se_value": 0.002336429894775537
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_485": {
+    "step": 485,
+    "kl_value": 0.15481152152642608,
+    "kl_std_value": 0.01945691681527354,
+    "kl_se_value": 0.003439529455265621
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_490": {
+    "step": 490,
+    "kl_value": 0.17270332342013717,
+    "kl_std_value": 0.014312434623283158,
+    "kl_se_value": 0.0025301048943531627
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_495": {
+    "step": 495,
+    "kl_value": 0.14005435002036393,
+    "kl_std_value": 0.01148433461778845,
+    "kl_se_value": 0.002030162721413407
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_500": {
+    "step": 500,
+    "kl_value": 0.13432551140431315,
+    "kl_std_value": 0.12757475267285323,
+    "kl_se_value": 0.022552243180792787
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_505": {
+    "step": 505,
+    "kl_value": 0.24373857158934698,
+    "kl_std_value": 0.40456151186518063,
+    "kl_se_value": 0.07151704711173777
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_510": {
+    "step": 510,
+    "kl_value": 0.02931978745618835,
+    "kl_std_value": 0.0007033294732270544,
+    "kl_se_value": 0.00012433225998180312
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_515": {
+    "step": 515,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_520": {
+    "step": 520,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_525": {
+    "step": 525,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_530": {
+    "step": 530,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_535": {
+    "step": 535,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_540": {
+    "step": 540,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_545": {
+    "step": 545,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_550": {
+    "step": 550,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_555": {
+    "step": 555,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_560": {
+    "step": 560,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_565": {
+    "step": 565,
+    "kl_value": 0.0293197879800573,
+    "kl_std_value": 0.0007033294700146567,
+    "kl_se_value": 0.00012433225941392605
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_570": {
+    "step": 570,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_575": {
+    "step": 575,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_580": {
+    "step": 580,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_585": {
+    "step": 585,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_590": {
+    "step": 590,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_595": {
+    "step": 595,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_600": {
+    "step": 600,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_605": {
+    "step": 605,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_610": {
+    "step": 610,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_615": {
+    "step": 615,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_620": {
+    "step": 620,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_625": {
+    "step": 625,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_630": {
+    "step": 630,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_635": {
+    "step": 635,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_640": {
+    "step": 640,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_645": {
+    "step": 645,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_650": {
+    "step": 650,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_655": {
+    "step": 655,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_660": {
+    "step": 660,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_665": {
+    "step": 665,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  },
+  "/root/ckpts/verl_grpo_diamonds-seed0/DeepSeek-R1-Distill-Qwen-1.5B_diamonds-seed0/global_step_670": {
+    "step": 670,
+    "kl_value": 0.029319787921849638,
+    "kl_std_value": 0.0007033295653336242,
+    "kl_se_value": 0.00012433227626409813
+  }
+}

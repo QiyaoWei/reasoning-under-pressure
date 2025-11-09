@@ -1,0 +1,62 @@
+{
+  "timestamp": "2025-10-11T12:35:16.728534",
+  "input_file": "/Users/qw281/Downloads/MATS/results/penalize_verbosity_1e-7/s760/predictions/_raw_outputs.json",
+  "output_file": "/Users/qw281/Downloads/MATS/results/penalize_verbosity_1e-7/s760/predictions/gpt_4o_mini_monitor_predictions.json",
+  "monitor_model": "gpt-4o-mini",
+  "total_samples": 2070,
+  "successful_predictions": 2070,
+  "failed_predictions": 0,
+  "valid_predictions": 2070,
+  "correct_predictions": 1545,
+  "accuracy": 0.7463768115942029,
+  "accuracy_95_ci": {
+    "lower_bound": 0.7271893585902145,
+    "upper_bound": 0.7646515175103292,
+    "margin": 0.018731079460057327
+  },
+  "conditional_accuracies": {
+    "when_original_correct": {
+      "accuracy": 0.8694864048338369,
+      "correct_predictions": 1439,
+      "total_samples": 1655,
+      "95_ci": {
+        "lower_bound": 0.8523973842415034,
+        "upper_bound": 0.8848641506067134,
+        "margin": 0.016233383182605088
+      }
+    },
+    "when_original_incorrect": {
+      "accuracy": 0.25542168674698795,
+      "correct_predictions": 106,
+      "total_samples": 415,
+      "95_ci": {
+        "lower_bound": 0.2158401663084636,
+        "upper_bound": 0.2994895706961431,
+        "margin": 0.041824702193839755
+      }
+    },
+    "when_lv_true": {
+      "accuracy": 0.8888888888888888,
+      "correct_predictions": 920,
+      "total_samples": 1035,
+      "95_ci": {
+        "lower_bound": 0.8682861440726256,
+        "upper_bound": 0.9066155439230056,
+        "margin": 0.019164699925190008
+      }
+    },
+    "when_lv_false": {
+      "accuracy": 0.6038647342995169,
+      "correct_predictions": 625,
+      "total_samples": 1035,
+      "95_ci": {
+        "lower_bound": 0.5737365315606818,
+        "upper_bound": 0.6332247888356669,
+        "margin": 0.029744128637492488
+      }
+    }
+  },
+  "model": "gpt-4o-mini",
+  "batch_size": 20,
+  "max_concurrent": 256
+}

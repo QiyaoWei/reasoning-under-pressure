@@ -263,8 +263,8 @@ def compare_monitors(incentive_dir: str, baseline_dir: str, out_dir: str) -> Lis
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Compare incentive results with RL baseline and write JSON summaries.")
-    parser.add_argument("incentive_dir", type=str, help="Path to the incentive predictions directory (e.g., results/penalize_verbosity/.../predictions)")
-    parser.add_argument("--baseline_dir", type=str, default="results/regular_RL/step_200/predictions", help="Path to the baseline predictions directory")
+    parser.add_argument("incentive_dir", type=str, help="Path to the incentive predictions directory (e.g., results/diamond/penalize_verbosity_1e-7/.../predictions)")
+    parser.add_argument("--baseline_dir", type=str, default="results/diamond/regular/predictions", help="Path to the baseline predictions directory")
     args = parser.parse_args()
 
     incentive_dir = args.incentive_dir

@@ -1,0 +1,140 @@
+{
+  "results/penalize_verbosity_1e-7/s480/predictions/_raw_outputs.json": {
+    "step": 480,
+    "verbosity_value": 187.1424,
+    "verbosity_std_value": 30.41769578266392,
+    "verbosity_se_value": 0.6083539156532783
+  },
+  "results/penalize_verbosity_1e-7/s500/predictions/_raw_outputs.json": {
+    "step": 500,
+    "verbosity_value": 15.9972,
+    "verbosity_std_value": 4.020803265960849,
+    "verbosity_se_value": 0.08041606531921698
+  },
+  "results/penalize_verbosity_1e-7/s520/predictions/_raw_outputs.json": {
+    "step": 520,
+    "verbosity_value": 7.7452,
+    "verbosity_std_value": 0.5055484068580087,
+    "verbosity_se_value": 0.010110968137160175
+  },
+  "results/penalize_verbosity_1e-7/s540/predictions/_raw_outputs.json": {
+    "step": 540,
+    "verbosity_value": 7.9684,
+    "verbosity_std_value": 0.2454089041010632,
+    "verbosity_se_value": 0.004908178082021264
+  },
+  "results/penalize_verbosity_1e-7/s560/predictions/_raw_outputs.json": {
+    "step": 560,
+    "verbosity_value": 7.9576,
+    "verbosity_std_value": 0.20547293654167795,
+    "verbosity_se_value": 0.004109458730833559
+  },
+  "results/penalize_verbosity_1e-7/s580/predictions/_raw_outputs.json": {
+    "step": 580,
+    "verbosity_value": 7.852,
+    "verbosity_std_value": 0.36735538650194965,
+    "verbosity_se_value": 0.007347107730038993
+  },
+  "results/penalize_verbosity_1e-7/s600/predictions/_raw_outputs.json": {
+    "step": 600,
+    "verbosity_value": 7.5104,
+    "verbosity_std_value": 0.5015899490528057,
+    "verbosity_se_value": 0.010031798981056115
+  },
+  "results/penalize_verbosity_1e-7/s620/predictions/_raw_outputs.json": {
+    "step": 620,
+    "verbosity_value": 7.348,
+    "verbosity_std_value": 0.49617988450874995,
+    "verbosity_se_value": 0.009923597690175
+  },
+  "results/penalize_verbosity_1e-7/s640/predictions/_raw_outputs.json": {
+    "step": 640,
+    "verbosity_value": 7.008,
+    "verbosity_std_value": 0.09348527048856052,
+    "verbosity_se_value": 0.0018697054097712104
+  },
+  "results/penalize_verbosity_1e-7/s660/predictions/_raw_outputs.json": {
+    "step": 660,
+    "verbosity_value": 7.0004,
+    "verbosity_std_value": 0.020000000000000004,
+    "verbosity_se_value": 0.0004000000000000001
+  },
+  "results/penalize_verbosity_1e-7/s680/predictions/_raw_outputs.json": {
+    "step": 680,
+    "verbosity_value": 7.0036,
+    "verbosity_std_value": 0.07739144509769617,
+    "verbosity_se_value": 0.0015478289019539234
+  },
+  "results/penalize_verbosity_1e-7/s700/predictions/_raw_outputs.json": {
+    "step": 700,
+    "verbosity_value": 7.0064,
+    "verbosity_std_value": 0.0936084665936111,
+    "verbosity_se_value": 0.0018721693318722221
+  },
+  "results/penalize_verbosity_1e-7/s720/predictions/_raw_outputs.json": {
+    "step": 720,
+    "verbosity_value": 7.0028,
+    "verbosity_std_value": 0.05994662158099979,
+    "verbosity_se_value": 0.0011989324316199958
+  },
+  "results/penalize_verbosity_1e-7/s740/predictions/_raw_outputs.json": {
+    "step": 740,
+    "verbosity_value": 7.0012,
+    "verbosity_std_value": 0.03462715142552645,
+    "verbosity_se_value": 0.000692543028510529
+  },
+  "results/penalize_verbosity_1e-7/s760/predictions/_raw_outputs.json": {
+    "step": 760,
+    "verbosity_value": 7.0004,
+    "verbosity_std_value": 0.020000000000000004,
+    "verbosity_se_value": 0.0004000000000000001
+  },
+  "results/penalize_verbosity_1e-7/s780/predictions/_raw_outputs.json": {
+    "step": 780,
+    "verbosity_value": 7.0084,
+    "verbosity_std_value": 0.10739671140890945,
+    "verbosity_se_value": 0.0021479342281781892
+  },
+  "results/penalize_verbosity_1e-7/s800/predictions/_raw_outputs.json": {
+    "step": 800,
+    "verbosity_value": 7.0132,
+    "verbosity_std_value": 0.12422533064197996,
+    "verbosity_se_value": 0.0024845066128395994
+  },
+  "results/penalize_verbosity_1e-7/s820/predictions/_raw_outputs.json": {
+    "step": 820,
+    "verbosity_value": 7.0024,
+    "verbosity_std_value": 0.04894076091798832,
+    "verbosity_se_value": 0.0009788152183597663
+  },
+  "results/penalize_verbosity_1e-7/s840/predictions/_raw_outputs.json": {
+    "step": 840,
+    "verbosity_value": 5.0004,
+    "verbosity_std_value": 0.020000000000000004,
+    "verbosity_se_value": 0.0004000000000000001
+  },
+  "results/penalize_verbosity_1e-7/s860/predictions/_raw_outputs.json": {
+    "step": 860,
+    "verbosity_value": 5.0008,
+    "verbosity_std_value": 0.028278611563313703,
+    "verbosity_se_value": 0.0005655722312662741
+  },
+  "results/penalize_verbosity_1e-7/s880/predictions/_raw_outputs.json": {
+    "step": 880,
+    "verbosity_value": 5.0,
+    "verbosity_std_value": 0.0,
+    "verbosity_se_value": 0.0
+  },
+  "results/penalize_verbosity_1e-7/s900/predictions/_raw_outputs.json": {
+    "step": 900,
+    "verbosity_value": 5.0,
+    "verbosity_std_value": 0.0,
+    "verbosity_se_value": 0.0
+  },
+  "results/penalize_verbosity_1e-7/s920/predictions/_raw_outputs.json": {
+    "step": 920,
+    "verbosity_value": 5.0,
+    "verbosity_std_value": 0.0,
+    "verbosity_se_value": 0.0
+  }
+}

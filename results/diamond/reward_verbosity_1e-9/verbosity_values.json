@@ -1,0 +1,62 @@
+{
+  "results/reward_verbosity_1e-9/s465/predictions/_raw_outputs.json": {
+    "step": 465,
+    "verbosity_value": 360.4084,
+    "verbosity_std_value": 45.5153761846224,
+    "verbosity_se_value": 0.9103075236924479
+  },
+  "results/reward_verbosity_1e-9/s475/predictions/_raw_outputs.json": {
+    "step": 475,
+    "verbosity_value": 379.8184,
+    "verbosity_std_value": 54.327602715440364,
+    "verbosity_se_value": 1.0865520543088072
+  },
+  "results/reward_verbosity_1e-9/s485/predictions/_raw_outputs.json": {
+    "step": 485,
+    "verbosity_value": 716.8556,
+    "verbosity_std_value": 47.797010056154384,
+    "verbosity_se_value": 0.9559402011230876
+  },
+  "results/reward_verbosity_1e-9/s495/predictions/_raw_outputs.json": {
+    "step": 495,
+    "verbosity_value": 696.4012,
+    "verbosity_std_value": 70.65653527417531,
+    "verbosity_se_value": 1.4131307054835063
+  },
+  "results/reward_verbosity_1e-9/s505/predictions/_raw_outputs.json": {
+    "step": 505,
+    "verbosity_value": 706.7232,
+    "verbosity_std_value": 54.449195289802795,
+    "verbosity_se_value": 1.088983905796056
+  },
+  "results/reward_verbosity_1e-9/s515/predictions/_raw_outputs.json": {
+    "step": 515,
+    "verbosity_value": 729.2224,
+    "verbosity_std_value": 17.266157253845623,
+    "verbosity_se_value": 0.3453231450769125
+  },
+  "results/reward_verbosity_1e-9/s525/predictions/_raw_outputs.json": {
+    "step": 525,
+    "verbosity_value": 730.0456,
+    "verbosity_std_value": 17.20175225819454,
+    "verbosity_se_value": 0.3440350451638908
+  },
+  "results/reward_verbosity_1e-9/s535/predictions/_raw_outputs.json": {
+    "step": 535,
+    "verbosity_value": 811.7992,
+    "verbosity_std_value": 49.9464026393758,
+    "verbosity_se_value": 0.998928052787516
+  },
+  "results/reward_verbosity_1e-9/s545/predictions/_raw_outputs.json": {
+    "step": 545,
+    "verbosity_value": 850.61,
+    "verbosity_std_value": 34.32406089702361,
+    "verbosity_se_value": 0.6864812179404721
+  },
+  "results/reward_verbosity_1e-9/s555/predictions/_raw_outputs.json": {
+    "step": 555,
+    "verbosity_value": 858.32,
+    "verbosity_std_value": 27.685754466876283,
+    "verbosity_se_value": 0.5537150893375257
+  }
+}
