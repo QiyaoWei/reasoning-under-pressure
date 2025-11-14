@@ -106,7 +106,7 @@ def extract_training_data(config_path):
                 step = values['step']
                 kl_data_by_step[step] = {
                     'kl_value': values['kl_value'],
-                    'kl_std': values['kl_std_value']
+                    'kl_se': values['kl_se_value']
                 }
         except Exception as e:
             print(f"Warning: Could not load KL values from {config['kl_values_path']}: {e}")
@@ -126,12 +126,12 @@ def extract_training_data(config_path):
 
         # Extract incentive value if present (from per-checkpoint file or global KL file)
         incentive_value = None
-        incentive_std = None
+        incentive_se = None
 
         if step in kl_data_by_step:
             # Use global KL values file
             incentive_value = kl_data_by_step[step]['kl_value']
-            incentive_std = kl_data_by_step[step]['kl_std']
+            incentive_se = kl_data_by_step[step]['kl_se']
         elif 'incentive_path' in checkpoint:
             # Fallback to per-checkpoint incentive file
             incentive_data = extract_accuracy_from_json(checkpoint['incentive_path'])
@@ -150,7 +150,7 @@ def extract_training_data(config_path):
                 },
                 'monitors': monitor_data,
                 'incentive_value': incentive_value,
-                'incentive_std': incentive_std
+                'incentive_se': incentive_se
             })
 
     return data
@@ -170,7 +170,7 @@ def create_plot(data, output_dir: Path):
     gpt4o_mini_accs = []
     gpt4o_accs = []
     incentive_values = []
-    incentive_stds = []
+    incentive_ses = []
 
     # Extract error bars
     reasoner_errors = []
@@ -181,7 +181,7 @@ def create_plot(data, output_dir: Path):
         steps.append(item['step'])
         reasoner_accs.append(item['reasoner_accuracy'])
         incentive_values.append(item.get('incentive_value'))
-        incentive_stds.append(item.get('incentive_std'))
+        incentive_ses.append(item.get('incentive_se'))
 
         # Get monitor accuracies
         gpt4o_mini_acc = None
@@ -280,20 +280,20 @@ def create_plot(data, output_dir: Path):
 
     # Right y-axis: Incentive values
     incentive_vals = safe_vals(incentive_values)
-    incentive_std_vals = safe_vals(incentive_stds)
+    incentive_se_vals = safe_vals(incentive_ses)
     if any(not np.isnan(v) for v in incentive_vals):
         ax2_right = ax2.twinx()
         incentive_color = sns.color_palette("muted", 4)[3]  # Different color for incentive
         ax2_right.plot(steps, incentive_vals, marker='D', linewidth=2.5, markersize=8,
                       label='Incentive value (KL)', color=incentive_color, alpha=0.9, linestyle='--')
 
-        # Add error bars/shading if std values are available
-        if any(not np.isnan(v) for v in incentive_std_vals):
+        # Add error bars/shading if SE values are available
+        if any(not np.isnan(v) for v in incentive_se_vals):
             ax2_right.fill_between(steps,
                                    [v - s if not np.isnan(v) and not np.isnan(s) else np.nan
-                                    for v, s in zip(incentive_vals, incentive_std_vals)],
+                                    for v, s in zip(incentive_vals, incentive_se_vals)],
                                    [v + s if not np.isnan(v) and not np.isnan(s) else np.nan
-                                    for v, s in zip(incentive_vals, incentive_std_vals)],
+                                    for v, s in zip(incentive_vals, incentive_se_vals)],
                                    alpha=0.2, color=incentive_color)
 
         ax2_right.set_ylabel('Incentive Value (KL Divergence)', fontsize=12)
