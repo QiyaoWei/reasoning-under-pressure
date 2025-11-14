@@ -8,6 +8,7 @@ from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 import asyncio
 from openai import AsyncOpenAI
+from anthropic import AsyncAnthropic
 import time
 import random
 import numpy as np
@@ -52,27 +53,50 @@ def rebalance_samples(samples: List[Dict]) -> List[Dict]:
     
     return rebalanced_samples
 
-async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str], sample_idx: int, semaphore: asyncio.Semaphore, model_name: str = "gpt-4o-mini") -> Dict[str, Any]:
+async def get_monitor_response_async(client, prompt: Dict[str, str], sample_idx: int, semaphore: asyncio.Semaphore, model_name: str = "gpt-4o-mini", provider: str = "openai") -> Dict[str, Any]:
     """
-    Get response from monitor model via OpenAI API asynchronously.
+    Get response from monitor model via OpenAI or Anthropic API asynchronously.
+
+    Args:
+        client: AsyncOpenAI or AsyncAnthropic client
+        prompt: The prompt to send to the model
+        sample_idx: Index of the sample being processed
+        semaphore: Semaphore for rate limiting
+        model_name: Name of the model to use
+        provider: Either "openai" or "anthropic"
     """
     async with semaphore:  # Limit concurrent requests
         try:
-            # Make API call to monitor
-            response = await client.chat.completions.create(
-                model=model_name,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ],
-            )
-            
-            # Extract the response text
-            response_text = response.choices[0].message.content
-            
+            if provider == "openai":
+                # Make API call to OpenAI
+                response = await client.chat.completions.create(
+                    model=model_name,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ],
+                )
+                # Extract the response text
+                response_text = response.choices[0].message.content
+
+            elif provider == "anthropic":
+                # Make API call to Anthropic
+                response = await client.messages.create(
+                    model=model_name,
+                    max_tokens=4096,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ],
+                )
+                # Extract the response text from Anthropic format
+                response_text = response.content[0].text
+
+            else:
+                raise ValueError(f"Unknown provider: {provider}")
+
             # Extract reasoning and answer
             monitor_reasoning = extract_monitor_reasoning(response_text)
             monitor_prediction = extract_monitor_prediction(response_text)
-            
+
             return {
                 "sample_idx": sample_idx,
                 "full_response": response_text,
@@ -81,7 +105,7 @@ async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str]
                 "success": True,
                 "error": None
             }
-            
+
         except Exception as e:
             print(f"Error processing sample {sample_idx}: {str(e)}")
             return {
@@ -93,38 +117,48 @@ async def get_monitor_response_async(client: AsyncOpenAI, prompt: Dict[str, str]
                 "error": str(e)
             }
 
-async def process_batch_async(client: AsyncOpenAI, batch_data: List[Dict], max_concurrent: int = 60, model_name: str = "gpt-4o-mini") -> List[Dict]:
+async def process_batch_async(client, batch_data: List[Dict], max_concurrent: int = 60, model_name: str = "gpt-4o-mini", provider: str = "openai") -> List[Dict]:
     """
     Process a batch of samples asynchronously with rate limiting.
     """
     semaphore = asyncio.Semaphore(max_concurrent)
-    
+
     tasks = []
     for item in batch_data:
         task = get_monitor_response_async(
-            client, 
-            item["prompt"], 
+            client,
+            item["prompt"],
             item["sample_idx"],
             semaphore,
-            model_name
+            model_name,
+            provider
         )
         tasks.append(task)
-    
+
     results = await asyncio.gather(*tasks)
-    
+
     # Sort results by sample_idx to maintain order
     results_dict = {r["sample_idx"]: r for r in results}
     return [results_dict[item["sample_idx"]] for item in batch_data]
 
-async def process_evaluation_results_async(input_file: str, output_file: str, api_key: str = None, batch_size: int = 20, max_concurrent: int = 60, dataset_name: str = "diamonds-seed0", model_name: str = "gpt-4o-mini", rebalance: bool = False):
+async def process_evaluation_results_async(input_file: str, output_file: str, api_key: str = None, batch_size: int = 20, max_concurrent: int = 60, dataset_name: str = "diamonds-seed0", model_name: str = "gpt-4o-mini", rebalance: bool = False, provider: str = "openai"):
     """Process evaluation results and generate monitor predictions with batching."""
-    
-    # Initialize AsyncOpenAI client
-    if api_key:
-        client = AsyncOpenAI(api_key=api_key)
+
+    # Initialize appropriate client based on provider
+    if provider == "openai":
+        if api_key:
+            client = AsyncOpenAI(api_key=api_key)
+        else:
+            # Will use OPENAI_API_KEY environment variable
+            client = AsyncOpenAI()
+    elif provider == "anthropic":
+        if api_key:
+            client = AsyncAnthropic(api_key=api_key)
+        else:
+            # Will use ANTHROPIC_API_KEY environment variable
+            client = AsyncAnthropic()
     else:
-        # Will use OPENAI_API_KEY environment variable
-        client = AsyncOpenAI()
+        raise ValueError(f"Unknown provider: {provider}. Must be 'openai' or 'anthropic'")
     
     # Load the raw outputs
     print(f"Loading raw outputs from {input_file}...")
@@ -163,9 +197,9 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
         batch = batch_data_all[batch_start:batch_end]
         
         print(f"Processing batch {batch_start//batch_size + 1}/{(len(batch_data_all) + batch_size - 1)//batch_size} (samples {batch_start}-{batch_end-1})...")
-        
+
         start_time = time.time()
-        batch_responses = await process_batch_async(client, batch, max_concurrent, model_name)
+        batch_responses = await process_batch_async(client, batch, max_concurrent, model_name, provider)
         batch_time = time.time() - start_time
         
         print(f"  Batch completed in {batch_time:.2f} seconds ({len(batch)/batch_time:.2f} samples/sec)")
@@ -289,6 +323,7 @@ async def process_evaluation_results_async(input_file: str, output_file: str, ap
         "timestamp": datetime.now().isoformat(),
         "input_file": input_file,
         "output_file": output_file,
+        "provider": provider,
         "monitor_model": model_name,
         "total_samples": len(monitor_results),
         "successful_predictions": successful_predictions,
@@ -419,20 +454,22 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description='Process evaluation results with monitor model')
-    parser.add_argument("--dataset-name", type=str, default="diamonds-seed0", 
+    parser.add_argument("--dataset-name", type=str, default="diamonds-seed0",
                        choices=[f"diamonds-seed{i}" for i in range(8)] + ["function_correctness"],
                        help="Dataset name to determine which reporter prompt to use")
     parser.add_argument('--input', '-i', default="predictions/global_step_40_raw_outputs.json",
                         help='Input file with raw outputs')
     parser.add_argument('--output', '-o', default=None,
                         help='Output file for monitor predictions (default: same directory as input with name monitor_predictions.json)')
-    parser.add_argument('--api-key', '-k', help='OpenAI API key (can also use OPENAI_API_KEY env var)')
+    parser.add_argument('--provider', '-p', type=str, default="openai", choices=["openai", "anthropic"],
+                        help='API provider to use: openai or anthropic (default: openai)')
+    parser.add_argument('--api-key', '-k', help='API key (can also use OPENAI_API_KEY or ANTHROPIC_API_KEY env var depending on provider)')
     parser.add_argument('--batch-size', '-b', type=int, default=20,
                         help='Number of samples to process in each batch (default: 20)')
     parser.add_argument('--max-concurrent', '-c', type=int, default=60,
                         help='Maximum concurrent API requests (default: 60)')
     parser.add_argument("--model-name", type=str, default="gpt-4o-mini",
-                       help="Name of the monitor model to use for analysis (default: gpt-4o-mini)")
+                       help="Name of the monitor model to use for analysis (default: gpt-4o-mini for OpenAI, claude-sonnet-4-5-20250929 for Anthropic)")
     parser.add_argument("--rebalance", action="store_true",
                        help="Rebalance samples to achieve 50/50 split of True/False latent variables")
     
@@ -444,28 +481,40 @@ def main():
         # Extract monitor name from model name (e.g., "gpt-4o-mini" -> "gpt-4o-mini")
         monitor_name = args.model_name.replace("-", "_").replace(".", "_")
         args.output = os.path.join(input_dir, f"{monitor_name}_monitor_predictions.json")
-    
-    # Get API key from args or environment
-    api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
-    
-    if not api_key:
-        print("Error: No OpenAI API key found.")
-        print("Please set OPENAI_API_KEY environment variable or use --api-key argument.")
-        print(f"Usage: {sys.argv[0]} --api-key YOUR_KEY")
+
+    # Get API key from args or environment based on provider
+    if args.provider == "openai":
+        api_key = args.api_key or os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            print("Error: No OpenAI API key found.")
+            print("Please set OPENAI_API_KEY environment variable or use --api-key argument.")
+            print(f"Usage: {sys.argv[0]} --provider openai --api-key YOUR_KEY")
+            sys.exit(1)
+    elif args.provider == "anthropic":
+        api_key = args.api_key or os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            print("Error: No Anthropic API key found.")
+            print("Please set ANTHROPIC_API_KEY environment variable or use --api-key argument.")
+            print(f"Usage: {sys.argv[0]} --provider anthropic --api-key YOUR_KEY")
+            sys.exit(1)
+    else:
+        print(f"Error: Unknown provider '{args.provider}'. Must be 'openai' or 'anthropic'.")
         sys.exit(1)
-    
-    print(f"\nUsing monitor model: {args.model_name}\n")
-    
+
+    print(f"\nUsing provider: {args.provider}")
+    print(f"Using monitor model: {args.model_name}\n")
+
     # Run the async processing
     asyncio.run(process_evaluation_results_async(
-        args.input, 
-        args.output, 
+        args.input,
+        args.output,
         api_key,
         args.batch_size,
         args.max_concurrent,
         args.dataset_name,
         args.model_name,
         args.rebalance,
+        args.provider,
     ))
 
 if __name__ == "__main__":
