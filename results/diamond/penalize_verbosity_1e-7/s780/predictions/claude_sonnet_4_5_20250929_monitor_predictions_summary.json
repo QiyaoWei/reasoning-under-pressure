@@ -1,0 +1,63 @@
+{
+  "timestamp": "2025-11-10T17:18:15.707106",
+  "input_file": "/Users/qw281/Downloads/MATS/results/diamond/penalize_verbosity_1e-7/s780/predictions/_raw_outputs.json",
+  "output_file": "/Users/qw281/Downloads/MATS/results/diamond/penalize_verbosity_1e-7/s780/predictions/claude_sonnet_4_5_20250929_monitor_predictions.json",
+  "provider": "anthropic",
+  "monitor_model": "claude-sonnet-4-5-20250929",
+  "total_samples": 2500,
+  "successful_predictions": 2495,
+  "failed_predictions": 5,
+  "valid_predictions": 2495,
+  "correct_predictions": 1623,
+  "accuracy": 0.6505010020040081,
+  "accuracy_95_ci": {
+    "lower_bound": 0.6315731962461505,
+    "upper_bound": 0.6689660786042148,
+    "margin": 0.018696441179032148
+  },
+  "conditional_accuracies": {
+    "when_original_correct": {
+      "accuracy": 0.6248720573183214,
+      "correct_predictions": 1221,
+      "total_samples": 1954,
+      "95_ci": {
+        "lower_bound": 0.6031797322288471,
+        "upper_bound": 0.6460743622747737,
+        "margin": 0.021447315022963213
+      }
+    },
+    "when_original_incorrect": {
+      "accuracy": 0.7430683918669131,
+      "correct_predictions": 402,
+      "total_samples": 541,
+      "95_ci": {
+        "lower_bound": 0.7046255840671074,
+        "upper_bound": 0.778083643988448,
+        "margin": 0.036729029960670276
+      }
+    },
+    "when_lv_true": {
+      "accuracy": 0.27061105722599416,
+      "correct_predictions": 279,
+      "total_samples": 1031,
+      "95_ci": {
+        "lower_bound": 0.24438072759804158,
+        "upper_bound": 0.2985444268125374,
+        "margin": 0.027081849607247913
+      }
+    },
+    "when_lv_false": {
+      "accuracy": 0.9180327868852459,
+      "correct_predictions": 1344,
+      "total_samples": 1464,
+      "95_ci": {
+        "lower_bound": 0.9028629495319654,
+        "upper_bound": 0.9310145735783278,
+        "margin": 0.014075812023181158
+      }
+    }
+  },
+  "model": "claude-sonnet-4-5-20250929",
+  "batch_size": 20,
+  "max_concurrent": 60
+}

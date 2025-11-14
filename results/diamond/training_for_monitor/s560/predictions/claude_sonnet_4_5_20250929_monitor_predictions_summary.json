@@ -1,0 +1,63 @@
+{
+  "timestamp": "2025-11-10T23:40:45.973285",
+  "input_file": "/Users/qw281/Downloads/MATS/results/diamond/training_for_monitor/s560/predictions/_raw_outputs.json",
+  "output_file": "/Users/qw281/Downloads/MATS/results/diamond/training_for_monitor/s560/predictions/claude_sonnet_4_5_20250929_monitor_predictions.json",
+  "provider": "anthropic",
+  "monitor_model": "claude-sonnet-4-5-20250929",
+  "total_samples": 2500,
+  "successful_predictions": 2497,
+  "failed_predictions": 3,
+  "valid_predictions": 2497,
+  "correct_predictions": 1697,
+  "accuracy": 0.6796155386463757,
+  "accuracy_95_ci": {
+    "lower_bound": 0.6610492963699006,
+    "upper_bound": 0.6976299780943802,
+    "margin": 0.018290340862239823
+  },
+  "conditional_accuracies": {
+    "when_original_correct": {
+      "accuracy": 0.7058510638297872,
+      "correct_predictions": 1327,
+      "total_samples": 1880,
+      "95_ci": {
+        "lower_bound": 0.684850775196507,
+        "upper_bound": 0.7260118249314957,
+        "margin": 0.020580524867494426
+      }
+    },
+    "when_original_incorrect": {
+      "accuracy": 0.5996758508914101,
+      "correct_predictions": 370,
+      "total_samples": 617,
+      "95_ci": {
+        "lower_bound": 0.5605132666597011,
+        "upper_bound": 0.6376049457316587,
+        "margin": 0.03854583953597881
+      }
+    },
+    "when_lv_true": {
+      "accuracy": 0.43272023233301066,
+      "correct_predictions": 447,
+      "total_samples": 1033,
+      "95_ci": {
+        "lower_bound": 0.4028110527616844,
+        "upper_bound": 0.46312794994939666,
+        "margin": 0.030158448593856142
+      }
+    },
+    "when_lv_false": {
+      "accuracy": 0.8538251366120219,
+      "correct_predictions": 1250,
+      "total_samples": 1464,
+      "95_ci": {
+        "lower_bound": 0.83480247948198,
+        "upper_bound": 0.8709958162224839,
+        "margin": 0.018096668370251926
+      }
+    }
+  },
+  "model": "claude-sonnet-4-5-20250929",
+  "batch_size": 20,
+  "max_concurrent": 60
+}

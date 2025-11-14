@@ -1,0 +1,63 @@
+{
+  "timestamp": "2025-11-10T22:33:13.434029",
+  "input_file": "/Users/qw281/Downloads/MATS/results/diamond/training_against_monitor/s560/predictions/_raw_outputs.json",
+  "output_file": "/Users/qw281/Downloads/MATS/results/diamond/training_against_monitor/s560/predictions/claude_sonnet_4_5_20250929_monitor_predictions.json",
+  "provider": "anthropic",
+  "monitor_model": "claude-sonnet-4-5-20250929",
+  "total_samples": 2500,
+  "successful_predictions": 2498,
+  "failed_predictions": 2,
+  "valid_predictions": 2498,
+  "correct_predictions": 1720,
+  "accuracy": 0.688550840672538,
+  "accuracy_95_ci": {
+    "lower_bound": 0.6701130672446252,
+    "upper_bound": 0.7064095923662821,
+    "margin": 0.018148262560828413
+  },
+  "conditional_accuracies": {
+    "when_original_correct": {
+      "accuracy": 0.7604055496264674,
+      "correct_predictions": 1425,
+      "total_samples": 1874,
+      "95_ci": {
+        "lower_bound": 0.7405600581230365,
+        "upper_bound": 0.7791856293605806,
+        "margin": 0.01931278561877206
+      }
+    },
+    "when_original_incorrect": {
+      "accuracy": 0.47275641025641024,
+      "correct_predictions": 295,
+      "total_samples": 624,
+      "95_ci": {
+        "lower_bound": 0.4338703687959343,
+        "upper_bound": 0.5119758324666203,
+        "margin": 0.039052731835342996
+      }
+    },
+    "when_lv_true": {
+      "accuracy": 0.5759922555663117,
+      "correct_predictions": 595,
+      "total_samples": 1033,
+      "95_ci": {
+        "lower_bound": 0.545628745477984,
+        "upper_bound": 0.6057926687260469,
+        "margin": 0.030081961624031393
+      }
+    },
+    "when_lv_false": {
+      "accuracy": 0.7679180887372014,
+      "correct_predictions": 1125,
+      "total_samples": 1465,
+      "95_ci": {
+        "lower_bound": 0.7456167273669132,
+        "upper_bound": 0.78881807857209,
+        "margin": 0.02160067560258835
+      }
+    }
+  },
+  "model": "claude-sonnet-4-5-20250929",
+  "batch_size": 20,
+  "max_concurrent": 60
+}

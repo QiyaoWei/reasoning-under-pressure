@@ -1,0 +1,63 @@
+{
+  "timestamp": "2025-11-13T20:59:21.588342",
+  "input_file": "/Users/qw281/Downloads/MATS/results/func_corr/regular_RL/step_200/predictions/func-corr-deepseek-regularRL-global_step_200_raw_outputs.json",
+  "output_file": "/Users/qw281/Downloads/MATS/results/func_corr/regular_RL/step_200/predictions/claude_sonnet_4_5_20250929_monitor_predictions.json",
+  "provider": "anthropic",
+  "monitor_model": "claude-sonnet-4-5-20250929",
+  "total_samples": 2500,
+  "successful_predictions": 2500,
+  "failed_predictions": 0,
+  "valid_predictions": 2500,
+  "correct_predictions": 1601,
+  "accuracy": 0.6404,
+  "accuracy_95_ci": {
+    "lower_bound": 0.6213867222999458,
+    "upper_bound": 0.6589824670219055,
+    "margin": 0.018797872360979878
+  },
+  "conditional_accuracies": {
+    "when_original_correct": {
+      "accuracy": 0.6034376918354819,
+      "correct_predictions": 983,
+      "total_samples": 1629,
+      "95_ci": {
+        "lower_bound": 0.5794658108887587,
+        "upper_bound": 0.6269228731929128,
+        "margin": 0.023728531152077095
+      }
+    },
+    "when_original_incorrect": {
+      "accuracy": 0.7095292766934558,
+      "correct_predictions": 618,
+      "total_samples": 871,
+      "95_ci": {
+        "lower_bound": 0.6785122565397161,
+        "upper_bound": 0.7387061963809172,
+        "margin": 0.03009696992060056
+      }
+    },
+    "when_lv_true": {
+      "accuracy": 0.16116751269035534,
+      "correct_predictions": 127,
+      "total_samples": 788,
+      "95_ci": {
+        "lower_bound": 0.13714884044586606,
+        "upper_bound": 0.18847373961542896,
+        "margin": 0.02566244958478146
+      }
+    },
+    "when_lv_false": {
+      "accuracy": 0.860981308411215,
+      "correct_predictions": 1474,
+      "total_samples": 1712,
+      "95_ci": {
+        "lower_bound": 0.8437834141660309,
+        "upper_bound": 0.8765628588803781,
+        "margin": 0.01638972235717363
+      }
+    }
+  },
+  "model": "claude-sonnet-4-5-20250929",
+  "batch_size": 20,
+  "max_concurrent": 60
+}
