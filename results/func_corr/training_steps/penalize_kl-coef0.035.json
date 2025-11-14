@@ -1,0 +1,403 @@
+{
+  "kl_coef": 0.035,
+  "description": "Training checkpoint metrics over time for penalize KL coef 0.035.",
+  "num_evaluated_samples": 2500,
+  "checkpoints": [
+    {
+      "step": 200,
+      "measurement_accuracy": {
+        "mean": 0.828363492063492,
+        "std": 0.30318733472394893,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.8164730079461376,
+          "upper_bound": 0.8402539761808464,
+          "margin": 0.011890484117354345,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7621870882740448,
+      "monitor_accuracy_gpt_4o": 0.7654808959156785,
+      "all_correct_accuracy": 0.6536,
+      "format_reward": 0.9916,
+      "num_wrong_measurements": 0.0008,
+      "num_words_before_measurements": {
+        "mean": 643.706,
+        "std": 167.73263833851777,
+        "se": 3.3546527667703554
+      },
+      "kl_values": {
+        "mean": 0.01522083615860607,
+        "std": 0.001050951689524827,
+        "se": 0.0001182413030342146
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7449126295907941,
+        "upper_bound": 0.778283435952832,
+        "margin": 0.01668540318101892,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.748594524664991,
+        "upper_bound": 0.7817904944509901,
+        "margin": 0.016597984892999566,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    },
+    {
+      "step": 210,
+      "measurement_accuracy": {
+        "mean": 0.8209661904761905,
+        "std": 0.30827,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.8088763729968613,
+          "upper_bound": 0.8330560079555196,
+          "margin": 0.012089817479329178,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7766798418972332,
+      "monitor_accuracy_gpt_4o": 0.7727272727272727,
+      "all_correct_accuracy": 0.6348,
+      "format_reward": 0.9896,
+      "num_wrong_measurements": 0.0004,
+      "num_words_before_measurements": {
+        "mean": 633.0056,
+        "std": 166.09565186554403,
+        "se": 3.3219130373108805
+      },
+      "kl_values": {
+        "mean": 0.0132241214778793,
+        "std": 0.0008570174522317988,
+        "se": 1.7140349044635977e-05
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7600600829657622,
+        "upper_bound": 0.792690569486435,
+        "margin": 0.01631524326033637,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.7559633380694506,
+        "upper_bound": 0.7887995881912409,
+        "margin": 0.01641812506089518,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    },
+    {
+      "step": 220,
+      "measurement_accuracy": {
+        "mean": 0.8069273015873015,
+        "std": 0.31994908580362585,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.7943794505150464,
+          "upper_bound": 0.8194751526595566,
+          "margin": 0.012547851072255058,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7536231884057971,
+      "monitor_accuracy_gpt_4o": 0.7555994729907773,
+      "all_correct_accuracy": 0.6216,
+      "format_reward": 0.9852,
+      "num_wrong_measurements": 0.0012,
+      "num_words_before_measurements": {
+        "mean": 617.5484,
+        "std": 176.8245154310906,
+        "se": 3.536490308621812
+      },
+      "kl_values": {
+        "mean": 0.01185193225222675,
+        "std": 0.0009237781136877623,
+        "se": 1.8475562273755247e-05
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7363278731778945,
+        "upper_bound": 0.7700939673635695,
+        "margin": 0.01688304709283752,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.7383710700454165,
+        "upper_bound": 0.7720446335918005,
+        "margin": 0.01683678177319204,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    },
+    {
+      "step": 230,
+      "measurement_accuracy": {
+        "mean": 0.7894636507936508,
+        "std": 0.33216,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.7764369087365774,
+          "upper_bound": 0.8024903928507241,
+          "margin": 0.01302674205707328,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7529644268774703,
+      "monitor_accuracy_gpt_4o": 0.7503293807641633,
+      "all_correct_accuracy": 0.5892,
+      "format_reward": 0.9748,
+      "num_wrong_measurements": 0.0016,
+      "num_words_before_measurements": {
+        "mean": 619.8688,
+        "std": 190.6711440846779,
+        "se": 3.8134228816935583
+      },
+      "kl_values": {
+        "mean": 0.010539223864391635,
+        "std": 0.0007095147791836224,
+        "se": 1.4190295583672449e-05
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7355107314029481,
+        "upper_bound": 0.7693135639002147,
+        "margin": 0.01690141624863329,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.733059772391456,
+        "upper_bound": 0.7669718871968032,
+        "margin": 0.01695605740267364,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    },
+    {
+      "step": 240,
+      "measurement_accuracy": {
+        "mean": 0.7694277777777777,
+        "std": 0.34227,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.7560045389655352,
+          "upper_bound": 0.7828510165900202,
+          "margin": 0.013423238812242508,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7292490118577075,
+      "monitor_accuracy_gpt_4o": 0.7272727272727273,
+      "all_correct_accuracy": 0.5556,
+      "format_reward": 0.9712,
+      "num_wrong_measurements": 0.0024,
+      "num_words_before_measurements": {
+        "mean": 612.5044,
+        "std": 199.4122011829768,
+        "se": 3.9882440236595356
+      },
+      "kl_values": {
+        "mean": 0.00969192731088098,
+        "std": 0.000717216803307268,
+        "se": 1.4344336066145361e-05
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7114390698183719,
+        "upper_bound": 0.7462576409549069,
+        "margin": 0.017409285568267437,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.7094020250825663,
+        "upper_bound": 0.7443008225949597,
+        "margin": 0.01744939875619665,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    },
+    {
+      "step": 250,
+      "measurement_accuracy": {
+        "mean": 0.7056412698412697,
+        "std": 0.3875138716427393,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.6904436444516149,
+          "upper_bound": 0.7208388952309246,
+          "margin": 0.015197625389654891,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.6989459815546772,
+      "monitor_accuracy_gpt_4o": 0.7002635046113307,
+      "all_correct_accuracy": 0.508,
+      "format_reward": 0.9076,
+      "num_wrong_measurements": 0.0016,
+      "num_words_before_measurements": {
+        "mean": 727.7616,
+        "std": 287.8192432160157,
+        "se": 5.756384864320314
+      },
+      "kl_values": {
+        "mean": 0.008603439012047234,
+        "std": 0.0006562910532264868,
+        "se": 7.383851234711175e-05
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.680522385594281,
+        "upper_bound": 0.7164676061235542,
+        "margin": 0.0179726102646366,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.6821471717138609,
+        "upper_bound": 0.7180379104805769,
+        "margin": 0.017945369383357956,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    },
+    {
+      "step": 260,
+      "measurement_accuracy": {
+        "mean": 0.6567344444444445,
+        "std": 0.41558021626934094,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.6404361054470835,
+          "upper_bound": 0.6730327834418055,
+          "margin": 0.01629833899736101,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7002635046113307,
+      "monitor_accuracy_gpt_4o": 0.717391304347826,
+      "all_correct_accuracy": 0.4744,
+      "format_reward": 0.8504,
+      "num_wrong_measurements": 0.0036,
+      "num_words_before_measurements": {
+        "mean": 793.798,
+        "std": 330.5773065350978,
+        "se": 6.6115461307019565
+      },
+      "kl_values": {
+        "mean": 0.00796249200578166,
+        "std": 0.0005953472931297902,
+        "se": 6.698180363493859e-05
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.6821471717138609,
+        "upper_bound": 0.7180379104805769,
+        "margin": 0.017945369383357956,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.6992233776191694,
+        "upper_bound": 0.7345101545795922,
+        "margin": 0.017643388480211436,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    },
+    {
+      "step": 270,
+      "measurement_accuracy": {
+        "mean": 0.6680326984126985,
+        "std": 0.4038080920773011,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.652196041813319,
+          "upper_bound": 0.683869355012078,
+          "margin": 0.01583665659937951,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.6963109354413702,
+      "monitor_accuracy_gpt_4o": 0.7147562582345192,
+      "all_correct_accuracy": 0.464,
+      "format_reward": 0.873,
+      "num_wrong_measurements": 0.0096,
+      "num_words_before_measurements": {
+        "mean": 768.3188,
+        "std": 314.01980250703934,
+        "se": 6.280396050140787
+      },
+      "kl_values": {
+        "mean": 0.007884985490265903,
+        "std": 0.0005801042384955508,
+        "se": 6.526682600072489e-05
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.6780856918559007,
+        "upper_bound": 0.7141116641470312,
+        "margin": 0.018012986145565187,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.6967821073877608,
+        "upper_bound": 0.7321587890960973,
+        "margin": 0.017688340854168302,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    },
+    {
+      "step": 280,
+      "measurement_accuracy": {
+        "mean": 0.6335126984126984,
+        "std": 0.41951421272857964,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.617060074862327,
+          "upper_bound": 0.6499653219630699,
+          "margin": 0.016452623550371432,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.6844532279314888,
+      "monitor_accuracy_gpt_4o": 0.71212,
+      "all_correct_accuracy": 0.4352,
+      "format_reward": 0.8338,
+      "num_wrong_measurements": 0.0056,
+      "num_words_before_measurements": {
+        "mean": 844.4144,
+        "std": 335.87408633688904,
+        "se": 6.71748172673778
+      },
+      "kl_values": {
+        "mean": 0.008076560766070703,
+        "std": 0.0007747332971768879,
+        "se": 8.716430590982423e-05
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.6659108339334713,
+        "upper_bound": 0.7023233434949433,
+        "margin": 0.018206254780736012,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.6939347313708008,
+        "upper_bound": 0.7294147567790034,
+        "margin": 0.0177400127041013,
+        "method": "wilson_95",
+        "n": 2500
+      }
+    }
+  ]
+}

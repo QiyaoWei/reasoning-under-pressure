@@ -1,0 +1,259 @@
+{
+  "verbosity_k": -5e-08,
+  "description": "Training checkpoint metrics over time for penalize verbosity k -5e-8.",
+  "num_evaluated_samples": 2500,
+  "checkpoints": [
+    {
+      "step": 200,
+      "measurement_accuracy": {
+        "mean": 0.828363492063492,
+        "std": 0.30318733472394893,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.8164730079461376,
+          "upper_bound": 0.8402539761808464,
+          "margin": 0.011890484117354345,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7621870882740448,
+      "monitor_accuracy_gpt_4o": 0.7654808959156785,
+      "all_correct_accuracy": 0.6536,
+      "format_reward": 0.9916,
+      "num_wrong_measurements": 0.0008,
+      "num_words_before_measurements": {
+        "mean": 643.706,
+        "std": 167.73263833851777,
+        "se": 3.3546527667703554
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7449126295907941,
+        "upper_bound": 0.778283435952832,
+        "margin": 0.01668540318101892,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.748594524664991,
+        "upper_bound": 0.7817904944509901,
+        "margin": 0.016597984892999566,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "kl_values": {
+        "se": 0.0
+      }
+    },
+    {
+      "step": 220,
+      "measurement_accuracy": {
+        "mean": 0.8206325396825396,
+        "std": 0.3099554593882978,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.8084766213942658,
+          "upper_bound": 0.8327884579708134,
+          "margin": 0.012155918288273749,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7687747035573123,
+      "monitor_accuracy_gpt_4o": 0.7555994729907773,
+      "all_correct_accuracy": 0.6412,
+      "format_reward": 0.9984,
+      "num_wrong_measurements": 0.0016,
+      "num_words_before_measurements": {
+        "mean": 501.912,
+        "std": 149.6216276345101,
+        "se": 2.992432552690202
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7518687175519415,
+        "upper_bound": 0.7849064825172444,
+        "margin": 0.01651888248265141,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.7383710700454165,
+        "upper_bound": 0.7720446335918005,
+        "margin": 0.01683678177319204,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "kl_values": {
+        "se": 0.0
+      }
+    },
+    {
+      "step": 240,
+      "measurement_accuracy": {
+        "mean": 0.8074242857142857,
+        "std": 0.32084014251870596,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.7948414889351858,
+          "upper_bound": 0.8200070824933856,
+          "margin": 0.012582796779099866,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7503293807641633,
+      "monitor_accuracy_gpt_4o": 0.7621870882740448,
+      "all_correct_accuracy": 0.622,
+      "format_reward": 0.9976,
+      "num_wrong_measurements": 0.0004,
+      "num_words_before_measurements": {
+        "mean": 403.6456,
+        "std": 152.18900354703686,
+        "se": 3.043780070940737
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.733059772391456,
+        "upper_bound": 0.7669718871968032,
+        "margin": 0.01695605740267364,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.7449126295907941,
+        "upper_bound": 0.778283435952832,
+        "margin": 0.01668540318101892,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "kl_values": {
+        "se": 0.0
+      }
+    },
+    {
+      "step": 260,
+      "measurement_accuracy": {
+        "mean": 0.791922380952381,
+        "std": 0.3299781071545277,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.7789812089678455,
+          "upper_bound": 0.8048635529369165,
+          "margin": 0.012941171984535522,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7404479578392622,
+      "monitor_accuracy_gpt_4o": 0.7523056653491436,
+      "all_correct_accuracy": 0.5972,
+      "format_reward": 0.9996,
+      "num_wrong_measurements": 0.0012,
+      "num_words_before_measurements": {
+        "mean": 283.6516,
+        "std": 138.2244486964589,
+        "se": 2.764488973929178
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7228548420782911,
+        "upper_bound": 0.7572075020312038,
+        "margin": 0.017176329976456337,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.7351021897388282,
+        "upper_bound": 0.7689233329451838,
+        "margin": 0.016910571603177747,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "kl_values": {
+        "se": 0.0
+      }
+    },
+    {
+      "step": 280,
+      "measurement_accuracy": {
+        "mean": 0.7731941269841269,
+        "std": 0.34252697162122436,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.7597608101883052,
+          "upper_bound": 0.7866274437799486,
+          "margin": 0.013433316795821739,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.7397891963109354,
+      "monitor_accuracy_gpt_4o": 0.7523056653491436,
+      "all_correct_accuracy": 0.5772,
+      "format_reward": 0.999,
+      "num_wrong_measurements": 0.0032,
+      "num_words_before_measurements": {
+        "mean": 246.1068,
+        "std": 144.97892603326872,
+        "se": 2.8995785206653744
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.7220389544524184,
+        "upper_bound": 0.7564258444187755,
+        "margin": 0.017193444983178537,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.7351021897388282,
+        "upper_bound": 0.7689233329451838,
+        "margin": 0.016910571603177747,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "kl_values": {
+        "se": 0.0
+      }
+    },
+    {
+      "step": 300,
+      "measurement_accuracy": {
+        "mean": 0.7601073015873016,
+        "std": 0.3364703893781654,
+        "t_confidence_interval_95": {
+          "lower_bound": 0.7469115134964045,
+          "upper_bound": 0.7733030896781986,
+          "margin": 0.013195788090897068,
+          "method": "t_CI_95",
+          "n": 2500
+        }
+      },
+      "monitor_accuracy_gpt_4o_mini": 0.6778656126482213,
+      "monitor_accuracy_gpt_4o": 0.6699604743083004,
+      "all_correct_accuracy": 0.5216,
+      "format_reward": 0.9984,
+      "num_wrong_measurements": 0.0068,
+      "num_words_before_measurements": {
+        "mean": 45.1604,
+        "std": 48.73281719580759,
+        "se": 0.9746563439161519
+      },
+      "notes": "",
+      "monitor_accuracy_gpt_4o_mini_ci_95": {
+        "lower_bound": 0.6594233377192021,
+        "upper_bound": 0.6960304778028034,
+        "margin": 0.018303570041800596,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "monitor_accuracy_gpt_4o_ci_95": {
+        "lower_bound": 0.6513194799293023,
+        "upper_bound": 0.6881588832096917,
+        "margin": 0.018419701640194724,
+        "method": "wilson_95",
+        "n": 2500
+      },
+      "kl_values": {
+        "se": 0.0
+      }
+    }
+  ]
+}
