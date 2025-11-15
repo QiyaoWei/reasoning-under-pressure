@@ -1,0 +1,50 @@
+setting: "Penalise monitorability training progress"
+
+checkpoints:
+  - step: 460
+    accuracy_path: "results/diamond/regular/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/diamond/regular/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/diamond/regular/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 480
+    accuracy_path: "results/diamond/training_against_monitor/s480/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/diamond/training_against_monitor/s480/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/diamond/training_against_monitor/s480/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 500
+    accuracy_path: "results/diamond/training_against_monitor/s500/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/diamond/training_against_monitor/s500/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/diamond/training_against_monitor/s500/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 520
+    accuracy_path: "results/diamond/training_against_monitor/s520/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/diamond/training_against_monitor/s520/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/diamond/training_against_monitor/s520/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 540
+    accuracy_path: "results/diamond/training_against_monitor/s540/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/diamond/training_against_monitor/s540/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/diamond/training_against_monitor/s540/predictions/gpt_4o_monitor_predictions_summary.json"
+
+  - step: 560
+    accuracy_path: "results/diamond/training_against_monitor/s560/predictions/reasoner_accuracy_summary.json"
+    monitors:
+      - name: "gpt-4o-mini"
+        accuracy_path: "results/diamond/training_against_monitor/s560/predictions/gpt_4o_mini_monitor_predictions_summary.json"
+      - name: "gpt-4o"
+        accuracy_path: "results/diamond/training_against_monitor/s560/predictions/gpt_4o_monitor_predictions_summary.json"

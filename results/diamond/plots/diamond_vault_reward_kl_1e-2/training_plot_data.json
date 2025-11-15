@@ -1,0 +1,236 @@
+[
+  {
+    "step": 460,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.8352000000000016,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8201448600399541,
+      "upper": 0.84922659480823,
+      "margin": 0.014540867384137996
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7714975845410628,
+        "ci_lower": 0.752917064519092,
+        "ci_upper": 0.789072293066213,
+        "ci_margin": 0.01807761427356045
+      },
+      "gpt-4o": {
+        "accuracy": 0.6797101449275362,
+        "ci_lower": 0.6592931112760047,
+        "ci_upper": 0.6994614101149802,
+        "ci_margin": 0.020084149419487773
+      }
+    },
+    "incentive_value": 0.04379105829925537,
+    "incentive_se": 0.0006213491809950763
+  },
+  {
+    "step": 465,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.8312000000000016,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8160112586578684,
+      "upper": 0.84537246999881,
+      "margin": 0.014680605670470774
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7589371980676328,
+        "ci_lower": 0.7400423900077426,
+        "ci_upper": 0.7768727268351818,
+        "ci_margin": 0.018415168413719585
+      },
+      "gpt-4o": {
+        "accuracy": 0.6830917874396135,
+        "ci_lower": 0.662725040946157,
+        "ci_upper": 0.7027802375677764,
+        "ci_margin": 0.02002759831080973
+      }
+    },
+    "incentive_value": 0.050664539681747556,
+    "incentive_se": 0.0005251377971961489
+  },
+  {
+    "step": 470,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.8194666666666679,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8039028719691574,
+      "upper": 0.8340501931924369,
+      "margin": 0.015073660611639684
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7618357487922706,
+        "ci_lower": 0.743011505473178,
+        "ci_upper": 0.7796899746179883,
+        "ci_margin": 0.018339234572405157
+      },
+      "gpt-4o": {
+        "accuracy": 0.6932367149758454,
+        "ci_lower": 0.6730281859267343,
+        "ci_upper": 0.7127293639560451,
+        "ci_margin": 0.019850589014655376
+      }
+    },
+    "incentive_value": 0.05424310942180455,
+    "incentive_se": 0.0004713594116617097
+  },
+  {
+    "step": 475,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.7857333333333346,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7692173591911171,
+      "upper": 0.8013725484221121,
+      "margin": 0.016077594615497483
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7632850241545893,
+        "ci_lower": 0.744496499650769,
+        "ci_upper": 0.7810981620645179,
+        "ci_margin": 0.01830083120687441
+      },
+      "gpt-4o": {
+        "accuracy": 0.7342995169082126,
+        "ci_lower": 0.7148500800890364,
+        "ci_upper": 0.7528809491438339,
+        "ci_margin": 0.01901543452739869
+      }
+    },
+    "incentive_value": 0.08433209732174873,
+    "incentive_se": 0.0019080230896603744
+  },
+  {
+    "step": 480,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.7624000000000002,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7453216476210353,
+      "upper": 0.7786731905417418,
+      "margin": 0.01667577146035321
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7241545893719806,
+        "ci_lower": 0.7044991608040284,
+        "ci_upper": 0.7429795970599956,
+        "ci_margin": 0.019240218127983558
+      },
+      "gpt-4o": {
+        "accuracy": 0.6391304347826087,
+        "ci_lower": 0.6182016008217458,
+        "ci_upper": 0.6595438350938553,
+        "ci_margin": 0.020671117136054705
+      }
+    },
+    "incentive_value": 0.12277516769245267,
+    "incentive_se": 0.002336429894775537
+  },
+  {
+    "step": 485,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.7778666666666673,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7611529121729358,
+      "upper": 0.7937278005969975,
+      "margin": 0.01628744421203092
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7144927536231884,
+        "ci_lower": 0.6946526542702539,
+        "ci_upper": 0.7335382260996314,
+        "ci_margin": 0.01944278591468872
+      },
+      "gpt-4o": {
+        "accuracy": 0.6980676328502415,
+        "ci_lower": 0.6779383865845258,
+        "ci_upper": 0.7174631020453232,
+        "ci_margin": 0.019762357730398705
+      }
+    },
+    "incentive_value": 0.15481152152642608,
+    "incentive_se": 0.003439529455265621
+  },
+  {
+    "step": 490,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.7794666666666683,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7627924463373738,
+      "upper": 0.7952833569091639,
+      "margin": 0.016245455285895074
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.538647342995169,
+        "ci_lower": 0.5171206073970094,
+        "ci_upper": 0.5600309025795465,
+        "ci_margin": 0.02145514759126857
+      },
+      "gpt-4o": {
+        "accuracy": 0.6782608695652174,
+        "ci_lower": 0.6578226548396321,
+        "ci_upper": 0.6980386849272319,
+        "ci_margin": 0.02010801504379986
+      }
+    },
+    "incentive_value": 0.17270332342013717,
+    "incentive_se": 0.0025301048943531627
+  },
+  {
+    "step": 495,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.6156,
+    "reasoner_accuracy_ci": {
+      "lower": 0.5963678394640587,
+      "upper": 0.6344774474704572,
+      "margin": 0.0190548040031993
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.5352657004830917,
+        "ci_lower": 0.5137344618596118,
+        "ci_upper": 0.5566662909939954,
+        "ci_margin": 0.021465914567191872
+      },
+      "gpt-4o": {
+        "accuracy": 0.508695652173913,
+        "ci_lower": 0.4871633854676158,
+        "ci_upper": 0.5301957042771092,
+        "ci_margin": 0.021516159404746677
+      }
+    },
+    "incentive_value": 0.14005435002036393,
+    "incentive_se": 0.002030162721413407
+  },
+  {
+    "step": 500,
+    "setting": "Reward KL 1e-2 training progress",
+    "reasoner_accuracy": 0.0044,
+    "reasoner_accuracy_ci": {
+      "lower": 0.00245868830899749,
+      "upper": 0.007862036563441286,
+      "margin": 0.0027016741272218978
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.5,
+        "ci_lower": 0.4784805920254053,
+        "ci_upper": 0.5215194079745947,
+        "ci_margin": 0.021519407974594684
+      },
+      "gpt-4o": {
+        "accuracy": 0.4995169082125604,
+        "ci_lower": 0.4779984051137476,
+        "ci_upper": 0.5210372010115456,
+        "ci_margin": 0.021519397948898993
+      }
+    },
+    "incentive_value": 0.13432551140431315,
+    "incentive_se": 0.022552243180792787
+  }
+]

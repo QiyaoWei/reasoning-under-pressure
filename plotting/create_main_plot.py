@@ -268,7 +268,7 @@ def create_plot(data, baseline_data, output_dir: Path):
     ax1.spines['right'].set_visible(False)
     
     plt.tight_layout()
-    accuracy_path = output_subdir / 'accuracy_plot.png'
+    accuracy_path = output_subdir / 'accuracy_plot.pdf'
     plt.savefig(accuracy_path, dpi=300, bbox_inches='tight')
     plt.close()
     
@@ -363,7 +363,7 @@ def create_plot(data, baseline_data, output_dir: Path):
     ax2.spines['right'].set_visible(False)
     
     plt.tight_layout()
-    monitorability_path = output_subdir / 'monitorability_plot.png'
+    monitorability_path = output_subdir / 'monitorability_plot.pdf'
     plt.savefig(monitorability_path, dpi=300, bbox_inches='tight')
     plt.close()
     

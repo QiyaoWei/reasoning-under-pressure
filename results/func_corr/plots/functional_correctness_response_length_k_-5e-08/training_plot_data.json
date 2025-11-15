@@ -1,0 +1,158 @@
+[
+  {
+    "step": 200,
+    "setting": "Response length k -5e-08 training progress",
+    "reasoner_accuracy": 0.828363492063492,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8164730079461376,
+      "upper": 0.8402539761808464,
+      "margin": 0.011890484117354345
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7621870882740448,
+        "ci_lower": 0.7449126295907941,
+        "ci_upper": 0.778283435952832,
+        "ci_margin": 0.01668540318101892
+      },
+      "gpt-4o": {
+        "accuracy": 0.7654808959156785,
+        "ci_lower": 0.748594524664991,
+        "ci_upper": 0.7817904944509901,
+        "ci_margin": 0.016597984892999566
+      }
+    },
+    "incentive_value": 643.706,
+    "incentive_se": 3.3546527667703554
+  },
+  {
+    "step": 220,
+    "setting": "Response length k -5e-08 training progress",
+    "reasoner_accuracy": 0.8206325396825396,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8084766213942658,
+      "upper": 0.8327884579708134,
+      "margin": 0.012155918288273749
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7687747035573123,
+        "ci_lower": 0.7518687175519415,
+        "ci_upper": 0.7849064825172444,
+        "ci_margin": 0.01651888248265141
+      },
+      "gpt-4o": {
+        "accuracy": 0.7555994729907773,
+        "ci_lower": 0.7383710700454165,
+        "ci_upper": 0.7720446335918005,
+        "ci_margin": 0.01683678177319204
+      }
+    },
+    "incentive_value": 501.912,
+    "incentive_se": 2.992432552690202
+  },
+  {
+    "step": 240,
+    "setting": "Response length k -5e-08 training progress",
+    "reasoner_accuracy": 0.8074242857142857,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7948414889351858,
+      "upper": 0.8200070824933856,
+      "margin": 0.012582796779099866
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7503293807641633,
+        "ci_lower": 0.733059772391456,
+        "ci_upper": 0.7669718871968032,
+        "ci_margin": 0.01695605740267364
+      },
+      "gpt-4o": {
+        "accuracy": 0.7621870882740448,
+        "ci_lower": 0.7449126295907941,
+        "ci_upper": 0.778283435952832,
+        "ci_margin": 0.01668540318101892
+      }
+    },
+    "incentive_value": 403.6456,
+    "incentive_se": 3.043780070940737
+  },
+  {
+    "step": 260,
+    "setting": "Response length k -5e-08 training progress",
+    "reasoner_accuracy": 0.791922380952381,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7789812089678455,
+      "upper": 0.8048635529369165,
+      "margin": 0.012941171984535522
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7404479578392622,
+        "ci_lower": 0.7228548420782911,
+        "ci_upper": 0.7572075020312038,
+        "ci_margin": 0.017176329976456337
+      },
+      "gpt-4o": {
+        "accuracy": 0.7523056653491436,
+        "ci_lower": 0.7351021897388282,
+        "ci_upper": 0.7689233329451838,
+        "ci_margin": 0.016910571603177747
+      }
+    },
+    "incentive_value": 283.6516,
+    "incentive_se": 2.764488973929178
+  },
+  {
+    "step": 280,
+    "setting": "Response length k -5e-08 training progress",
+    "reasoner_accuracy": 0.7731941269841269,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7597608101883052,
+      "upper": 0.7866274437799486,
+      "margin": 0.013433316795821739
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7397891963109354,
+        "ci_lower": 0.7220389544524184,
+        "ci_upper": 0.7564258444187755,
+        "ci_margin": 0.017193444983178537
+      },
+      "gpt-4o": {
+        "accuracy": 0.7523056653491436,
+        "ci_lower": 0.7351021897388282,
+        "ci_upper": 0.7689233329451838,
+        "ci_margin": 0.016910571603177747
+      }
+    },
+    "incentive_value": 246.1068,
+    "incentive_se": 2.8995785206653744
+  },
+  {
+    "step": 300,
+    "setting": "Response length k -5e-08 training progress",
+    "reasoner_accuracy": 0.7601073015873016,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7469115134964045,
+      "upper": 0.7733030896781986,
+      "margin": 0.013195788090897068
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.6778656126482213,
+        "ci_lower": 0.6594233377192021,
+        "ci_upper": 0.6960304778028034,
+        "ci_margin": 0.018303570041800596
+      },
+      "gpt-4o": {
+        "accuracy": 0.6699604743083004,
+        "ci_lower": 0.6513194799293023,
+        "ci_upper": 0.6881588832096917,
+        "ci_margin": 0.018419701640194724
+      }
+    },
+    "incentive_value": 45.1604,
+    "incentive_se": 0.9746563439161519
+  }
+]

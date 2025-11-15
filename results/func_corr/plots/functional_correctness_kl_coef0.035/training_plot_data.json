@@ -1,0 +1,236 @@
+[
+  {
+    "step": 200,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.828363492063492,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8164730079461376,
+      "upper": 0.8402539761808464,
+      "margin": 0.011890484117354345
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7621870882740448,
+        "ci_lower": 0.7449126295907941,
+        "ci_upper": 0.778283435952832,
+        "ci_margin": 0.01668540318101892
+      },
+      "gpt-4o": {
+        "accuracy": 0.7654808959156785,
+        "ci_lower": 0.748594524664991,
+        "ci_upper": 0.7817904944509901,
+        "ci_margin": 0.016597984892999566
+      }
+    },
+    "incentive_value": 0.01522083615860607,
+    "incentive_se": 0.0001182413030342146
+  },
+  {
+    "step": 210,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.8209661904761905,
+    "reasoner_accuracy_ci": {
+      "lower": 0.8088763729968613,
+      "upper": 0.8330560079555196,
+      "margin": 0.012089817479329178
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7766798418972332,
+        "ci_lower": 0.7600600829657622,
+        "ci_upper": 0.792690569486435,
+        "ci_margin": 0.01631524326033637
+      },
+      "gpt-4o": {
+        "accuracy": 0.7727272727272727,
+        "ci_lower": 0.7559633380694506,
+        "ci_upper": 0.7887995881912409,
+        "ci_margin": 0.01641812506089518
+      }
+    },
+    "incentive_value": 0.0132241214778793,
+    "incentive_se": 1.7140349044635977e-05
+  },
+  {
+    "step": 220,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.8069273015873015,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7943794505150464,
+      "upper": 0.8194751526595566,
+      "margin": 0.012547851072255058
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7536231884057971,
+        "ci_lower": 0.7363278731778945,
+        "ci_upper": 0.7700939673635695,
+        "ci_margin": 0.01688304709283752
+      },
+      "gpt-4o": {
+        "accuracy": 0.7555994729907773,
+        "ci_lower": 0.7383710700454165,
+        "ci_upper": 0.7720446335918005,
+        "ci_margin": 0.01683678177319204
+      }
+    },
+    "incentive_value": 0.01185193225222675,
+    "incentive_se": 1.8475562273755247e-05
+  },
+  {
+    "step": 230,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.7894636507936508,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7764369087365774,
+      "upper": 0.8024903928507241,
+      "margin": 0.01302674205707328
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7529644268774703,
+        "ci_lower": 0.7355107314029481,
+        "ci_upper": 0.7693135639002147,
+        "ci_margin": 0.01690141624863329
+      },
+      "gpt-4o": {
+        "accuracy": 0.7503293807641633,
+        "ci_lower": 0.733059772391456,
+        "ci_upper": 0.7669718871968032,
+        "ci_margin": 0.01695605740267364
+      }
+    },
+    "incentive_value": 0.010539223864391635,
+    "incentive_se": 1.4190295583672449e-05
+  },
+  {
+    "step": 240,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.7694277777777777,
+    "reasoner_accuracy_ci": {
+      "lower": 0.7560045389655352,
+      "upper": 0.7828510165900202,
+      "margin": 0.013423238812242508
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7292490118577075,
+        "ci_lower": 0.7114390698183719,
+        "ci_upper": 0.7462576409549069,
+        "ci_margin": 0.017409285568267437
+      },
+      "gpt-4o": {
+        "accuracy": 0.7272727272727273,
+        "ci_lower": 0.7094020250825663,
+        "ci_upper": 0.7443008225949597,
+        "ci_margin": 0.01744939875619665
+      }
+    },
+    "incentive_value": 0.00969192731088098,
+    "incentive_se": 1.4344336066145361e-05
+  },
+  {
+    "step": 250,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.7056412698412697,
+    "reasoner_accuracy_ci": {
+      "lower": 0.6904436444516149,
+      "upper": 0.7208388952309246,
+      "margin": 0.015197625389654891
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.6989459815546772,
+        "ci_lower": 0.680522385594281,
+        "ci_upper": 0.7164676061235542,
+        "ci_margin": 0.0179726102646366
+      },
+      "gpt-4o": {
+        "accuracy": 0.7002635046113307,
+        "ci_lower": 0.6821471717138609,
+        "ci_upper": 0.7180379104805769,
+        "ci_margin": 0.017945369383357956
+      }
+    },
+    "incentive_value": 0.008603439012047234,
+    "incentive_se": 7.383851234711175e-05
+  },
+  {
+    "step": 260,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.6567344444444445,
+    "reasoner_accuracy_ci": {
+      "lower": 0.6404361054470835,
+      "upper": 0.6730327834418055,
+      "margin": 0.01629833899736101
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.7002635046113307,
+        "ci_lower": 0.6821471717138609,
+        "ci_upper": 0.7180379104805769,
+        "ci_margin": 0.017945369383357956
+      },
+      "gpt-4o": {
+        "accuracy": 0.717391304347826,
+        "ci_lower": 0.6992233776191694,
+        "ci_upper": 0.7345101545795922,
+        "ci_margin": 0.017643388480211436
+      }
+    },
+    "incentive_value": 0.00796249200578166,
+    "incentive_se": 6.698180363493859e-05
+  },
+  {
+    "step": 270,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.6680326984126985,
+    "reasoner_accuracy_ci": {
+      "lower": 0.652196041813319,
+      "upper": 0.683869355012078,
+      "margin": 0.01583665659937951
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.6963109354413702,
+        "ci_lower": 0.6780856918559007,
+        "ci_upper": 0.7141116641470312,
+        "ci_margin": 0.018012986145565187
+      },
+      "gpt-4o": {
+        "accuracy": 0.7147562582345192,
+        "ci_lower": 0.6967821073877608,
+        "ci_upper": 0.7321587890960973,
+        "ci_margin": 0.017688340854168302
+      }
+    },
+    "incentive_value": 0.007884985490265903,
+    "incentive_se": 6.526682600072489e-05
+  },
+  {
+    "step": 280,
+    "setting": "KL coef 0.035 training progress",
+    "reasoner_accuracy": 0.6335126984126984,
+    "reasoner_accuracy_ci": {
+      "lower": 0.617060074862327,
+      "upper": 0.6499653219630699,
+      "margin": 0.016452623550371432
+    },
+    "monitors": {
+      "gpt-4o-mini": {
+        "accuracy": 0.6844532279314888,
+        "ci_lower": 0.6659108339334713,
+        "ci_upper": 0.7023233434949433,
+        "ci_margin": 0.018206254780736012
+      },
+      "gpt-4o": {
+        "accuracy": 0.71212,
+        "ci_lower": 0.6939347313708008,
+        "ci_upper": 0.7294147567790034,
+        "ci_margin": 0.0177400127041013
+      }
+    },
+    "incentive_value": 0.008076560766070703,
+    "incentive_se": 8.716430590982423e-05
+  }
+]
