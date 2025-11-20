@@ -1,4 +1,6 @@
 setting: "Function correctness"
+save_as_pdf: true
+font_size: 12
 
 baseline:
   name: "RL baseline"
@@ -12,64 +14,76 @@ baseline:
       predictions_path: "results/func_corr/regular_RL/step_200/predictions/gpt_4o_monitor_predictions.json"
 
 runs:
-  - name: "Penalise verbosity"
+  - name: "− length"
     accuracy_path: "results/func_corr/penalize_verbosity/k_-5e-8/step_260/predictions/reasoner_accuracy_summary.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/func_corr/penalize_verbosity/k_-5e-8/step_260/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/penalize_verbosity/k_-5e-8/step_260/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: true
       - name: "gpt-4o"
         accuracy_path: "results/func_corr/penalize_verbosity/k_-5e-8/step_260/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/penalize_verbosity/k_-5e-8/step_260/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
 
-  - name: "Reward verbosity"
+  - name: "+ length"
     accuracy_path: "results/func_corr/reward_verbosity/k_1e-7/step_280/predictions/reasoner_accuracy_summary.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/func_corr/reward_verbosity/k_1e-7/step_280/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/reward_verbosity/k_1e-7/step_280/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: true
       - name: "gpt-4o"
         accuracy_path: "results/func_corr/reward_verbosity/k_1e-7/step_280/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/reward_verbosity/k_1e-7/step_280/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
 
-  - name: "Penalise KL"
+  - name: "− KL"
     accuracy_path: "results/func_corr/penalize_kl/kl-coef0.04/step_225/predictions/reasoner_accuracy_summary.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/func_corr/penalize_kl/kl-coef0.04/step_225/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/penalize_kl/kl-coef0.04/step_225/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: false
       - name: "gpt-4o"
         accuracy_path: "results/func_corr/penalize_kl/kl-coef0.04/step_225/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/penalize_kl/kl-coef0.04/step_225/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
 
-  - name: "Reward KL"
+  - name: "+ KL"
     accuracy_path: "results/func_corr/reward_kl/kl-coef_-0.0025/step_310/predictions/reasoner_accuracy_summary.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/func_corr/reward_kl/kl-coef_-0.0025/step_310/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/reward_kl/kl-coef_-0.0025/step_310/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: true
       - name: "gpt-4o"
         accuracy_path: "results/func_corr/reward_kl/kl-coef_-0.0025/step_310/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/reward_kl/kl-coef_-0.0025/step_310/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
 
-  - name: "Penalise monitorability"
+  - name: "− monitorability"
     accuracy_path: "results/func_corr/penalize_monitorability/k=1/step_300/predictions/reasoner_accuracy_summary.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/func_corr/penalize_monitorability/k=1/step_300/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/penalize_monitorability/k=1/step_300/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: true
       - name: "gpt-4o"
         accuracy_path: "results/func_corr/penalize_monitorability/k=1/step_300/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/penalize_monitorability/k=1/step_300/predictions/gpt_4o_monitor_predictions.json"
+        significant: true
 
-  - name: "Reward monitorability"
+  - name: "+ monitorability"
     accuracy_path: "results/func_corr/reward_monitorability/k=3/step_260/predictions/reasoner_accuracy_summary.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/func_corr/reward_monitorability/k=3/step_260/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/reward_monitorability/k=3/step_260/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: false
       - name: "gpt-4o"
         accuracy_path: "results/func_corr/reward_monitorability/k=3/step_260/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/func_corr/reward_monitorability/k=3/step_260/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
 
 

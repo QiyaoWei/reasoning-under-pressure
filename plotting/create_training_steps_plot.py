@@ -283,7 +283,7 @@ def extract_training_data(config_path):
     else:
         raise ValueError(f"Unsupported file format: {config_path.suffix}. Please provide a .yaml or .json file.")
 
-def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=None, source_filename=None):
+def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=None, source_filename=None, font_size=8, figure_size="full-width"):
     """Create separate accuracy and monitorability plots showing training progress.
 
     Args:
@@ -292,10 +292,18 @@ def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=Non
         highlight_step: Optional step number to highlight with a star marker
         experiment_name: Experiment prefix (e.g., 'diamond_vault' or 'functional_correctness')
         source_filename: Original config/json filename to extract action from
+        font_size: Font size for all text (default: 8)
+        figure_size: Figure size preset - 'full-width' or 'side-by-side' (default: 'full-width')
     """
     if not data:
         print("No data found!")
         return
+    
+    # Determine figure size based on preset
+    if figure_size == "side-by-side":
+        figsize = (2.7, 1.5)
+    else:  # "full-width" or any other value defaults to full-width
+        figsize = (5.5, 3.0)
 
     # Sort data by step
     data = sorted(data, key=lambda x: x['step'])
@@ -407,25 +415,34 @@ def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=Non
     gpt4o_vals = safe_vals(gpt4o_accs)
 
     # Create accuracy plot
-    fig1, ax1 = plt.subplots(figsize=(14, 8))
+    fig1, ax1 = plt.subplots(figsize=figsize)
 
     ax1.plot(steps, reasoner_vals, marker='o', linewidth=2.5, markersize=8,
-             label='Reasoner accuracy', color=colors[2], alpha=0.9)
+             label='Accuracy', color=colors[2], alpha=0.9)
     ax1.fill_between(steps,
                       [r - e for r, e in zip(reasoner_vals, reasoner_errors)],
                       [r + e for r, e in zip(reasoner_vals, reasoner_errors)],
                       alpha=0.2, color=colors[2])
 
-    # Highlight specific step if requested
-    if highlight_step is not None and highlight_step in steps:
-        idx = steps.index(highlight_step)
-        ax1.scatter([highlight_step], [reasoner_vals[idx]],
-                   marker='*', s=500, color='gold', edgecolors='black',
-                   linewidths=1.5, zorder=5, label=f'Main plot step ({highlight_step})')
+    # Highlight specific step if requested (with interpolation)
+    if highlight_step is not None:
+        if highlight_step in steps:
+            # Exact step exists
+            idx = steps.index(highlight_step)
+            ax1.scatter([highlight_step], [reasoner_vals[idx]],
+                       marker='*', s=250, color='gold', edgecolors='black',
+                       linewidths=1.5, zorder=5, label='Main plot step')
+        else:
+            # Interpolate between nearest steps
+            steps_array = np.array(steps)
+            if highlight_step >= steps_array.min() and highlight_step <= steps_array.max():
+                reasoner_interp = np.interp(highlight_step, steps, reasoner_vals)
+                ax1.scatter([highlight_step], [reasoner_interp],
+                           marker='*', s=250, color='gold', edgecolors='black',
+                           linewidths=1.5, zorder=5, label='Main plot step')
 
-    ax1.set_xlabel('Training Step', fontsize=12)
-    ax1.set_ylabel('Accuracy', fontsize=12)
-    ax1.legend(loc='best', fontsize=11)
+    ax1.set_xlabel('Training Step', fontsize=font_size)
+    ax1.set_ylabel('Accuracy', fontsize=font_size)
     ax1.set_ylim(0.5, 1.0)
     ax1.grid(True, which='major', axis='both', alpha=0.8, linestyle='-', linewidth=0.8)
     ax1.minorticks_on()
@@ -433,17 +450,31 @@ def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=Non
     ax1.spines['top'].set_visible(False)
     ax1.spines['right'].set_visible(False)
 
-    plt.tight_layout()
+    # Create legend below the plot with desired order
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    # Desired order: Accuracy, Main plot step
+    desired_order = ['Accuracy', 'Main plot step']
+    ordered_lines = []
+    ordered_labels = []
+    for label in desired_order:
+        if label in labels1:
+            idx = labels1.index(label)
+            ordered_lines.append(lines1[idx])
+            ordered_labels.append(labels1[idx])
+    fig1.legend(ordered_lines, ordered_labels, loc='lower center', ncol=2, frameon=False, 
+                fontsize=font_size, bbox_to_anchor=(0.5, -0.06))
+    
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
     accuracy_path = output_subdir / 'accuracy_training_plot.pdf'
     plt.savefig(accuracy_path, bbox_inches='tight')
     plt.close()
 
     # Create monitorability plot with dual y-axis
-    fig2, ax2 = plt.subplots(figsize=(14, 8))
+    fig2, ax2 = plt.subplots(figsize=figsize)
 
     # Left y-axis: Monitorability and Reasoner Accuracy
     ax2.plot(steps, reasoner_vals, marker='o', linewidth=2.5, markersize=8,
-             label='Reasoner accuracy', color=colors[2], alpha=0.9)
+             label='Accuracy', color=colors[2], alpha=0.9)
     ax2.fill_between(steps,
                       [r - e for r, e in zip(reasoner_vals, reasoner_errors)],
                       [r + e for r, e in zip(reasoner_vals, reasoner_errors)],
@@ -463,47 +494,72 @@ def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=Non
                       [g + e if not np.isnan(g) else np.nan for g, e in zip(gpt4o_vals, gpt4o_errors)],
                       alpha=0.2, color=colors[0])
 
-    # Highlight specific step if requested
-    if highlight_step is not None and highlight_step in steps:
-        idx = steps.index(highlight_step)
-        # Highlight all three lines at this step
-        ax2.scatter([highlight_step], [reasoner_vals[idx]],
-                   marker='*', s=500, color='gold', edgecolors='black',
-                   linewidths=1.5, zorder=5)
-        if not np.isnan(mini_vals[idx]):
-            ax2.scatter([highlight_step], [mini_vals[idx]],
-                       marker='*', s=500, color='gold', edgecolors='black',
+    # Highlight specific step if requested (with interpolation)
+    # Note: We'll add incentive star after creating ax2_right if needed
+    if highlight_step is not None:
+        if highlight_step in steps:
+            # Exact step exists
+            idx = steps.index(highlight_step)
+            # Highlight all three lines at this step
+            ax2.scatter([highlight_step], [reasoner_vals[idx]],
+                       marker='*', s=250, color='gold', edgecolors='black',
                        linewidths=1.5, zorder=5)
-        if not np.isnan(gpt4o_vals[idx]):
-            ax2.scatter([highlight_step], [gpt4o_vals[idx]],
-                       marker='*', s=500, color='gold', edgecolors='black',
-                       linewidths=1.5, zorder=5, label=f'Main plot step ({highlight_step})')
+            if not np.isnan(mini_vals[idx]):
+                ax2.scatter([highlight_step], [mini_vals[idx]],
+                           marker='*', s=250, color='gold', edgecolors='black',
+                           linewidths=1.5, zorder=5)
+            if not np.isnan(gpt4o_vals[idx]):
+                ax2.scatter([highlight_step], [gpt4o_vals[idx]],
+                           marker='*', s=250, color='gold', edgecolors='black',
+                           linewidths=1.5, zorder=5, label='Main plot step')
+        else:
+            # Interpolate between nearest steps
+            steps_array = np.array(steps)
+            if highlight_step >= steps_array.min() and highlight_step <= steps_array.max():
+                reasoner_interp = np.interp(highlight_step, steps, reasoner_vals)
+                # Handle NaN values in interpolation
+                mini_vals_clean = np.array(mini_vals)
+                gpt4o_vals_clean = np.array(gpt4o_vals)
+                mini_interp = np.interp(highlight_step, steps, mini_vals_clean) if not np.all(np.isnan(mini_vals_clean)) else np.nan
+                gpt4o_interp = np.interp(highlight_step, steps, gpt4o_vals_clean) if not np.all(np.isnan(gpt4o_vals_clean)) else np.nan
+                
+                ax2.scatter([highlight_step], [reasoner_interp],
+                           marker='*', s=250, color='gold', edgecolors='black',
+                           linewidths=1.5, zorder=5)
+                if not np.isnan(mini_interp):
+                    ax2.scatter([highlight_step], [mini_interp],
+                               marker='*', s=250, color='gold', edgecolors='black',
+                               linewidths=1.5, zorder=5)
+                if not np.isnan(gpt4o_interp):
+                    ax2.scatter([highlight_step], [gpt4o_interp],
+                               marker='*', s=250, color='gold', edgecolors='black',
+                               linewidths=1.5, zorder=5, label='Main plot step')
 
-    ax2.set_xlabel('Training Step', fontsize=12)
-    ax2.set_ylabel('Accuracy / Monitorability', fontsize=12)
+    ax2.set_xlabel('Training Step', fontsize=font_size)
+    ax2.set_ylabel('Accuracy / Monitorability', fontsize=font_size)
     ax2.set_ylim(0.5, 1.0)
     ax2.grid(True, which='major', axis='both', alpha=0.8, linestyle='-', linewidth=0.8)
     ax2.minorticks_on()
     ax2.grid(True, which='minor', axis='both', alpha=0.5, linestyle=':', linewidth=0.5)
 
-    # Right y-axis: Incentive values
+    # Right y-axis: Incentive values (skip for monitorability)
     incentive_vals = safe_vals(incentive_values)
     incentive_se_vals = safe_vals(incentive_ses)
-    if any(not np.isnan(v) for v in incentive_vals):
+    
+    # Determine incentive type from setting name
+    setting_lower = setting.lower()
+    is_monitorability = 'monitorability' in setting_lower
+    
+    if any(not np.isnan(v) for v in incentive_vals) and not is_monitorability:
         ax2_right = ax2.twinx()
         incentive_color = sns.color_palette("muted", 4)[3]  # Different color for incentive
 
-        # Determine incentive type from setting name
-        setting_lower = setting.lower()
         if 'response length' in setting_lower or 'verbosity' in setting_lower:
-            incentive_label = 'Response length (words)'
-            ylabel = 'Response Length (# words)'
+            incentive_label = 'Length (words)'
+            ylabel = 'Length'
         elif 'kl' in setting_lower:
             incentive_label = 'KL divergence'
             ylabel = 'KL Divergence'
-        elif 'monitorability' in setting_lower:
-            incentive_label = 'Monitorability'
-            ylabel = 'Monitorability'
         else:
             incentive_label = 'Incentive value'
             ylabel = 'Incentive Value'
@@ -520,20 +576,67 @@ def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=Non
                                     for v, s in zip(incentive_vals, incentive_se_vals)],
                                    alpha=0.2, color=incentive_color)
 
-        ax2_right.set_ylabel(ylabel, fontsize=12)
+        ax2_right.set_ylabel(ylabel, fontsize=font_size)
         ax2_right.spines['top'].set_visible(False)
 
-        # Combine legends from both axes
+        # Add star to incentive line if highlight_step is provided
+        if highlight_step is not None:
+            if highlight_step in steps:
+                # Exact step exists
+                idx = steps.index(highlight_step)
+                if not np.isnan(incentive_vals[idx]):
+                    ax2_right.scatter([highlight_step], [incentive_vals[idx]],
+                                   marker='*', s=250, color='gold', edgecolors='black',
+                                   linewidths=1.5, zorder=5)
+            else:
+                # Interpolate between nearest steps
+                steps_array = np.array(steps)
+                if highlight_step >= steps_array.min() and highlight_step <= steps_array.max():
+                    incentive_vals_clean = np.array(incentive_vals)
+                    if not np.all(np.isnan(incentive_vals_clean)):
+                        incentive_interp = np.interp(highlight_step, steps, incentive_vals_clean)
+                        if not np.isnan(incentive_interp):
+                            ax2_right.scatter([highlight_step], [incentive_interp],
+                                           marker='*', s=250, color='gold', edgecolors='black',
+                                           linewidths=1.5, zorder=5)
+
+        # Collect all legend handles and labels
         lines1, labels1 = ax2.get_legend_handles_labels()
         lines2, labels2 = ax2_right.get_legend_handles_labels()
-        ax2.legend(lines1 + lines2, labels1 + labels2, loc='best', fontsize=11)
+        all_lines = lines1 + lines2
+        all_labels = labels1 + labels2
     else:
-        ax2.legend(loc='best', fontsize=11)
+        # Collect legend handles and labels from main axis only
+        all_lines, all_labels = ax2.get_legend_handles_labels()
+    
+    # Reorder legend items based on whether incentive is monitorability
+    if is_monitorability:
+        # For monitorability plots: Accuracy, GPT-4o mini, GPT-4o, Main plot step (cycled)
+        desired_order = ['Accuracy', 'GPT-4o mini', 'GPT-4o', 'Main plot step']
+    else:
+        # For other plots: Accuracy, Incentive, GPT-4o, Main plot step, GPT-4o mini
+        desired_order = ['Accuracy', 'KL divergence', 'Length (words)', 'Incentive value', 'GPT-4o', 'Main plot step', 'GPT-4o mini']
+    ordered_lines = []
+    ordered_labels = []
+    for label in desired_order:
+        if label in all_labels:
+            idx = all_labels.index(label)
+            ordered_lines.append(all_lines[idx])
+            ordered_labels.append(all_labels[idx])
+    # Add any remaining items not in desired order (shouldn't happen, but just in case)
+    for i, label in enumerate(all_labels):
+        if label not in ordered_labels:
+            ordered_lines.append(all_lines[i])
+            ordered_labels.append(label)
+    
+    # Create legend below the plot
+    fig2.legend(ordered_lines, ordered_labels, loc='lower center', ncol=3, frameon=False,
+                fontsize=font_size, bbox_to_anchor=(0.5, -0.06))
 
     ax2.spines['top'].set_visible(False)
     ax2.spines['right'].set_visible(False)
 
-    plt.tight_layout()
+    plt.tight_layout(rect=[0, 0.08, 1, 1])
     monitorability_path = output_subdir / 'monitorability_training_plot.pdf'
     plt.savefig(monitorability_path, bbox_inches='tight')
 
@@ -565,6 +668,10 @@ if __name__ == "__main__":
                        help="Optional training step to highlight with a star marker (e.g., the step used in main plot).")
     parser.add_argument("--experiment-name", type=str, default=None,
                        help="Experiment name prefix (e.g., 'diamond_vault' or 'functional_correctness').")
+    parser.add_argument("--font-size", type=int, default=12,
+                       help="Font size for all text in the plots (default: 12).")
+    parser.add_argument("--figure-size", type=str, default="full-width",
+                       help="Figure size preset: 'full-width' (5.5x3.0) or 'side-by-side' (2.7x1.5) (default: full-width).")
     args = parser.parse_args()
 
     config_path = Path(args.config)
@@ -575,4 +682,5 @@ if __name__ == "__main__":
         exit(1)
 
     data = extract_training_data(config_path)
-    create_plot(data, output_dir, highlight_step=args.highlight_step, experiment_name=args.experiment_name, source_filename=config_path.name)
+    create_plot(data, output_dir, highlight_step=args.highlight_step, experiment_name=args.experiment_name, 
+                source_filename=config_path.name, font_size=args.font_size, figure_size=args.figure_size)

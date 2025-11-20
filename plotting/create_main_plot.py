@@ -13,18 +13,7 @@ import seaborn as sns
 from pathlib import Path
 from matplotlib.ticker import AutoMinorLocator
 from datetime import datetime
-
-def _darker_color(color, factor=0.8):
-    """Return a slightly darker shade of the given RGB color by blending toward black.
-    factor < 1 darkens; keep within [0,1].
-    """
-    try:
-        r, g, b = color
-        return (max(0.0, min(1.0, r * factor)),
-                max(0.0, min(1.0, g * factor)),
-                max(0.0, min(1.0, b * factor)))
-    except Exception:
-        return color
+from matplotlib.patches import Patch
 
 def load_config(config_path):
     """Load the YAML configuration file."""
@@ -109,7 +98,10 @@ def extract_accuracy_data(config_path):
         for monitor in baseline['monitors']:
             monitor_name = monitor['name']
             monitor_acc = extract_accuracy_from_json(monitor['accuracy_path'])
-            monitor_data[monitor_name] = monitor_acc
+            monitor_data[monitor_name] = {
+                **monitor_acc,
+                'significant': bool(monitor.get('significant', False))
+            }
         
         if reasoner_data['accuracy'] is not None:
             baseline_data = {
@@ -121,7 +113,8 @@ def extract_accuracy_data(config_path):
                     'upper': reasoner_data['ci_upper'],
                     'margin': reasoner_data['ci_margin'],
                 },
-                'monitors': monitor_data
+                'monitors': monitor_data,
+                'reasoner_significant': bool(baseline.get('reasoner_significant', False))
             }
     
     for run in config['runs']:
@@ -135,7 +128,10 @@ def extract_accuracy_data(config_path):
         for monitor in run['monitors']:
             monitor_name = monitor['name']
             monitor_acc = extract_accuracy_from_json(monitor['accuracy_path'])
-            monitor_data[monitor_name] = monitor_acc
+            monitor_data[monitor_name] = {
+                **monitor_acc,
+                'significant': bool(monitor.get('significant', False))
+            }
         
         # Only add data if we have at least the reasoner accuracy
         if reasoner_data['accuracy'] is not None:
@@ -148,12 +144,13 @@ def extract_accuracy_data(config_path):
                     'upper': reasoner_data['ci_upper'],
                     'margin': reasoner_data['ci_margin'],
                 },
-                'monitors': monitor_data
+                'monitors': monitor_data,
+                'reasoner_significant': bool(run.get('reasoner_significant', False))
             })
     
     return data, baseline_data
 
-def create_plot(data, baseline_data, output_dir: Path):
+def create_plot(data, baseline_data, output_dir: Path, save_as_pdf=False, font_size=10):
     """Create separate accuracy and monitorability plots."""
     if not data:
         print("No data found!")
@@ -170,29 +167,54 @@ def create_plot(data, baseline_data, output_dir: Path):
     gpt4o_mini_errors = []
     gpt4o_errors = []
     
+    reasoner_significance = []
+    gpt4o_mini_significance = []
+    gpt4o_significance = []
+
+    baseline_reasoner = baseline_data['reasoner_accuracy'] if baseline_data else None
+    baseline_monitors = baseline_data['monitors'] if baseline_data else {}
+
     for item in data:
         x_labels.append(item['name'])
-        reasoner_accs.append(item['reasoner_accuracy'])
+        reasoner_val = item['reasoner_accuracy']
+        if baseline_reasoner is not None:
+            reasoner_val = reasoner_val - baseline_reasoner
+        reasoner_accs.append(reasoner_val)
+        reasoner_significance.append(bool(item.get('reasoner_significant', False)))
         
         # Get monitor accuracies
         gpt4o_mini_acc = None
         gpt4o_acc = None
         gpt4o_mini_error = 0
         gpt4o_error = 0
+        gpt4o_mini_sig = False
+        gpt4o_sig = False
         
         for monitor_name, monitor_data in item['monitors'].items():
             if monitor_name == 'gpt-4o-mini':
-                gpt4o_mini_acc = monitor_data['accuracy']
+                monitor_val = monitor_data['accuracy']
+                baseline_val = baseline_monitors.get(monitor_name, {}).get('accuracy') if baseline_monitors else None
+                if monitor_val is not None and baseline_val is not None:
+                    monitor_val = monitor_val - baseline_val
+                gpt4o_mini_acc = monitor_val
                 gpt4o_mini_error = monitor_data['ci_margin'] or 0
+                gpt4o_mini_sig = bool(monitor_data.get('significant', False))
             elif monitor_name == 'gpt-4o':
-                gpt4o_acc = monitor_data['accuracy']
+                monitor_val = monitor_data['accuracy']
+                baseline_val = baseline_monitors.get(monitor_name, {}).get('accuracy') if baseline_monitors else None
+                if monitor_val is not None and baseline_val is not None:
+                    monitor_val = monitor_val - baseline_val
+                gpt4o_acc = monitor_val
                 gpt4o_error = monitor_data['ci_margin'] or 0
+                gpt4o_sig = bool(monitor_data.get('significant', False))
         
         gpt4o_mini_accs.append(gpt4o_mini_acc)
         gpt4o_accs.append(gpt4o_acc)
         reasoner_errors.append(item['reasoner_accuracy_ci']['margin'] or 0)
         gpt4o_mini_errors.append(gpt4o_mini_error)
         gpt4o_errors.append(gpt4o_error)
+        gpt4o_mini_significance.append(gpt4o_mini_sig)
+        gpt4o_significance.append(gpt4o_sig)
     
     # Create output directory
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -207,6 +229,23 @@ def create_plot(data, baseline_data, output_dir: Path):
     # Replace None with NaN so bars simply don't render for missing values
     def safe_vals(vals):
         return [v if isinstance(v, (int, float)) else np.nan for v in vals]
+
+    def compute_y_lim(values, errors):
+        pairs = []
+        for v, e in zip(values, errors):
+            if v is None or np.isnan(v):
+                continue
+            err = e or 0
+            pairs.append((v - err, v + err))
+        if not pairs:
+            return (-0.05, 0.05)
+        min_val = min(lo for lo, _ in pairs)
+        max_val = max(hi for _, hi in pairs)
+        if min_val == max_val:
+            min_val -= 0.01
+            max_val += 0.01
+        padding = 0.01
+        return (min_val - padding, max_val + padding)
     
     reasoner_vals = safe_vals(reasoner_accs)
     mini_vals = safe_vals(gpt4o_mini_accs)
@@ -215,160 +254,109 @@ def create_plot(data, baseline_data, output_dir: Path):
     x_pos = np.arange(len(x_labels))
     
     # Create accuracy plot
-    fig1, ax1 = plt.subplots(figsize=(14, 8))
+    fig1, ax1 = plt.subplots(figsize=(5.5, 3.0))
     width = 0.4  # Original width
     x_pos_accuracy = np.arange(len(x_labels)) * 0.5  # Much more compact spacing for accuracy plot
     
     bars1 = ax1.bar(x_pos_accuracy, reasoner_vals, width, yerr=reasoner_errors, 
-                   label='Reasoner accuracy', alpha=0.9, color=colors[2], capsize=3)
+                   label='Reasoner accuracy', alpha=0.9, color=colors[0], capsize=3)
+    for bar, sig in zip(bars1, reasoner_significance):
+        if sig:
+            bar.set_edgecolor('black')
+            bar.set_linewidth(1.6)
+        else:
+            bar.set_edgecolor('none')
     
-    # Add baseline line for accuracy
-    baseline_handles = []
-    baseline_labels = []
-    if baseline_data and baseline_data['reasoner_accuracy'] is not None:
-        line1 = ax1.axhline(y=baseline_data['reasoner_accuracy'], color=_darker_color(colors[2], 0.8), linestyle='--', 
-                           linewidth=2, alpha=0.8)
-        baseline_handles.append(line1)
-        baseline_labels.append('RL baseline reasoner accuracy')
-        # Add CI shading around baseline line if available
-        ci_info = baseline_data.get('reasoner_accuracy_ci', {})
-        ci_lower = ci_info.get('lower')
-        ci_upper = ci_info.get('upper')
-        ci_margin = ci_info.get('margin')
-        baseline_mean = baseline_data['reasoner_accuracy']
-        if (ci_lower is None or ci_upper is None) and ci_margin is not None:
-            ci_lower = baseline_mean - ci_margin
-            ci_upper = baseline_mean + ci_margin
-        if ci_lower is not None and ci_upper is not None:
-            # Shade full width of axis so it matches baseline line extent
-            ax1.axhspan(ci_lower, ci_upper, xmin=0, xmax=1, color=colors[2], alpha=0.25, zorder=0)
-    
-    ax1.set_ylabel('Accuracy', fontsize=12)
+    ax1.set_ylabel('Accuracy change vs baseline', fontsize=font_size)
     ax1.set_xticks(x_pos_accuracy)
-    ax1.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=10)
-    # Ensure only a small margin on each side (quarter step for accuracy plot)
-    if len(x_pos_accuracy) > 0:
-        ax1.set_xlim(x_pos_accuracy[0] - 0.3, x_pos_accuracy[-1] + 0.3)
+    ax1.set_xticklabels(x_labels, rotation=15, ha='center', fontsize=font_size)
     
-    # Create two separate legends for accuracy plot
-    if baseline_handles:
-        # Baseline legend (top right)
-        legend1 = ax1.legend(baseline_handles, baseline_labels, loc='upper right', fontsize=11)
-        ax1.add_artist(legend1)
-    
-    # Experimental runs legend (top left)
-    legend2 = ax1.legend([bars1], ['Reasoner accuracy'], loc='upper left', fontsize=11)
-    
-    ax1.set_ylim(0.4, 1.0)
-    ax1.grid(True, which='major', axis='y', alpha=0.8, linestyle='-', linewidth=0.8)
-    ax1.grid(True, which='major', axis='x', alpha=0.8, linestyle='-', linewidth=0.8)
+    accuracy_patch = Patch(facecolor=colors[0], edgecolor='none', alpha=0.9, label='Reasoner accuracy Δ')
+    ax1.legend([accuracy_patch], ['Reasoner accuracy Δ'], loc='upper left', fontsize=font_size)
+    ax1.set_axisbelow(True)
+    ax1.grid(True, which='major', axis='y', alpha=0.8, linestyle='-', linewidth=0.8, zorder=0)
+    ax1.grid(True, which='major', axis='x', alpha=0.8, linestyle='-', linewidth=0.8, zorder=0)
     ax1.minorticks_on()
-    ax1.grid(True, which='minor', axis='y', alpha=0.5, linestyle=':', linewidth=0.5)
+    ax1.grid(True, which='minor', axis='y', alpha=0.5, linestyle=':', linewidth=0.5, zorder=0)
     ax1.spines['top'].set_visible(False)
     ax1.spines['right'].set_visible(False)
     
+    ymin, ymax = compute_y_lim(reasoner_vals, reasoner_errors)
+    ax1.set_ylim(ymin, ymax)
+    
     plt.tight_layout()
-    accuracy_path = output_subdir / 'accuracy_plot.pdf'
+    file_ext = '.pdf' if save_as_pdf else '.png'
+    accuracy_path = output_subdir / f'accuracy_plot{file_ext}'
     plt.savefig(accuracy_path, dpi=300, bbox_inches='tight')
     plt.close()
     
     # Create monitorability plot
-    fig2, ax2 = plt.subplots(figsize=(14, 8))
+    fig2, ax2 = plt.subplots(figsize=(5.5, 3.0))
     
     bars2 = ax2.bar(x_pos - width/2, mini_vals, width, yerr=gpt4o_mini_errors, 
                    label='GPT-4o mini', alpha=0.9, color=colors[1], capsize=3)
     bars3 = ax2.bar(x_pos + width/2, gpt4o_vals, width, yerr=gpt4o_errors, 
                    label='GPT-4o', alpha=0.9, color=colors[0], capsize=3)
+    for bars, sigs in ((bars2, gpt4o_mini_significance), (bars3, gpt4o_significance)):
+        for bar, sig in zip(bars, sigs):
+            if sig:
+                bar.set_edgecolor('black')
+                bar.set_linewidth(1.6)
+            else:
+                bar.set_edgecolor('none')
+
+    # Draw shared boundaries if at least one adjacent bar is significant
+    for idx, center in enumerate(x_pos):
+        left_sig = gpt4o_mini_significance[idx] and not np.isnan(mini_vals[idx])
+        right_sig = gpt4o_significance[idx] and not np.isnan(gpt4o_vals[idx])
+        if not (left_sig or right_sig):
+            continue
+        heights = []
+        if left_sig and not np.isnan(mini_vals[idx]):
+            heights.append(mini_vals[idx])
+        if right_sig and not np.isnan(gpt4o_vals[idx]):
+            heights.append(gpt4o_vals[idx])
+        if not heights:
+            continue
+        max_height = np.nanmax(heights)
+        min_height = np.nanmin(heights)
+        if np.isnan(max_height) or np.isnan(min_height):
+            continue
+        top = max(0, max_height)
+        bottom = min(0, min_height)
+        ax2.vlines(center, bottom, top, colors='black', linewidth=1.6, zorder=4)
     
-    # Add baseline lines for monitorability
-    baseline_handles = []
-    baseline_labels = []
-    if baseline_data:
-        baseline_mini = None
-        baseline_gpt4o = None
-        baseline_mini_ci = None
-        baseline_gpt4o_ci = None
-        
-        for monitor_name, monitor_data in baseline_data['monitors'].items():
-            if monitor_name == 'gpt-4o-mini':
-                baseline_mini = monitor_data['accuracy']
-                baseline_mini_ci = {
-                    'lower': monitor_data.get('ci_lower'),
-                    'upper': monitor_data.get('ci_upper'),
-                    'margin': monitor_data.get('ci_margin'),
-                }
-            elif monitor_name == 'gpt-4o':
-                baseline_gpt4o = monitor_data['accuracy']
-                baseline_gpt4o_ci = {
-                    'lower': monitor_data.get('ci_lower'),
-                    'upper': monitor_data.get('ci_upper'),
-                    'margin': monitor_data.get('ci_margin'),
-                }
-        
-        if baseline_mini is not None:
-            line2 = ax2.axhline(y=baseline_mini, color=_darker_color(colors[1], 0.8), linestyle='--', 
-                               linewidth=2, alpha=0.8)
-            baseline_handles.append(line2)
-            baseline_labels.append('RL baseline monitorability (GPT-4o mini)')
-            # Add CI shading for GPT-4o mini baseline
-            if baseline_mini_ci is not None:
-                ci_lower = baseline_mini_ci.get('lower')
-                ci_upper = baseline_mini_ci.get('upper')
-                ci_margin = baseline_mini_ci.get('margin')
-                if (ci_lower is None or ci_upper is None) and ci_margin is not None:
-                    ci_lower = baseline_mini - ci_margin
-                    ci_upper = baseline_mini + ci_margin
-                if ci_lower is not None and ci_upper is not None:
-                    # Shade full width of axis so it matches baseline line extent
-                    ax2.axhspan(ci_lower, ci_upper, xmin=0, xmax=1, color=colors[1], alpha=0.25, zorder=0)
-        if baseline_gpt4o is not None:
-            line3 = ax2.axhline(y=baseline_gpt4o, color=_darker_color(colors[0], 0.8), linestyle='--', 
-                               linewidth=2, alpha=0.8)
-            baseline_handles.append(line3)
-            baseline_labels.append('RL baseline monitorability (GPT-4o)')
-            # Add CI shading for GPT-4o baseline
-            if baseline_gpt4o_ci is not None:
-                ci_lower = baseline_gpt4o_ci.get('lower')
-                ci_upper = baseline_gpt4o_ci.get('upper')
-                ci_margin = baseline_gpt4o_ci.get('margin')
-                if (ci_lower is None or ci_upper is None) and ci_margin is not None:
-                    ci_lower = baseline_gpt4o - ci_margin
-                    ci_upper = baseline_gpt4o + ci_margin
-                if ci_lower is not None and ci_upper is not None:
-                    # Shade full width of axis so it matches baseline line extent
-                    ax2.axhspan(ci_lower, ci_upper, xmin=0, xmax=1, color=colors[0], alpha=0.25, zorder=0)
-    
-    ax2.set_ylabel('Monitorability', fontsize=12)
+    ax2.set_ylabel('Monitorability change vs baseline', fontsize=font_size)
     ax2.set_xticks(x_pos)
-    ax2.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=10)
-    # Ensure only a small margin on each side (half unit for standard bar positions)
-    if len(x_pos) > 0:
-        ax2.set_xlim(-0.6, len(x_pos) - 0.4)
+    ax2.set_xticklabels(x_labels, rotation=15, ha='center', fontsize=font_size)
     
-    # Create two separate legends for monitorability plot
-    if baseline_handles:
-        # Baseline legend (top right)
-        legend1 = ax2.legend(baseline_handles, baseline_labels, loc='upper right', fontsize=11)
-        ax2.add_artist(legend1)
-    
-    # Experimental runs legend (top left)
-    legend2 = ax2.legend([bars2, bars3], ['GPT-4o mini', 'GPT-4o'], loc='upper left', fontsize=11)
-    
-    ax2.set_ylim(0.4, 1.0)
-    ax2.grid(True, which='major', axis='y', alpha=0.8, linestyle='-', linewidth=0.8)
-    ax2.grid(True, which='major', axis='x', alpha=0.8, linestyle='-', linewidth=0.8)
+    # Legend (monitor colors)
+    monitor_handles = [
+        Patch(facecolor=colors[1], edgecolor='none', alpha=0.9, label='GPT-4o mini'),
+        Patch(facecolor=colors[0], edgecolor='none', alpha=0.9, label='GPT-4o')
+    ]
+    ax2.legend(monitor_handles, ['GPT-4o mini', 'GPT-4o'], loc='upper left', fontsize=font_size)
+    ax2.set_axisbelow(True)
+    ax2.grid(True, which='major', axis='y', alpha=0.8, linestyle='-', linewidth=0.8, zorder=0)
+    ax2.grid(True, which='major', axis='x', alpha=0.8, linestyle='-', linewidth=0.8, zorder=0)
     ax2.minorticks_on()
-    ax2.grid(True, which='minor', axis='y', alpha=0.5, linestyle=':', linewidth=0.5)
+    ax2.grid(True, which='minor', axis='y', alpha=0.5, linestyle=':', linewidth=0.5, zorder=0)
     ax2.spines['top'].set_visible(False)
     ax2.spines['right'].set_visible(False)
     
+    mon_min_1, mon_max_1 = compute_y_lim(mini_vals, gpt4o_mini_errors)
+    mon_min_2, mon_max_2 = compute_y_lim(gpt4o_vals, gpt4o_errors)
+    ymin_mon = min(mon_min_1, mon_min_2)
+    ymax_mon = max(mon_max_1, mon_max_2)
+    ax2.set_ylim(ymin_mon, ymax_mon)
+    
     plt.tight_layout()
-    monitorability_path = output_subdir / 'monitorability_plot.pdf'
+    monitorability_path = output_subdir / f'monitorability_plot{file_ext}'
     plt.savefig(monitorability_path, dpi=300, bbox_inches='tight')
     plt.close()
     
     # Save data as JSON
-    data_json_path = output_subdir / 'plot_data.json'
+    data_json_path = output_subdir / 'accuracy_plot_data.json'
     with open(data_json_path, 'w') as f:
         json.dump(data, f, indent=2)
     
@@ -392,4 +380,9 @@ if __name__ == "__main__":
         exit(1)
     
     data, baseline_data = extract_accuracy_data(config_path)
-    create_plot(data, baseline_data, output_dir)
+    
+    config = load_config(config_path)
+    save_as_pdf = config.get('save_as_pdf', False)
+    font_size = config.get('font_size', 10)
+    
+    create_plot(data, baseline_data, output_dir, save_as_pdf, font_size)

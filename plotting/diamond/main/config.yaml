@@ -1,4 +1,6 @@
-setting: "Diamond in a vault"
+setting: "Diamond Vault"
+save_as_pdf: true
+font_size: 12
 
 baseline:
   name: "RL baseline"
@@ -13,68 +15,80 @@ baseline:
       predictions_path: "results/diamond/regular/predictions/gpt_4o_monitor_predictions.json"
 
 runs:
-  - name: "Penalise verbosity"
+  - name: "− length"
     accuracy_path: "results/diamond/penalize_verbosity_1e-7/s780/predictions/reasoner_accuracy_summary.json"
     reasoner_predictions_path: "results/diamond/penalize_verbosity_1e-7/s780/predictions/_predictions.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/diamond/penalize_verbosity_1e-7/s780/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/diamond/penalize_verbosity_1e-7/s780/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: false
       - name: "gpt-4o"
         accuracy_path: "results/diamond/penalize_verbosity_1e-7/s780/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/diamond/penalize_verbosity_1e-7/s780/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
 
-  - name: "Reward verbosity"
+  - name: "+ length"
     accuracy_path: "results/diamond/reward_verbosity_1e-9/s555/predictions/reasoner_accuracy_summary.json"
     reasoner_predictions_path: "results/diamond/reward_verbosity_1e-9/s555/predictions/_predictions.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/diamond/reward_verbosity_1e-9/s555/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/diamond/reward_verbosity_1e-9/s555/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: false
       - name: "gpt-4o"
         accuracy_path: "results/diamond/reward_verbosity_1e-9/s555/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/diamond/reward_verbosity_1e-9/s555/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
 
-  - name: "Penalise KL"
+  - name: "− KL"
     accuracy_path: "results/diamond/penalize_kl_1e-3/s520/predictions/reasoner_accuracy_summary.json"
     reasoner_predictions_path: "results/diamond/penalize_kl_1e-3/s520/predictions/_predictions.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/diamond/penalize_kl_1e-3/s520/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/diamond/penalize_kl_1e-3/s520/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: false
       - name: "gpt-4o"
         accuracy_path: "results/diamond/penalize_kl_1e-3/s520/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/diamond/penalize_kl_1e-3/s520/predictions/gpt_4o_monitor_predictions.json"
+        significant: true
 
-  - name: "Reward KL"
+  - name: "+ KL"
     accuracy_path: "results/diamond/reward_kl_1e-2/s470/predictions/reasoner_accuracy_summary.json"
     reasoner_predictions_path: "results/diamond/reward_kl_1e-2/s470/predictions/_predictions.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/diamond/reward_kl_1e-2/s470/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/diamond/reward_kl_1e-2/s470/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: false
       - name: "gpt-4o"
         accuracy_path: "results/diamond/reward_kl_1e-2/s470/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/diamond/reward_kl_1e-2/s470/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
 
-  - name: "Penalise monitorability"
+  - name: "− monitorability"
     accuracy_path: "results/diamond/training_against_monitor/s560/predictions/reasoner_accuracy_summary.json"
     reasoner_predictions_path: "results/diamond/training_against_monitor/s560/predictions/_predictions.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/diamond/training_against_monitor/s560/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/diamond/training_against_monitor/s560/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: true
       - name: "gpt-4o"
         accuracy_path: "results/diamond/training_against_monitor/s560/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/diamond/training_against_monitor/s560/predictions/gpt_4o_monitor_predictions.json"
+        significant: true
 
-  - name: "Reward monitorability"
+  - name: "+ monitorability"
     accuracy_path: "results/diamond/training_for_monitor/s560/predictions/reasoner_accuracy_summary.json"
     reasoner_predictions_path: "results/diamond/training_for_monitor/s560/predictions/_predictions.json"
     monitors:
       - name: "gpt-4o-mini"
         accuracy_path: "results/diamond/training_for_monitor/s560/predictions/gpt_4o_mini_monitor_predictions_summary.json"
         predictions_path: "results/diamond/training_for_monitor/s560/predictions/gpt_4o_mini_monitor_predictions.json"
+        significant: true
       - name: "gpt-4o"
         accuracy_path: "results/diamond/training_for_monitor/s560/predictions/gpt_4o_monitor_predictions_summary.json"
         predictions_path: "results/diamond/training_for_monitor/s560/predictions/gpt_4o_monitor_predictions.json"
+        significant: false
