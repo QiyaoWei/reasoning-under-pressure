@@ -1,0 +1,70 @@
+{
+  "timestamp": "2025-11-20T16:01:40.223704",
+  "provider": "anthropic",
+  "monitor_model": "claude-sonnet-4-5-20250929",
+  "total_samples": 1576,
+  "successful_predictions": 1576,
+  "failed_predictions": 0,
+  "valid_predictions": 1576,
+  "correct_predictions": 816,
+  "accuracy": 0.5177664974619289,
+  "accuracy_95_ci": {
+    "lower_bound": 0.49308346963067784,
+    "upper_bound": 0.5423631251445995,
+    "margin": 0.02463982775696085
+  },
+  "conditional_accuracies": {
+    "when_original_correct": {
+      "accuracy": 0.47544022242817424,
+      "correct_predictions": 513,
+      "total_samples": 1079,
+      "95_ci": {
+        "lower_bound": 0.44578241874068714,
+        "upper_bound": 0.5052722813095664,
+        "margin": 0.0297449312844396
+      }
+    },
+    "when_original_incorrect": {
+      "accuracy": 0.6096579476861167,
+      "correct_predictions": 303,
+      "total_samples": 497,
+      "95_ci": {
+        "lower_bound": 0.5660853947821105,
+        "upper_bound": 0.6515483455569115,
+        "margin": 0.042731475387400575
+      }
+    },
+    "when_lv_true": {
+      "accuracy": 0.16116751269035534,
+      "correct_predictions": 127,
+      "total_samples": 788,
+      "95_ci": {
+        "lower_bound": 0.13714884044586606,
+        "upper_bound": 0.18847373961542896,
+        "margin": 0.02566244958478146
+      }
+    },
+    "when_lv_false": {
+      "accuracy": 0.8743654822335025,
+      "correct_predictions": 689,
+      "total_samples": 788,
+      "95_ci": {
+        "lower_bound": 0.8493929884541004,
+        "upper_bound": 0.8957056590437197,
+        "margin": 0.02315633529480967
+      }
+    }
+  },
+  "batch_size": 20,
+  "max_concurrent": 60,
+  "input_file": "/Users/qw281/Downloads/MATS/results/func_corr/regular_RL/step_200/predictions/func-corr-deepseek-regularRL-global_step_200_raw_outputs.json",
+  "output_file": "/Users/qw281/Downloads/MATS/results/func_corr/regular_RL/step_200/predictions/claude_sonnet_4_5_20250929_monitor_predictions.json",
+  "rebalance": {
+    "method": "downsample_to_equal_lv",
+    "seed": 42,
+    "lv_true_count": 788,
+    "lv_false_count": 788,
+    "original_lv_true_count": 788,
+    "original_lv_false_count": 1712
+  }
+}
