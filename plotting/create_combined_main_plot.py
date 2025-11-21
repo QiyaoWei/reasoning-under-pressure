@@ -212,10 +212,10 @@ def create_combined_plot(dataset_a, dataset_b, output_dir: Path, save_as_pdf=Fal
             baseline_monitors = dataset["baseline"]["monitors"] if dataset["baseline"] else {}
             baseline_val = baseline_monitors.get(monitor_name, {}).get("accuracy") if baseline_monitors else None
             if val is not None and baseline_val is not None:
-                val = val - baseline_val
+                val = (val - baseline_val) * 100
             if val is None:
                 val = np.nan
-            error = monitor_info.get("ci_margin") or 0
+            error = (monitor_info.get("ci_margin") or 0) * 100
             xpos = x_positions[idx] + monitor_offsets[offset_idx]
             bar = ax_mon.bar(
                 xpos,
@@ -248,9 +248,9 @@ def create_combined_plot(dataset_a, dataset_b, output_dir: Path, save_as_pdf=Fal
             if left_sig or right_sig:
                 heights = []
                 if left_sig:
-                    heights.append(left_val - left_base)
+                    heights.append((left_val - left_base) * 100)
                 if right_sig:
-                    heights.append(right_val - right_base)
+                    heights.append((right_val - right_base) * 100)
                 if heights:
                     max_height = max(heights)
                     min_height = min(heights)
@@ -262,7 +262,8 @@ def create_combined_plot(dataset_a, dataset_b, output_dir: Path, save_as_pdf=Fal
                         linewidth=1.6,
                     )
 
-    ax_mon.set_ylabel("Monitorability change", fontsize=font_size)
+    ax_mon.set_ylabel("Monitorability change (pp)", fontsize=font_size, labelpad=16)
+    ax_mon.yaxis.set_label_coords(-0.04, 0.45)
     ax_mon.set_xticks(x_positions)
     ax_mon.set_xticklabels(aligned_runs, rotation=15, ha="center", fontsize=font_size)
     def compute_y_lim(values, errors):
@@ -273,13 +274,13 @@ def create_combined_plot(dataset_a, dataset_b, output_dir: Path, save_as_pdf=Fal
             err = e or 0
             pairs.append((v - err, v + err))
         if not pairs:
-            return (-0.05, 0.05)
+            return (-5.0, 5.0)
         min_val = min(lo for lo, _ in pairs)
         max_val = max(hi for _, hi in pairs)
         if min_val == max_val:
-            min_val -= 0.01
-            max_val += 0.01
-        padding = 0.01
+            min_val -= 1.0
+            max_val += 1.0
+        padding = 1.0
         return (min_val - padding, max_val + padding)
 
     all_vals = []
@@ -292,10 +293,10 @@ def create_combined_plot(dataset_a, dataset_b, output_dir: Path, save_as_pdf=Fal
                 baseline_monitors = ds["baseline"]["monitors"] if ds["baseline"] else {}
                 baseline_val = baseline_monitors.get(monitor_name, {}).get("accuracy") if baseline_monitors else None
                 if val is not None and baseline_val is not None:
-                    all_vals.append(val - baseline_val)
+                    all_vals.append((val - baseline_val) * 100)
                 else:
                     all_vals.append(np.nan)
-                all_errs.append(monitor_info.get("ci_margin") or 0)
+                all_errs.append((monitor_info.get("ci_margin") or 0) * 100)
 
     ymin_mon, ymax_mon = compute_y_lim(all_vals, all_errs)
     ax_mon.set_ylim(ymin_mon, ymax_mon)
@@ -326,7 +327,6 @@ def create_combined_plot(dataset_a, dataset_b, output_dir: Path, save_as_pdf=Fal
     fig.savefig(combined_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
 
-    # Combined legend is now embedded in the main figure, so we skip separate files
     combined_data = {
         "datasets": [dataset_a["setting"], dataset_b["setting"]],
         "runs": aligned_runs,

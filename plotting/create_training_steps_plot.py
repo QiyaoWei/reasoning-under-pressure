@@ -424,22 +424,12 @@ def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=Non
                       [r + e for r, e in zip(reasoner_vals, reasoner_errors)],
                       alpha=0.2, color=colors[2])
 
-    # Highlight specific step if requested (with interpolation)
-    if highlight_step is not None:
-        if highlight_step in steps:
-            # Exact step exists
-            idx = steps.index(highlight_step)
-            ax1.scatter([highlight_step], [reasoner_vals[idx]],
-                       marker='*', s=250, color='gold', edgecolors='black',
-                       linewidths=1.5, zorder=5, label='Main plot step')
-        else:
-            # Interpolate between nearest steps
-            steps_array = np.array(steps)
-            if highlight_step >= steps_array.min() and highlight_step <= steps_array.max():
-                reasoner_interp = np.interp(highlight_step, steps, reasoner_vals)
-                ax1.scatter([highlight_step], [reasoner_interp],
-                           marker='*', s=250, color='gold', edgecolors='black',
-                           linewidths=1.5, zorder=5, label='Main plot step')
+    # Highlight specific step if requested (only if exact match)
+    if highlight_step is not None and highlight_step in steps:
+        idx = steps.index(highlight_step)
+        ax1.scatter([highlight_step], [reasoner_vals[idx]],
+                   marker='*', s=250, color='gold', edgecolors='black',
+                   linewidths=1.5, zorder=5, label='Main plot step')
 
     ax1.set_xlabel('Training Step', fontsize=font_size)
     ax1.set_ylabel('Accuracy', fontsize=font_size)
@@ -494,46 +484,22 @@ def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=Non
                       [g + e if not np.isnan(g) else np.nan for g, e in zip(gpt4o_vals, gpt4o_errors)],
                       alpha=0.2, color=colors[0])
 
-    # Highlight specific step if requested (with interpolation)
+    # Highlight specific step if requested (only if exact match)
     # Note: We'll add incentive star after creating ax2_right if needed
-    if highlight_step is not None:
-        if highlight_step in steps:
-            # Exact step exists
-            idx = steps.index(highlight_step)
-            # Highlight all three lines at this step
-            ax2.scatter([highlight_step], [reasoner_vals[idx]],
+    if highlight_step is not None and highlight_step in steps:
+        idx = steps.index(highlight_step)
+        # Highlight all three lines at this step
+        ax2.scatter([highlight_step], [reasoner_vals[idx]],
+                   marker='*', s=250, color='gold', edgecolors='black',
+                   linewidths=1.5, zorder=5)
+        if not np.isnan(mini_vals[idx]):
+            ax2.scatter([highlight_step], [mini_vals[idx]],
                        marker='*', s=250, color='gold', edgecolors='black',
                        linewidths=1.5, zorder=5)
-            if not np.isnan(mini_vals[idx]):
-                ax2.scatter([highlight_step], [mini_vals[idx]],
-                           marker='*', s=250, color='gold', edgecolors='black',
-                           linewidths=1.5, zorder=5)
-            if not np.isnan(gpt4o_vals[idx]):
-                ax2.scatter([highlight_step], [gpt4o_vals[idx]],
-                           marker='*', s=250, color='gold', edgecolors='black',
-                           linewidths=1.5, zorder=5, label='Main plot step')
-        else:
-            # Interpolate between nearest steps
-            steps_array = np.array(steps)
-            if highlight_step >= steps_array.min() and highlight_step <= steps_array.max():
-                reasoner_interp = np.interp(highlight_step, steps, reasoner_vals)
-                # Handle NaN values in interpolation
-                mini_vals_clean = np.array(mini_vals)
-                gpt4o_vals_clean = np.array(gpt4o_vals)
-                mini_interp = np.interp(highlight_step, steps, mini_vals_clean) if not np.all(np.isnan(mini_vals_clean)) else np.nan
-                gpt4o_interp = np.interp(highlight_step, steps, gpt4o_vals_clean) if not np.all(np.isnan(gpt4o_vals_clean)) else np.nan
-                
-                ax2.scatter([highlight_step], [reasoner_interp],
-                           marker='*', s=250, color='gold', edgecolors='black',
-                           linewidths=1.5, zorder=5)
-                if not np.isnan(mini_interp):
-                    ax2.scatter([highlight_step], [mini_interp],
-                               marker='*', s=250, color='gold', edgecolors='black',
-                               linewidths=1.5, zorder=5)
-                if not np.isnan(gpt4o_interp):
-                    ax2.scatter([highlight_step], [gpt4o_interp],
-                               marker='*', s=250, color='gold', edgecolors='black',
-                               linewidths=1.5, zorder=5, label='Main plot step')
+        if not np.isnan(gpt4o_vals[idx]):
+            ax2.scatter([highlight_step], [gpt4o_vals[idx]],
+                       marker='*', s=250, color='gold', edgecolors='black',
+                       linewidths=1.5, zorder=5, label='Main plot step')
 
     ax2.set_xlabel('Training Step', fontsize=font_size)
     ax2.set_ylabel('Accuracy / Monitorability', fontsize=font_size)
@@ -579,26 +545,13 @@ def create_plot(data, output_dir: Path, highlight_step=None, experiment_name=Non
         ax2_right.set_ylabel(ylabel, fontsize=font_size)
         ax2_right.spines['top'].set_visible(False)
 
-        # Add star to incentive line if highlight_step is provided
-        if highlight_step is not None:
-            if highlight_step in steps:
-                # Exact step exists
-                idx = steps.index(highlight_step)
-                if not np.isnan(incentive_vals[idx]):
-                    ax2_right.scatter([highlight_step], [incentive_vals[idx]],
-                                   marker='*', s=250, color='gold', edgecolors='black',
-                                   linewidths=1.5, zorder=5)
-            else:
-                # Interpolate between nearest steps
-                steps_array = np.array(steps)
-                if highlight_step >= steps_array.min() and highlight_step <= steps_array.max():
-                    incentive_vals_clean = np.array(incentive_vals)
-                    if not np.all(np.isnan(incentive_vals_clean)):
-                        incentive_interp = np.interp(highlight_step, steps, incentive_vals_clean)
-                        if not np.isnan(incentive_interp):
-                            ax2_right.scatter([highlight_step], [incentive_interp],
-                                           marker='*', s=250, color='gold', edgecolors='black',
-                                           linewidths=1.5, zorder=5)
+        # Add star to incentive line if highlight_step is provided (only if exact match)
+        if highlight_step is not None and highlight_step in steps:
+            idx = steps.index(highlight_step)
+            if not np.isnan(incentive_vals[idx]):
+                ax2_right.scatter([highlight_step], [incentive_vals[idx]],
+                               marker='*', s=250, color='gold', edgecolors='black',
+                               linewidths=1.5, zorder=5)
 
         # Collect all legend handles and labels
         lines1, labels1 = ax2.get_legend_handles_labels()
