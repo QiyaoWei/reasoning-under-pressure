@@ -75,15 +75,15 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 setup(
-    name="verl",
+    name="reasoning-under-pressure",
     version=__version__,
     package_dir={"": "."},
     packages=find_packages(where="."),
-    url="https://github.com/volcengine/verl",
+    url="https://github.com/QiyaoWei/reasoning-under-pressure",
     license="Apache 2.0",
-    author="Bytedance - Seed - MLSys",
-    author_email="zhangchi.usc1992@bytedance.com, gmsheng@connect.hku.hk",
-    description="verl: Volcano Engine Reinforcement Learning for LLM",
+    author="",
+    author_email="",
+    description="Reasoning Under Pressure: Studying monitorability of reasoning models under RL training",
     install_requires=install_requires,
     extras_require=extras_require,
     package_data={
